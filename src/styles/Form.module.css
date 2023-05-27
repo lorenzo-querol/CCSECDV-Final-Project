@@ -1,0 +1,29 @@
+.input_group {
+  @apply relative flex rounded-md border;
+}
+
+.input_text {
+  @apply w-full rounded-xl border bg-transparent px-5 py-3;
+  @apply border-none focus:outline-none;
+}
+
+.button {
+  @apply mt-8 w-full rounded bg-indigo-600 px-5 py-3 text-white hover:bg-indigo-500;
+}
+
+.button_custom {
+  @apply mt-8 flex w-full items-center justify-center rounded border px-5 py-3 hover:bg-gray-200;
+}
+
+.input_text + * {
+  @apply text-gray-200;
+}
+
+.input_text:focus + * {
+  @apply text-indigo-600;
+}
+
+.input_text:not([type="email"]) ~ span:hover * {
+  @apply text-indigo-600;
+  cursor: pointer;
+}
