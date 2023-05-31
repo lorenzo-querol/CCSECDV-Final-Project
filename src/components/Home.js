@@ -3,15 +3,18 @@ import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import Sidebar from "../layouts/Sidebar";
 
+import Login from '../components/Login'
+
 function Home() {
-  const [session, setSession] = useState(false)
+  const [session, setSession] = useState(false);
+
 
   return (
     <div>
       <Helmet>
         <title>Home Page</title>
       </Helmet>
-      {session ? User() : Guest()}
+      {session ? User() : <Login />}
     </div>
   );
 }
