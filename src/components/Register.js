@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { useForm } from "react-hook-form";
 
 import BackgroundForm from "../layouts/BackgroundForm";
 import styles from "../styles/Form.module.css";
@@ -16,15 +17,27 @@ function Register() {
       <Helmet>
         <title>Sign Up</title>
       </Helmet>
-      <form className="relative z-10 mx-auto w-full max-w-[450px] space-y-5 rounded-md bg-white p-8">
+      <form className="relative z-10 mx-auto w-full max-w-[450px] space-y-5 rounded-md bg-white p-8" onSubmit={handleSubmit(onSubmit)}>
         <h2 className="py-4 mb-4 text-4xl font-bold text-center">Register</h2>
         <p>Fill the form below to create an account</p>
-        {/* Username */}
+        {/* Name */}
         <div className={styles.input_group}>
           <input
             type="text"
-            name="username"
-            placeholder="Username"
+            name="name"
+            placeholder="Name"
+            className={styles.input_text}
+          />
+          <span className="flex items-center px-4 ">
+            <HiOutlineUser size={20} />
+          </span>
+        </div>
+        {/* Phone Number */}
+        <div className={styles.input_group}>
+          <input
+            type="tel"
+            name="phoneNumber"
+            placeholder="Phone Number"
             className={styles.input_text}
           />
           <span className="flex items-center px-4 ">
