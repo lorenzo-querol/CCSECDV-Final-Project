@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Helmet } from "react-helmet";
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Link } from "react-router-dom";
 import Sidebar from "../layouts/Sidebar";
 
@@ -10,12 +10,12 @@ function Home() {
 
 
   return (
-    <div>
+    <HelmetProvider>
       <Helmet>
         <title>Home Page</title>
       </Helmet>
       {session ? User() : <Login />}
-    </div>
+    </HelmetProvider>
   );
 }
 
