@@ -1,0 +1,22 @@
+Milestone 1
+Create a web application with the following features:
+1) Registration screen
+   a) Full Name
+   b) Email
+   c) Phone number
+   d) Profile photo
+2) Login screen
+3) Administration panel - For admin users, it is ok to have a default admin account.
+4) Security features discussed during class should be implemented (at least)
+   a) Anti brute-force protection
+   b) Password hashing with salting
+   c) Input validation (ie. email / phone number validate)
+      1) Email - Authentication code
+   d) File upload type detection (check the file not extension)
+
+Due July 3 and prepare for a demo.
+
+What needs to be uploaded via canvas is a SINGLE Zip file with the following
+1) Source Code
+2) Database schema 
+3) Deployment instructions
