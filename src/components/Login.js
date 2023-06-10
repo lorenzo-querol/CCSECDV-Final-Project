@@ -26,8 +26,8 @@ function Login() {
         <Helmet>
           <title>Sign In</title>
         </Helmet>
-        <form className="relative z-10 mx-auto w-full max-w-[450px] space-y-5 rounded-md bg-white p-8" onSubmit={handleSubmit}>
-          <h2 className="py-4 mb-4 text-4xl font-bold text-center">Sign In</h2>
+        <form className="relative z-10 mx-auto w-full max-w-[450px] space-y-3 rounded-md bg-white p-8" onSubmit={handleSubmit}>
+          <h2 className="py-3 mb-4 text-4xl font-bold text-center">Sign In</h2>
           <p>Enter your email and password to sign in</p>
           {/* Email */}
           <div className={styles.input_group}>
