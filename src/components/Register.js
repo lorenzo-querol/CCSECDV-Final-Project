@@ -18,6 +18,7 @@ function Register() {
       ...data,
       firstName: data.firstName.trim(),
       lastName: data.lastName.trim(),
+      phoneNumber: data.phoneNumber.trim(),
       email: data.email.trim(),
     };
     console.log(trimmedData);
@@ -52,7 +53,7 @@ function Register() {
                   {...register("firstName", {
                     required: "First name is required",
                     pattern: {
-                      value: /^[\w\s]{2,}$/, // Accepts alphanumeric characters and spaces, with a minimum length of 2
+                      value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
                       message: "Please enter a valid name"
                     }
                   })}
@@ -75,7 +76,7 @@ function Register() {
                   {...register("lastName", {
                     required: "Last name is required",
                     pattern: {
-                      value: /^[\w\s]{2,}$/, // Accepts alphanumeric characters and spaces, with a minimum length of 2
+                      value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
                       message: "Please enter a valid name"
                     }
                   })}
@@ -99,7 +100,7 @@ function Register() {
                 {...register("phoneNumber", {
                   required: "Phone number is required",
                   pattern: {
-                    value: /^09\d{9}$/,
+                    value: /^\s*09\d{9}\s*$/,
                     message: "Please enter a valid phone number (09xxxxxxxxx)"
                   }
                 })} // Matches a sequence of 10 to 12 digits
