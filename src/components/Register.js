@@ -12,7 +12,16 @@ import { HiAtSymbol, HiFingerPrint, HiOutlineUser, HiOutlinePhone } from "react-
 function Register() {
   const [show, setShow] = useState({ password: false, confirmPassword: false });
   const { register, formState: { errors }, handleSubmit, watch } = useForm();
-  const onSubmit = (data) => console.log(data);
+  const onSubmit = (data) => {
+    // Trim the input values
+    const trimmedData = {
+      ...data,
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      email: data.email.trim(),
+    };
+    console.log(trimmedData);
+  };
 
   const watchPassword = watch("password");
   const validatePasswordMatch = (value) => {
@@ -40,7 +49,13 @@ function Register() {
                   name="firstName"
                   placeholder="First Name"
                   className={styles.input_text}
-                  {...register("firstName", { required: "First name is required" })}
+                  {...register("firstName", {
+                    required: "First name is required",
+                    pattern: {
+                      value: /^[\w\s]{2,}$/, // Accepts alphanumeric characters and spaces, with a minimum length of 2
+                      message: "Please enter a valid name"
+                    }
+                  })}
                 />
                 <span className="flex items-center px-4 ">
                   <HiOutlineUser size={20} />
@@ -57,7 +72,13 @@ function Register() {
                   name="lastName"
                   placeholder="Last Name"
                   className={styles.input_text}
-                  {...register("lastName", { required: "Last name is required" })}
+                  {...register("lastName", {
+                    required: "Last name is required",
+                    pattern: {
+                      value: /^[\w\s]{2,}$/, // Accepts alphanumeric characters and spaces, with a minimum length of 2
+                      message: "Please enter a valid name"
+                    }
+                  })}
                 />
                 <span className="flex items-center px-4 ">
                   <HiOutlineUser size={20} />
@@ -79,7 +100,7 @@ function Register() {
                   required: "Phone number is required",
                   pattern: {
                     value: /^09\d{9}$/,
-                    message: "Please enter a valid phone number"
+                    message: "Please enter a valid phone number (09xxxxxxxxx)"
                   }
                 })} // Matches a sequence of 10 to 12 digits
               />
