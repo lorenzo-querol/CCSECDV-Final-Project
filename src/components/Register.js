@@ -31,54 +31,62 @@ function Register() {
         <form className="relative z-10 mx-auto w-full max-w-[450px] space-y-5 rounded-md bg-white p-8" onSubmit={handleSubmit(onSubmit)}>
           <h2 className="py-4 mb-4 text-4xl font-bold text-center">Register</h2>
           <p>Fill the form below to create an account</p>
-          {/* Name */}
+          {/* First Name */}
           <div className={styles.input_group}>
             <input
               type="text"
-              name="name"
-              placeholder="Name"
+              name="firstName"
+              placeholder="First Name"
               className={styles.input_text}
-              {...register("name", { required: true })}
+              {...register("firstName", { required: true })}
+            />
+            <span className="flex items-center px-4 ">
+              <HiOutlineUser size={20} />
+            </span>
+          </div>
+          {/* Last Name */}
+          <div className={styles.input_group}>
+            <input
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              className={styles.input_text}
+              {...register("lastName", { required: true })}
             />
             <span className="flex items-center px-4 ">
               <HiOutlineUser size={20} />
             </span>
           </div>
           {/* Phone Number */}
-          <div className={styles.input_group}>
+          <div className={styles.input_group} style={{ border: errors.phoneNumber ? "1px solid red" : "1px solid #ccc" }}>
             <input
               type="tel"
               name="phoneNumber"
               placeholder="Phone Number"
               className={styles.input_text}
-              {...register("number", { required: true, pattern: /^[0-9]{10,12}$/, })} // Matches a sequence of 10 to 12 digits
+              {...register("phoneNumber", { required: true, pattern: /^[0-9]{10,12}$/, })} // Matches a sequence of 10 to 12 digits
             />
             <span className="flex items-center px-4 ">
               <HiOutlinePhone size={20} />
             </span>
           </div>
           {/* Email */}
-          <div className={styles.input_group}>
+          <div className={styles.input_group} style={{ border: errors.email ? "1px solid red" : "1px solid #ccc" }}>
             <input
               type="email"
               name="email"
               placeholder="Email"
               className={styles.input_text}
-              {...register("email", { required: true })}
+              {...register("email", { required: true, pattern: /^[\w.\-]+[a-zA-Z0-9]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}$/ })}
             />
             <span className="flex items-center px-4 ">
               <HiAtSymbol size={20} />
             </span>
           </div>
           {/* Password */}
-          {/* The password must meet the following criteria to be considered valid:
-              - Contains at least one lowercase letter.
-              - Contains at least one uppercase letter.
-              - Contains at least one digit.
-              - Contains at least one special symbol.
-              - Allows alphanumeric characters, as well as the symbols @, $, !, %, *, ?, &, ., #, and -. */}
-          {/* TODO: Fix why Testing.1 is not working!! */}
-          <div className={styles.input_group}>
+          {/* Assumption: Password length must be at least 12 characters and 64 characters at most. It must also contain at least
+                          1 upper case character, at least 1 lower case character, at least 1 digit, and at least 1 special character */}
+          <div className={styles.input_group} style={{ border: errors.password ? "1px solid red" : "1px solid #ccc" }}>
             <input
               type={`${show.password ? "text" : "password"}`}
               name="password"
@@ -87,7 +95,7 @@ function Register() {
               {...register("password", {
                 required: true,
                 minLength: 7,
-                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&.#+-]{7,}$/,
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=])(?=\S+$).{12,64}$/
               })}
             />
             <span
@@ -98,7 +106,7 @@ function Register() {
             </span>
           </div>
           {/* Confirm Password */}
-          <div className={styles.input_group}>
+          <div className={styles.input_group} style={{ border: errors.confirmPassword ? "1px solid red" : "1px solid #ccc" }}>
             <input
               type={`${show.confirmPassword ? "text" : "password"}`}
               name="confirmPassword"
