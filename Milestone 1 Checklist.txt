@@ -12,6 +12,8 @@ Create a web application with the following features:
    b) Password hashing with salting
    c) Input validation (ie. email / phone number validate)
       1) Email - Authentication code
+      2) Trim inputs (spaces at the start or end)
+      3) Need to add salt in password
    d) File upload type detection (check the file not extension)
 
 Due July 3 and prepare for a demo.
