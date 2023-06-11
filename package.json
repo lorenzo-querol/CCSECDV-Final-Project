@@ -1,49 +1,26 @@
 {
-  "name": "cssecdv-app",
+  "name": "my-app",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^13.0.0",
-    "@testing-library/user-event": "^13.2.1",
-    "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.23",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-helmet-async": "^1.3.0",
-    "react-hook-form": "^7.44.3",
-    "react-icons": "^4.8.0",
-    "react-router-dom": "^6.11.2",
-    "react-scripts": "5.0.1",
-    "tailwindcss": "^3.3.2",
-    "web-vitals": "^2.1.0"
-  },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "dependencies": {
+    "autoprefixer": "10.4.14",
+    "eslint": "8.42.0",
+    "eslint-config-next": "13.4.5",
+    "mongoose": "^7.2.3",
+    "next": "13.4.5",
+    "next-auth": "^4.22.1",
+    "postcss": "8.4.24",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "^7.44.3",
+    "react-icons": "^4.9.0",
+    "tailwindcss": "3.3.2"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "prettier": "^2.8.8",
-    "prettier-plugin-tailwindcss": "^0.3.0"
-  }
+  "packageManager": "yarn@3.6.0"
 }
