@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import sanitizeHtml from "sanitize-html";
 
 import styles from "@/app/Form.module.css";
 
@@ -27,18 +28,18 @@ export default function Register() {
     } = useForm();
 
     const onSubmit = async (data) => {
-        const trimmedData = {
+        const cleanedData = {
             ...data,
-            firstName: data.firstName.trim(),
-            lastName: data.lastName.trim(),
-            phoneNumber: data.phoneNumber.trim(),
-            email: data.email.trim(),
+            firstName: sanitizeHtml(data.firstName.trim()),
+            lastName: sanitizeHtml(data.lastName.trim()),
+            phoneNumber: sanitizeHtml(data.phoneNumber.trim()),
+            email: sanitizeHtml(data.email.trim()),
         };
-        delete trimmedData.confirmPassword;
+        delete cleanedData.confirmPassword;
 
         const response = await fetch("/api/users", {
             method: "POST",
-            body: JSON.stringify(trimmedData),
+            body: JSON.stringify(cleanedData),
         });
 
         console.log(response);
@@ -79,10 +80,10 @@ export default function Register() {
                             className={styles.input_text}
                             {...register("firstName", {
                                 required: "First name is required",
-                                pattern: {
-                                    value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
-                                    message: "Please enter a valid name",
-                                },
+                                // pattern: {
+                                //     value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
+                                //     message: "Please enter a valid name",
+                                // },
                             })}
                         />
                         <span className="flex items-center px-4 ">
