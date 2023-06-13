@@ -1,6 +1,7 @@
 import connectToDatabase from "@/utils/database";
 import User from "@/models/user";
 import bcrypt from "bcrypt";
+import sanitizeHtml from "sanitize-html";
 
 export async function POST(req) {
     try {
@@ -11,11 +12,12 @@ export async function POST(req) {
         const hashedPassword = await bcrypt.hash(password, 10); // Hash the password with internally generated salt
 
         const user = new User({
-            email,
-            firstName,
-            lastName,
+            email: sanitizeHtml(email.trim()),
+            firstName: sanitizeHtml(firstName.trim()),
+            lastName: sanitizeHtml(lastName.trim()),
             password: hashedPassword,
-            phoneNumber,
+            phoneNumber: sanitizeHtml(phoneNumber.trim()),
+
         });
 
         await user.save();
