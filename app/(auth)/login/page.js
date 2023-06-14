@@ -61,29 +61,28 @@ export default function Login() {
             <div>
                 {/* Error Message */}
                 <label className="flex justify-center text-red-500">
-                    Invalid input!
+                    Login failed; Invalid email or password!
                 </label>
                 {/* Sign in button */}
                 <button className={styles.button}>Sign In</button>
-                <div className="flex justify-between">
-                    <div className="flex items-center mt-2">
-                        <input className="mr-2 rounded" type="checkbox" />
-                        Remember Me
-                    </div>
+                <div className="flex justify-end">
                     <div className="flex items-center mt-2">
                         Forgot Password?
                     </div>
+                    {/* <div className="flex items-center mt-2">
+                        <input className="mr-2 rounded" type="checkbox" />
+                        Remember Me
+                    </div> */}
                 </div>
             </div>
-            <div className="my-4 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-neutral-300 after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300">
+            {/* <div className="my-4 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-neutral-300 after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300">
                 <div className="mx-4 mb-0 font-semibold text-center ">or</div>
-            </div>
-
+            </div> */}
             {/* Sign in with Google */}
-            <button className={styles.button_custom}>
+            {/* <button className={styles.button_custom}>
                 <FcGoogle className="mr-2" size={20} />
                 <span>Sign in with Google</span>
-            </button>
+            </button> */}
 
             {/* Got to register */}
             <div className="mt-8 text-center">
