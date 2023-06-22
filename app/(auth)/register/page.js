@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import sanitizeHtml from "sanitize-html";
-
 import styles from "@/app/Form.module.css";
 
 // Icons
@@ -14,6 +13,7 @@ import {
     HiOutlineUser,
     HiOutlinePhone,
 } from "react-icons/hi";
+import Script from "next/script";
 
 export default function Register() {
     const [show, setShow] = useState({
@@ -148,14 +148,13 @@ export default function Register() {
                             name="phoneNumber"
                             placeholder="Phone Number"
                             className={styles.input_text}
-                            {...register("phoneNumber", {
-                                required: "Phone number is required",
+                            {...register("firstName", {
+                                required: "First name is required",
                                 pattern: {
-                                    value: /^\s*09\d{9}\s*$/,
-                                    message:
-                                        "Please enter a valid phone number (09xxxxxxxxx)",
+                                    value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
+                                    message: "Please enter a valid name",
                                 },
-                            })} // Matches a sequence of 10 to 12 digits
+                            })}
                         />
                         <span className="flex items-center px-4 ">
                             <HiOutlinePhone size={20} />
@@ -287,11 +286,26 @@ export default function Register() {
                         </p>
                     )}
                 </div>
+                {/* Error message */}
+                {errors.confirmPassword && (
+                    <p role="alert" className={styles.error_text}>
+                        {errors.confirmPassword?.message}
+                    </p>
+                )}
+
+                {/* Profile Photo */}
+                <div className="flex flex-col">
+                    <input
+                        className="h-full relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-gray-300  bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-indigo-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-indigo-100 file:px-3 file:py-[0.32rem] file:text-indigo-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-indigo-500 focus:border-primary focus:text-indigo-700 focus:shadow-te-primary focus:outline-none  dark:text-indigo-200 dark:file:bg-indigo-700 dark:file:text-indigo-100 dark:focus:border-primary"
+                        type="file"
+                        id="profile"
+                    />
+                </div>
                 <div>
-                    {/* Sign in button */}
+                    {/* Register button */}
                     <button className={styles.button}>Register</button>
                 </div>
-                {/* Got to register */}
+                {/* Got to sign in */}
                 <p className="mt-8 text-center">
                     Already have an account?
                     <span className="ml-2 text-indigo-500">
