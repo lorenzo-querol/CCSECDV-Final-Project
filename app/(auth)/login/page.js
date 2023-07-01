@@ -1,21 +1,29 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-
+import axios from "axios";
 import { FcGoogle } from "react-icons/fc";
 import { HiAtSymbol, HiFingerPrint } from "react-icons/hi";
-
+//import bcrypt from "bcrypt";
 import styles from "@/app/Form.module.css";
-
+import sanitizeHtml from "sanitize-html";
 export default function Login() {
     const [show, setShow] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO If email and password did not match.
-        console.log("Username: ", email, "Password: ", password);
+        const params = {
+            email : email,
+            password : password
+        }
+        const url = `/api/users?email=${encodeURIComponent(params.email)}&password=${encodeURIComponent(params.password)}`;
+        const response = await fetch(url, {
+            method: "GET"
+        });
+
+        //console.log(response);
     };
 
     return (

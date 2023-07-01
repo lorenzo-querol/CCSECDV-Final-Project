@@ -73,3 +73,28 @@ export async function POST(req) {
         );
     }
 }
+export async function GET(req) {
+    try {
+        await connectToDatabase();
+        const searchParams = {};
+        const url = req.url
+        const searchIndex = url.indexOf('?');
+        if (searchIndex !== -1) {
+            const paramString = url.slice(searchIndex + 1);
+            const paramPairs = paramString.split('&');
+            for (const pair of paramPairs) {
+                const [key, value] = pair.split('=');
+                searchParams[key] = decodeURIComponent(value);
+            }
+        }
+        const user = await User.find({ email:searchParams.email, password:searchParams.password  }).exec()
+        if (user.length != 0) return new Response({ message: "Successful login. " },{ status: 201 });      
+        else return new Response({ message: "Error login user." },{ status: 500 })
+    } 
+    catch (error) {
+        return new Response({message: "Internal Server Error. "},{status: 500 });
+    }
+    finally {
+       console.log("GET REQUEST FINISHED")
+    }
+}
