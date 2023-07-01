@@ -7,16 +7,19 @@ export async function POST(req) {
     try {
         const request = await req.json();
         await connectToDatabase();
-
         const { email, firstName, lastName, password, phoneNumber, confirmPassword} = request;
-        let checked = false 
-        if (confirmPassword != null) 
+        var checked = false 
+        console.log(password)
+        if (confirmPassword != null) {
             if (password === confirmPassword)
                 checked = true
             else
-                checked = false
-        else if (!(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])(?!.*\s).{12,64}$/.test(password)))
+                checked = false            
+            }     
+        else if ((/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])(?!.*\s).{12,64}$/.test(password))) {
             checked = true
+        }
+            
         if (checked) {
             delete request.confirmPassword 
 
@@ -53,7 +56,7 @@ export async function POST(req) {
             else {
                 return new Response(
                     { message: "Error creating user." },
-                    { status: 500 }
+                    { status: 401 }
                  );
             }
         }
@@ -66,11 +69,13 @@ export async function POST(req) {
         }
     
     } catch (error) {
-        console.log(`[${new Date().toLocaleString()}]`, error.message);
+        //console.log(`[${new Date().toLocaleString()}]`, error.message);
         return new Response(
             { message: "Error creating user." },
             { status: 500 }
         );
+    } finally {
+        console.log("POST SUBMISSION FINISHED")
     }
 }
 export async function GET(req) {
@@ -86,10 +91,11 @@ export async function GET(req) {
                 const [key, value] = pair.split('=');
                 searchParams[key] = decodeURIComponent(value);
             }
+            const user = await User.find({ email:searchParams.email, password:searchParams.password}).exec()
+            if (user.length != 0) return new Response({ message: "Successful login. " },{ status: 201 });      
+            else return new Response({ message: "Error login user." },{ status: 401 })
         }
-        const user = await User.find({ email:searchParams.email, password:searchParams.password  }).exec()
-        if (user.length != 0) return new Response({ message: "Successful login. " },{ status: 201 });      
-        else return new Response({ message: "Error login user." },{ status: 500 })
+        else return new Response({ message: "Invalid login" },{ status: 500 })
     } 
     catch (error) {
         return new Response({message: "Internal Server Error. "},{status: 500 });

@@ -22,8 +22,7 @@ export default function Login() {
         const response = await fetch(url, {
             method: "GET"
         });
-
-        //console.log(response);
+        // GO TO LANDING PAGE WITH SESSION
     };
 
     return (

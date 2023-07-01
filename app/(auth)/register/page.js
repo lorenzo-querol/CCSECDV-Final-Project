@@ -41,8 +41,8 @@ export default function Register() {
             method: "POST",
             body: JSON.stringify(cleanedData),
         });
-
-        console.log(response);
+        console.log(response.status)
+        // redirect to LOGIN 
     };
 
     const watchPassword = watch("password");
