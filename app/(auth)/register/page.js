@@ -34,6 +34,7 @@ export default function Register() {
             lastName: sanitizeHtml(data.lastName.trim()),
             phoneNumber: sanitizeHtml(data.phoneNumber.trim()),
             email: sanitizeHtml(data.email.trim()),
+            avatar: "",
         };
         delete cleanedData.confirmPassword;
 
@@ -41,8 +42,6 @@ export default function Register() {
             method: "POST",
             body: JSON.stringify(cleanedData),
         });
-
-        console.log(response);
     };
 
     const watchPassword = watch("password");

@@ -8,7 +8,9 @@ export async function POST(req) {
         const request = await req.json();
         await connectToDatabase();
 
-        const { email, firstName, lastName, password, phoneNumber } = request;
+        const { email, firstName, lastName, password, phoneNumber, avatar } =
+            request;
+
         const hashedPassword = await bcrypt.hash(password, 10); // Hash the password with internally generated salt
 
         const user = new User({
@@ -17,7 +19,7 @@ export async function POST(req) {
             lastName: sanitizeHtml(lastName.trim()),
             password: hashedPassword,
             phoneNumber: sanitizeHtml(phoneNumber.trim()),
-
+            avatar: avatar,
         });
 
         await user.save();
@@ -29,7 +31,7 @@ export async function POST(req) {
     } catch (error) {
         console.log(`[${new Date().toLocaleString()}]`, error.message);
         return new Response(
-            { message: "Error creating user." },
+            { message: "Error creating user" },
             { status: 500 }
         );
     }
