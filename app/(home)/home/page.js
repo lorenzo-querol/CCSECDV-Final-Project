@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Home from "../home/home";
+import Users from "../home/users";
 
 import {
     AiFillHome,
@@ -22,13 +24,24 @@ import {
 import control from "@/public/control.png";
 import logo from "@/public/vercel.svg";
 
-export default function Sidebar({ children }) {
+export default function Sidebar({ }) {
     const [close, setClose] = useState(false);
+    const [activeMenuItem, setActiveMenuItem] = useState("Home"); // Set initial active menu item by title
+
     const Menus = [
-        { title: "Home", icon: <AiFillHome /> },
-        { title: "List of Users", icon: <FaUsers /> },
+        { title: "Home", icon: <AiFillHome />, content: <Home /> },
+        { title: "List of Users", icon: <FaUsers />, content: <Users /> },
         { title: "Log Out", icon: <AiOutlineLogout /> }
     ];
+
+    const handleMenuItemClick = (title) => {
+        setActiveMenuItem(title);
+    };
+
+    const renderContent = () => {
+        const activeMenu = Menus.find(menu => menu.title === activeMenuItem);
+        return activeMenu ? activeMenu.content : null;
+    };
 
     return (
         <div className="fixed left-0 flex">
@@ -58,7 +71,8 @@ export default function Sidebar({ children }) {
                         <li
                             key={index}
                             className={`flex cursor-pointer items-center gap-x-4 rounded-md p-2 text-base text-white hover:bg-purple-700 ${Menu.gap ? "mt-9" : "mt-2"
-                                } ${index === 0 && "bg-purple-700"}`}
+                                } ${Menu.title === activeMenuItem && "bg-purple-700"}`} // Add condition to apply active class
+                            onClick={() => handleMenuItemClick(Menu.title)} // Pass the title to the click event handler
                         >
                             {Menu.icon}
                             <span className={`${close && "hidden"} origin-left duration-200`}>
@@ -68,9 +82,8 @@ export default function Sidebar({ children }) {
                     ))}
                 </ul>
             </div>
-
             <div className="flex-1 h-screen text-2xl font-semibold p-7">
-                {children}
+                {renderContent()} {/* Render content based on activeMenuItem */}
             </div>
         </div>
     );
