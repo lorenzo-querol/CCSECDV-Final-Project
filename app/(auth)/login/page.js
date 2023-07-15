@@ -13,7 +13,7 @@ export default function Login() {
     const [show, setShow] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
+    const [loginError, setLoginError] = useState(false); // New state variable for login error
     const handleSubmit = async (e) => {
         e.preventDefault();
         // const params = {
@@ -43,7 +43,11 @@ export default function Login() {
             email: email,
             password: password,
         });
-        console.log(result);
+        if (result) {
+            setLoginError(false);
+        }
+        else
+            setLoginError(true);
     };
 
     return (
@@ -87,11 +91,12 @@ export default function Login() {
                 </span>
             </div>
             <div>
-                {/* Error Message */}
-                {/* <label className="flex justify-center text-red-500">
-                    Login failed; Invalid email or password!
-                </label> */}
-                {/* Sign in button */}
+                  {/* Error Message */}
+                  {loginError && (
+        <label className="flex justify-center text-red-500">
+          Login failed; Invalid email or password!
+        </label>
+      )}
                 <button className={styles.button}>Sign In</button>
             </div>
 
