@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import sanitizeHtml from "sanitize-html";
 import styles from "@/app/Form.module.css";
+import axios from "axios";
 
 // Icons
 import {
@@ -13,9 +14,9 @@ import {
     HiOutlineUser,
     HiOutlinePhone,
 } from "react-icons/hi";
-import Script from "next/script";
 
 export default function Register() {
+    const inputFileRef = useRef();
     const [show, setShow] = useState({
         password: false,
         confirmPassword: false,
@@ -28,20 +29,29 @@ export default function Register() {
     } = useForm();
 
     const onSubmit = async (data) => {
+        const formData = new FormData();
+
         const cleanedData = {
             ...data,
             firstName: sanitizeHtml(data.firstName.trim()),
             lastName: sanitizeHtml(data.lastName.trim()),
             phoneNumber: sanitizeHtml(data.phoneNumber.trim()),
             email: sanitizeHtml(data.email.trim()),
-            avatar: "",
         };
         delete cleanedData.confirmPassword;
 
-        const response = await fetch("/api/users", {
-            method: "POST",
-            body: JSON.stringify(cleanedData),
-        });
+        formData.append("avatar", data.avatar[0]);
+        formData.append("userInfo", JSON.stringify(cleanedData));
+
+        try {
+            await axios.post("/api/users", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+        } catch (error) {
+            console.error("Error uploading file:", error);
+        }
     };
 
     const watchPassword = watch("password");
@@ -147,7 +157,7 @@ export default function Register() {
                             name="phoneNumber"
                             placeholder="Phone Number"
                             className={styles.input_text}
-                            {...register("firstName", {
+                            {...register("phoneNumber", {
                                 required: "First name is required",
                                 pattern: {
                                     value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
@@ -298,11 +308,22 @@ export default function Register() {
                         className="h-full relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-gray-300  bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-indigo-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-indigo-100 file:px-3 file:py-[0.32rem] file:text-indigo-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-indigo-500 focus:border-primary focus:text-indigo-700 focus:shadow-te-primary focus:outline-none  dark:text-indigo-200 dark:file:bg-indigo-700 dark:file:text-indigo-100 dark:focus:border-primary"
                         type="file"
                         id="profile"
+                        {...register("avatar", {
+                            required: "Profile photo is required",
+                        })}
                     />
                 </div>
+                {/* Error message */}
+                {errors.avatar && (
+                    <p role="alert" className={styles.error_text}>
+                        {errors.avatar?.message}
+                    </p>
+                )}
                 <div>
                     {/* Register button */}
-                    <button className={styles.button}>Register</button>
+                    <button className={styles.button} type="submit">
+                        Register
+                    </button>
                 </div>
                 {/* Got to sign in */}
                 <p className="mt-8 text-center">
