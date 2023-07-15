@@ -140,13 +140,15 @@ export async function GET(req) {
 
 async function retrieveUsers(req, res) {
     try {
-        const users = await User.find().exec();
+        console.log("HELLO")
+        const users = await User.findall().exec();
 
         const formattedUsers = users.map(user => ({
             id: user.id,
             name: `${user.firstName} ${user.lastName}`,
             email: user.email
         }));
+        console.log(formattedUsers);
 
         res.status(200).json({ message: "Successfully retrieved users.", users: formattedUsers });
     } catch (error) {

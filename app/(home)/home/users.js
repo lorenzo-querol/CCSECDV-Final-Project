@@ -23,6 +23,7 @@ export default function Users() {
 
     fetchUsers();
   }, []);
+  
   return (
     <div className='w-full'>
       <h1>List of Users</h1>
