@@ -13,16 +13,17 @@ export default function Login() {
     const [password, setPassword] = useState("");
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        const params = {
-            email : email,
-            password : password
-        }
-        const url = `/api/users?email=${encodeURIComponent(params.email)}&password=${encodeURIComponent(params.password)}`;
-        const response = await fetch(url, {
-            method: "GET"
-        });
+        const formData = new FormData();
+
+        const cleanedData = {
+            ...data,
+            email: sanitizeHtml(data.email.trim())
+        };
+
+        console.log('Email: ', data.email, 'Password', data.password)
+
         // GO TO LANDING PAGE WITH SESSION
+        router.push('/home')
     };
 
     return (
@@ -67,20 +68,11 @@ export default function Login() {
             </div>
             <div>
                 {/* Error Message */}
-                <label className="flex justify-center text-red-500">
+                {/* <label className="flex justify-center text-red-500">
                     Login failed; Invalid email or password!
-                </label>
+                </label> */}
                 {/* Sign in button */}
                 <button className={styles.button}>Sign In</button>
-                <div className="flex justify-end">
-                    <div className="flex items-center mt-2">
-                        Forgot Password?
-                    </div>
-                    {/* <div className="flex items-center mt-2">
-                        <input className="mr-2 rounded" type="checkbox" />
-                        Remember Me
-                    </div> */}
-                </div>
             </div>
 
             {/* Got to register */}
