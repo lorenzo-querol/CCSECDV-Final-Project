@@ -13,17 +13,16 @@ export default function Login() {
     const [password, setPassword] = useState("");
 
     const handleSubmit = async (e) => {
-        const formData = new FormData();
-
-        const cleanedData = {
-            ...data,
-            email: sanitizeHtml(data.email.trim())
-        };
-
-        console.log('Email: ', data.email, 'Password', data.password)
-
+        e.preventDefault();
+        const params = {
+            email: email,
+            password: password
+        }
+        const url = `/api/users?email=${encodeURIComponent(params.email)}&password=${encodeURIComponent(params.password)}`;
+        const response = await fetch(url, {
+            method: "GET"
+        });
         // GO TO LANDING PAGE WITH SESSION
-        router.push('/home')
     };
 
     return (
