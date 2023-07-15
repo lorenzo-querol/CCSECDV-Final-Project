@@ -97,13 +97,16 @@ export async function GET(req) {
     try {
         await connectToDatabase();
         const url = new URL(req.url);
-        const { email, password } = url.searchParams;
+        const email = url.searchParams.get('email')
+        const password = url.searchParams.get('password');
 
+        console.log(email)
+        console.log(password)
         if (!email || !password) {
             return new Response({ message: "Invalid login" }, { status: 500 });
         }
-
         return await retrieveUser(email, password);
+        
     } catch (error) {
         return new Response({ message: "Internal Server Error. " }, { status: 500 });
     } finally {

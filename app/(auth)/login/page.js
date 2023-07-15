@@ -18,11 +18,22 @@ export default function Login() {
             email: email,
             password: password
         }
+        const token = sessionStorage.getItem('token'); //Add this line
         const url = `/api/users?email=${encodeURIComponent(params.email)}&password=${encodeURIComponent(params.password)}`;
+        console.log('before')
         const response = await fetch(url, {
-            method: "GET"
+            method: "GET",
+            headers: {  
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                 Authorization: `Bearer ${token}` //Add this line
+              },
+              body: JSON.stringify(storyInput),
         });
-        // GO TO LANDING PAGE WITH SESSION
+        console.log('after')
+        if (response.ok) {
+            history.push("/home"); // Replace "/landing" with the actual path of your landing page
+        }
     };
 
     return (
