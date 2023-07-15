@@ -12,16 +12,58 @@ export const config = {
     },
 };
 
+const checkPassword = (password, confirmPassword) => {
+    if (confirmPassword) {
+        return password === confirmPassword;
+    }
+
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])(?!.*\s).{12,64}$/;
+    return passwordRegex.test(password);
+};
+
+const isValidData = (firstName, lastName, phoneNumber, email) => {
+    const nameRegex = /^[\w\s\u00C0-\u017F]{2,}$/;
+    const phoneRegex = /^\s*09\d{9}\s*$/;
+    const emailRegex = /^[\w.\-]+[a-zA-Z0-9]*@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/;
+
+    return (
+        nameRegex.test(firstName) &&
+        nameRegex.test(lastName) &&
+        phoneRegex.test(phoneNumber) &&
+        emailRegex.test(email)
+    );
+};
+
+async function saveUser(user, avatar) {
+    // Prepare the avatar for saving
+    const bytes = await avatar.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const path = `${process.cwd()}/tmp/${avatar.name}`;
+
+    // Save the avatar and user to the filesystem
+    await writeFile(path, buffer);
+    await user.save();
+}
+
 export async function POST(req) {
     try {
         await connectToDatabase();
+
+        const { email, firstName, lastName, password, phoneNumber, confirmPassword } = req;
+        if (!checkPassword(password, confirmPassword)) {
+            console.log(`[${new Date().toLocaleString()}]`);
+            return new Response({ message: "Error creating user. " }, { status: 500 });
+        }
+
+        if (!isValidData(firstName, lastName, phoneNumber, email)) {
+            return new Response({ message: "Error creating user." }, { status: 401 });
+        }
 
         const data = await req.formData();
         const userInfo = JSON.parse(data.get("userInfo"));
         const avatar = data.get("avatar");
 
-        const { email, firstName, lastName, password, phoneNumber } = userInfo;
-        const hashedPassword = await bcrypt.hash(password, 10); // Hash the password with internally generated salt
+        const hashedPassword = await bcrypt.hash(password, 10);
         const user = new User({
             email: sanitizeHtml(email.trim()),
             firstName: sanitizeHtml(firstName.trim()),
@@ -34,24 +76,37 @@ export async function POST(req) {
             },
         });
 
-        // Prepare the avatar for saving
-        const bytes = await avatar.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        const path = `${process.cwd()}/tmp/${avatar.name}`;
-
-        // Save the avatar and user to the filesystem
-        await writeFile(path, buffer);
-        await user.save();
-
-        return new Response(
-            { message: "User created successfully" },
-            { status: 201 }
-        );
+        await saveUser(user, avatar);
     } catch (error) {
-        console.log(`[${new Date().toLocaleString()}]`, error.message);
-        return new Response(
-            { message: "Error creating user" },
-            { status: 500 }
-        );
+        return new Response({ message: "Error creating user" }, { status: 500 });
+    } finally {
+        console.log("POST SUBMISSION FINISHED");
+    }
+}
+
+async function retrieveUser(email, password) {
+    const user = await User.find({ email, password }).exec();
+    if (user.length !== 0) {
+        return new Response({ message: "Successful login. " }, { status: 201 });
+    }
+
+    return new Response({ message: "Error login user." }, { status: 401 });
+}
+
+export async function GET(req) {
+    try {
+        await connectToDatabase();
+        const url = new URL(req.url);
+        const { email, password } = url.searchParams;
+
+        if (!email || !password) {
+            return new Response({ message: "Invalid login" }, { status: 500 });
+        }
+
+        return await retrieveUser(email, password);
+    } catch (error) {
+        return new Response({ message: "Internal Server Error. " }, { status: 500 });
+    } finally {
+        console.log("GET REQUEST FINISHED");
     }
 }
