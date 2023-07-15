@@ -107,12 +107,11 @@ export async function POST(req) {
         return new Response({ message: error.message }, { status: 500 });
     }
 }
-
 async function retrieveUser(email, password) {
-    const user = await User.find({ email, password }).exec();
-    if (user.length !== 0) {
+    const user = await User.find({ email }).exec();
+    const pwCheck = await bcrypt.compare(password, user[0].password);
+    if (pwCheck)
         return new Response({ message: "Successful login. " }, { status: 201 });
-    }
 
     return new Response({ message: "Error login user." }, { status: 401 });
 }
@@ -123,12 +122,10 @@ export async function GET(req) {
         const url = new URL(req.url);
         const email = url.searchParams.get("email");
         const password = url.searchParams.get("password");
-
-        console.log(email);
-        console.log(password);
         if (!email || !password) {
             return new Response({ message: "Invalid login" }, { status: 500 });
         }
+
         return await retrieveUser(email, password);
     } catch (error) {
         return new Response(
