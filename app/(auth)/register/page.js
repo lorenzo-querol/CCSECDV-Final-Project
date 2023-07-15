@@ -50,7 +50,7 @@ export default function Register() {
                 },
             });
         } catch (error) {
-            console.error("Error uploading file:", error);
+            console.log("Error uploading file:", error.message);
         }
     };
 
@@ -265,8 +265,9 @@ export default function Register() {
                         }}
                     >
                         <input
-                            type={`${show.confirmPassword ? "text" : "password"
-                                }`}
+                            type={`${
+                                show.confirmPassword ? "text" : "password"
+                            }`}
                             name="confirmPassword"
                             placeholder="Confirm Password"
                             className={styles.input_text}

@@ -17,14 +17,16 @@ const checkPassword = (password, confirmPassword) => {
         return password === confirmPassword;
     }
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])(?!.*\s).{12,64}$/;
+    const passwordRegex =
+        /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])(?!.*\s).{12,64}$/;
     return passwordRegex.test(password);
 };
 
 const isValidData = (firstName, lastName, phoneNumber, email) => {
     const nameRegex = /^[\w\s\u00C0-\u017F]{2,}$/;
     const phoneRegex = /^\s*09\d{9}\s*$/;
-    const emailRegex = /^[\w.\-]+[a-zA-Z0-9]*@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/;
+    const emailRegex =
+        /^[\w.\-]+[a-zA-Z0-9]*@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/;
 
     return (
         nameRegex.test(firstName) &&
@@ -49,19 +51,33 @@ export async function POST(req) {
     try {
         await connectToDatabase();
 
-        const { email, firstName, lastName, password, phoneNumber, confirmPassword } = req;
-        if (!checkPassword(password, confirmPassword)) {
-            console.log(`[${new Date().toLocaleString()}]`);
-            return new Response({ message: "Error creating user. " }, { status: 500 });
-        }
-
-        if (!isValidData(firstName, lastName, phoneNumber, email)) {
-            return new Response({ message: "Error creating user." }, { status: 401 });
-        }
-
         const data = await req.formData();
         const userInfo = JSON.parse(data.get("userInfo"));
         const avatar = data.get("avatar");
+
+        const {
+            email,
+            firstName,
+            lastName,
+            password,
+            phoneNumber,
+            confirmPassword,
+        } = userInfo;
+
+        if (!checkPassword(password, confirmPassword)) {
+            console.log(`[${new Date().toLocaleString()}]`);
+            return new Response(
+                { message: "Error creating user. " },
+                { status: 500 }
+            );
+        }
+
+        if (!isValidData(firstName, lastName, phoneNumber, email)) {
+            return new Response(
+                { message: "Error creating user." },
+                { status: 401 }
+            );
+        }
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = new User({
@@ -77,10 +93,18 @@ export async function POST(req) {
         });
 
         await saveUser(user, avatar);
+
+        console.log(
+            `[${new Date().toLocaleString()}]`,
+            "Successfully created user. "
+        );
+        return new Response(
+            { message: "Successfully created user." },
+            { status: 201 }
+        );
     } catch (error) {
-        return new Response({ message: "Error creating user" }, { status: 500 });
-    } finally {
-        console.log("POST SUBMISSION FINISHED");
+        console.log(`[${new Date().toLocaleString()}]`, error.message);
+        return new Response({ message: error.message }, { status: 500 });
     }
 }
 
@@ -97,18 +121,20 @@ export async function GET(req) {
     try {
         await connectToDatabase();
         const url = new URL(req.url);
-        const email = url.searchParams.get('email')
-        const password = url.searchParams.get('password');
+        const email = url.searchParams.get("email");
+        const password = url.searchParams.get("password");
 
-        console.log(email)
-        console.log(password)
+        console.log(email);
+        console.log(password);
         if (!email || !password) {
             return new Response({ message: "Invalid login" }, { status: 500 });
         }
         return await retrieveUser(email, password);
-        
     } catch (error) {
-        return new Response({ message: "Internal Server Error. " }, { status: 500 });
+        return new Response(
+            { message: "Internal Server Error. " },
+            { status: 500 }
+        );
     } finally {
         console.log("GET REQUEST FINISHED");
     }
