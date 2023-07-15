@@ -4,7 +4,7 @@ import Link from "next/link";
 import axios from "axios";
 import { FcGoogle } from "react-icons/fc";
 import { HiAtSymbol, HiFingerPrint } from "react-icons/hi";
-//import bcrypt from "bcrypt";
+
 import styles from "@/app/Form.module.css";
 import sanitizeHtml from "sanitize-html";
 export default function Login() {
@@ -82,14 +82,6 @@ export default function Login() {
                     </div> */}
                 </div>
             </div>
-            {/* <div className="my-4 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-neutral-300 after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300">
-                <div className="mx-4 mb-0 font-semibold text-center ">or</div>
-            </div> */}
-            {/* Sign in with Google */}
-            {/* <button className={styles.button_custom}>
-                <FcGoogle className="mr-2" size={20} />
-                <span>Sign in with Google</span>
-            </button> */}
 
             {/* Got to register */}
             <div className="mt-8 text-center">

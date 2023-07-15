@@ -6,6 +6,10 @@ const userSchema = new mongoose.Schema({
     lastName: { type: String, required: true },
     password: { type: String, required: true },
     phoneNumber: { type: String, required: true },
+    avatar: {
+        data: { type: String, required: true },
+        contentType: { type: String, required: true },
+    },
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
