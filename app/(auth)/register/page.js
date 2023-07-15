@@ -295,13 +295,6 @@ export default function Register() {
                         </p>
                     )}
                 </div>
-                {/* Error message */}
-                {errors.confirmPassword && (
-                    <p role="alert" className={styles.error_text}>
-                        {errors.confirmPassword?.message}
-                    </p>
-                )}
-
                 {/* Profile Photo */}
                 <div className="flex flex-col">
                     <input
