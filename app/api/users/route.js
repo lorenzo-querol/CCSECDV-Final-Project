@@ -107,6 +107,7 @@ export async function POST(req) {
         return new Response({ message: error.message }, { status: 500 });
     }
 }
+
 async function retrieveUser(email, password) {
     const user = await User.find({ email }).exec();
     const pwCheck = await bcrypt.compare(password, user[0].password);
@@ -129,7 +130,7 @@ export async function GET(req) {
         return await retrieveUser(email, password);
     } catch (error) {
         return new Response(
-            { message: "Internal Server Error. " },
+            { message: "Internal Server Error." },
             { status: 500 }
         );
     } finally {

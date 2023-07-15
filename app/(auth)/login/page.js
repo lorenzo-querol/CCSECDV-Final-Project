@@ -4,9 +4,11 @@ import Link from "next/link";
 import axios from "axios";
 import { FcGoogle } from "react-icons/fc";
 import { HiAtSymbol, HiFingerPrint } from "react-icons/hi";
+import { signIn } from "next-auth/react";
 
 import styles from "@/app/Form.module.css";
 import sanitizeHtml from "sanitize-html";
+
 export default function Login() {
     const [show, setShow] = useState(false);
     const [email, setEmail] = useState("");
@@ -14,26 +16,34 @@ export default function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const params = {
+        // const params = {
+        //     email: email,
+        //     password: password,
+        // };
+        // const token = sessionStorage.getItem("token"); //Add this line
+        // const url = `/api/users?email=${encodeURIComponent(
+        //     params.email
+        // )}&password=${encodeURIComponent(params.password)}`;
+
+        // const response = await fetch(url, {
+        //     method: "GET",
+        //     headers: {
+        //         Accept: "application/json",
+        //         "Content-Type": "application/json",
+        //         Authorization: `Bearer ${token}`, //Add this line
+        //     },
+        // });
+
+        // if (response.ok) {
+        //     history.push("/home"); // Replace "/landing" with the actual path of your landing page
+        // }
+
+        const result = await signIn("credentials", {
+            redirect: false,
             email: email,
-            password: password
-        }
-        const token = sessionStorage.getItem('token'); //Add this line
-        const url = `/api/users?email=${encodeURIComponent(params.email)}&password=${encodeURIComponent(params.password)}`;
-        console.log('before')
-        const response = await fetch(url, {
-            method: "GET",
-            headers: {  
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                 Authorization: `Bearer ${token}` //Add this line
-              },
-              body: JSON.stringify(storyInput),
+            password: password,
         });
-        console.log('after')
-        if (response.ok) {
-            history.push("/home"); // Replace "/landing" with the actual path of your landing page
-        }
+        console.log(result);
     };
 
     return (

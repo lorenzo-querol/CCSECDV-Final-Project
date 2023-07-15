@@ -1,8 +1,9 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import connectToDatabase from "@/utils/database";
+import bcrypt from "bcrypt";
 
-// TODO Set up authentication with the database.
+import User from "@/models/user";
 export const authOptions = {
     providers: [
         CredentialsProvider({
@@ -14,17 +15,37 @@ export const authOptions = {
             authorize: async (credentials) => {
                 await connectToDatabase();
 
-                const User = mongoose.model("User");
-
                 const user = await User.findOne({ email: credentials.email });
-                if (user && user.password === credentials.password) {
-                    return Promise.resolve(user);
+
+                if (
+                    user &&
+                    bcrypt.compareSync(credentials.password, user.password)
+                ) {
+                    return {
+                        id: user._id,
+                        email: user.email,
+                    };
                 }
 
-                return Promise.resolve(null);
+                return null;
             },
         }),
     ],
+    callbacks: {
+        async jwt(token, user) {
+            if (user) {
+                token.id = user.id;
+                token.email = user.email;
+            }
+
+            return token;
+        },
+        async session(session, token) {
+            session.user = token;
+            return session;
+        },
+    },
+    secret: process.env.JWT_SECRET,
 };
 
 const handler = NextAuth(authOptions);
