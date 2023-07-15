@@ -72,7 +72,7 @@ export default function Register() {
                     Create an Account
                 </h2>
                 {/* Full Name */}
-                <div className="flex justify-between">
+                <div className="flex justify-between space-x-2">
                     {/* First Name */}
                     <div className="flex flex-col">
                         <div
@@ -90,10 +90,10 @@ export default function Register() {
                                 className={styles.input_text}
                                 {...register("firstName", {
                                     required: "First name is required",
-                                    // pattern: {
-                                    //     value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
-                                    //     message: "Please enter a valid name",
-                                    // },
+                                    pattern: {
+                                        value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
+                                        message: "Please enter a valid name",
+                                    },
                                 })}
                             />
                             <span className="flex items-center px-4 ">
@@ -265,9 +265,8 @@ export default function Register() {
                         }}
                     >
                         <input
-                            type={`${
-                                show.confirmPassword ? "text" : "password"
-                            }`}
+                            type={`${show.confirmPassword ? "text" : "password"
+                                }`}
                             name="confirmPassword"
                             placeholder="Confirm Password"
                             className={styles.input_text}
