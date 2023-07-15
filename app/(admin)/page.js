@@ -13,8 +13,8 @@ import sanitizeHtml from "sanitize-html";
 import styles from "@/app/Form.module.css";
 
 
-export default function Home({ isLoggedIn }) {
-
+export default function Admin({isLoggedIn }) {
+  const router = useRouter();
     return (
       <>
         <Head>
@@ -23,13 +23,17 @@ export default function Home({ isLoggedIn }) {
             name="description"
             content=""
           />
+
         </Head>
+  
         <Navbar />
+
         <SectionTitle
-        pretitle="Under construction"
+        pretitle="Admin Dashboard"
         title="Welcome back to MyApp!">
-        This is the home page. Lorem ipsum dolor sit amet. Non reprehenderit itaque rem commodi galisum qui tempore quaerat aut illum natus ut modi consequatur. Ea consequatur dolor et impedit harum qui eaque enim? Et ratione galisum quo harum recusandae ut ipsum dolorem eum nemo earum.
+        This is the Admin Dashboard. Lorem ipsum dolor sit amet. Non reprehenderit itaque rem commodi galisum qui tempore quaerat aut illum natus ut modi consequatur. Ea consequatur dolor et impedit harum qui eaque enim? Et ratione galisum quo harum recusandae ut ipsum dolorem eum nemo earum.
         </SectionTitle>
+    
       <Footer />
       </>
     );

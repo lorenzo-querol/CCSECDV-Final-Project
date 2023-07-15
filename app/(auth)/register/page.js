@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import sanitizeHtml from "sanitize-html";
 import styles from "@/app/Form.module.css";
 import axios from "axios";
+import { useRouter } from 'next/navigation';
+
 
 // Icons
 import {
@@ -17,6 +19,9 @@ import {
 
 export default function Register() {
     const inputFileRef = useRef();
+    const router = useRouter();
+
+
     const [show, setShow] = useState({
         password: false,
         confirmPassword: false,
@@ -52,6 +57,9 @@ export default function Register() {
         } catch (error) {
             console.error("Error uploading file:", error);
         }
+
+        //console.log(response);
+        router.push('/login')
     };
 
     const watchPassword = watch("password");
@@ -63,7 +71,8 @@ export default function Register() {
     };
 
     return (
-        <div>
+        <div className="flex justify-center items-center h-screen">
+
             <form
                 className="relative z-10 mx-auto w-full max-w-[625px] space-y-3 rounded-md bg-white p-8 text-slate-900"
                 onSubmit={handleSubmit(onSubmit)}
@@ -319,9 +328,9 @@ export default function Register() {
                         {errors.avatar?.message}
                     </p>
                 )}
-                <div>
+                 <div>
                     {/* Register button */}
-                    <button className={styles.button} type="submit">
+                     <button onClick={() => router.push('/')} className={styles.button}>
                         Register
                     </button>
                 </div>

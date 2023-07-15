@@ -10,10 +10,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
     return (
         <html className="relative w-full h-screen">
-            <body className="flex items-center justify-center h-full">
-                <Image src={BackgroundImage} alt="background image" fill />
                 {children}
-            </body>
         </html>
     );
 }
