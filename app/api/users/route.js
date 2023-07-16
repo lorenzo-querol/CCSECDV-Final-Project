@@ -117,7 +117,7 @@ export async function POST(req) {
         if (!checkPassword(password, confirmPassword)) {
             logger.error("Passwords do not match");
             return new Response(
-                { message: "User creation failed" },
+                { message: "User creation failed." },
                 { status: 500 }
             );
         }
@@ -125,7 +125,7 @@ export async function POST(req) {
         if (!validateData(firstName, lastName, phoneNumber, email)) {
             logger.error("Invalid data");
             return new Response(
-                { message: "User creation failed" },
+                { message: "User creation failed." },
                 { status: 500 }
             );
         }
@@ -146,13 +146,13 @@ export async function POST(req) {
 
         logger.info("User creation successful");
         return new Response(
-            { message: "User creation successful" },
+            { message: "User creation successful." },
             { status: 201 }
         );
     } catch (error) {
         logger.error(error.message);
         return new Response(
-            { message: "User creation failed" },
+            { message: "Internal server errror." },
             { status: 500 }
         );
     }
@@ -162,7 +162,7 @@ async function retrieveUser(email, password) {
     const user = await User.find({ email }).exec();
     const pwCheck = await bcrypt.compare(password, user[0].password);
     if (pwCheck)
-        return new Response({ message: "Successful login. " }, { status: 201 });
+        return new Response({ message: "Successful login." }, { status: 201 });
 
     return new Response({ message: "Error login user." }, { status: 401 });
 }
