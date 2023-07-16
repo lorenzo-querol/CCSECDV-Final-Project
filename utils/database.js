@@ -1,16 +1,10 @@
-import mongoose from "mongoose";
+import mysql from "serverless-mysql";
 
-async function connectToDatabase() {
-    try {
-        await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-        console.log(`[${new Date().toLocaleString()}] Connected to MongoDB`);
-    } catch (error) {
-        console.error("Error connecting to MongoDB:", error.message);
-        process.exit(1);
-    }
-}
-
-export default connectToDatabase;
+export const database = mysql({
+    config: {
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+    },
+});

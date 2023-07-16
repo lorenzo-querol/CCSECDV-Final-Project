@@ -14,40 +14,26 @@ export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loginError, setLoginError] = useState(false); // New state variable for login error
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        // const params = {
-        //     email: email,
-        //     password: password,
-        // };
-        // const token = sessionStorage.getItem("token"); //Add this line
-        // const url = `/api/users?email=${encodeURIComponent(
-        //     params.email
-        // )}&password=${encodeURIComponent(params.password)}`;
 
-        // const response = await fetch(url, {
-        //     method: "GET",
-        //     headers: {
-        //         Accept: "application/json",
-        //         "Content-Type": "application/json",
-        //         Authorization: `Bearer ${token}`, //Add this line
-        //     },
-        // });
+    const handleSubmit = async (event) => {
+        try {
+            event.preventDefault();
 
-        // if (response.ok) {
-        //     history.push("/home"); // Replace "/landing" with the actual path of your landing page
-        // }
+            const result = await signIn("credentials", {
+                redirect: false,
+                email: email,
+                password: password,
+            });
 
-        const result = await signIn("credentials", {
-            redirect: false,
-            email: email,
-            password: password,
-        });
-        if (result) {
+            if (result.error) {
+                setLoginError(true);
+                return;
+            }
+
             setLoginError(false);
+        } catch (error) {
+            console.log(error);
         }
-        else
-            setLoginError(true);
     };
 
     return (
@@ -91,12 +77,12 @@ export default function Login() {
                 </span>
             </div>
             <div>
-                  {/* Error Message */}
-                  {loginError && (
-        <label className="flex justify-center text-red-500">
-          Login failed; Invalid email or password!
-        </label>
-      )}
+                {/* Error Message */}
+                {loginError && (
+                    <label className="flex justify-center text-red-500">
+                        Login failed; Invalid email or password!
+                    </label>
+                )}
                 <button className={styles.button}>Sign In</button>
             </div>
 
