@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import sanitizeHtml from "sanitize-html";
 import { writeFile } from "fs/promises";
 import { Buffer } from "buffer";
-import { v4 as uuidv4 } from "uuid";
+import { nanoid } from "nanoid";
 
 import { database } from "@/utils/database";
 import { getLogger } from "@/utils/logger";
@@ -67,13 +67,14 @@ async function saveUser(user, avatar) {
 
         // 3. Prepare the query
         const query =
-            "INSERT INTO users (email, first_name, last_name, password, phone_num, avatar) VALUES (?, ?, ?, ?, ?, ?)";
+            "INSERT INTO users (public_id, email, first_name, last_name, password, phone_num, avatar) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         // 4. Connect to database
         await database.connect();
 
         // 5. Execute the query
         await database.query(query, [
+            user.public_id,
             user.email,
             user.firstName,
             user.lastName,
@@ -100,7 +101,7 @@ export async function POST(req) {
         // EXTRA: Replace the avatar name with a UUID but keep the extension
         let avatar = data.get("avatar");
         let avatarName = avatar.name.split(".");
-        avatarName[0] = uuidv4();
+        avatarName[0] = nanoid();
         avatarName = avatarName.join(".");
 
         // 2. Extract the user info
@@ -133,6 +134,7 @@ export async function POST(req) {
         // 4. Hash the password and create the user object with sanitization
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = {
+            public_id: nanoid(),
             email: sanitizeHtml(email.trim()),
             firstName: sanitizeHtml(firstName.trim()),
             lastName: sanitizeHtml(lastName.trim()),
