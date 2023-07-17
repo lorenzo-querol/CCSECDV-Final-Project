@@ -170,43 +170,55 @@ async function retrieveUser(email, password) {
 }
 
 export async function GET(req) {
-    try {
-        await connectToDatabase();
-        const url = new URL(req.url);
-        const email = url.searchParams.get("email");
-        const password = url.searchParams.get("password");
-        if (!email || !password) {
-            return new Response({ message: "Invalid login" }, { status: 500 });
+    const url = new URL(req.url);
+    let option = url.searchParams.get("option")
+    // NOTE: This is temporary solution, so I am passing integer parameter "option" from axios to determine which GET functionality
+    //       to do. We're using one model for GET so I am guessing we will have to make do with 'this' for now.
+    if (option == 1) {
+        try {
+            //TODO: Query
+            await database.connect();
+            // 5. Execute the query
+            const query ="SELECT * FROM users";
+            const result = await database.query(query, [
+                user.email,
+                user.firstName,
+                user.lastName,
+            ]);
+            // 6. Close the connection
+            await database.end();
+            const formattedUsers = users.map((user) => ({
+                id: user.id,
+                name: `${user.firstName} ${user.lastName}`,
+                email: user.email,
+            }));
+            console.log(formattedUsers);
+            return new Response({ 
+                message: "Successfully retrieved users.", 
+                users : formattedUsers }, { 
+                status: 200 
+            });
+        } catch (error) {
+            console.log("Cant")
+            return new Response({ message: "Error Retrieving Users" }, { status: 500 });
         }
-
-        return await retrieveUser(email, password);
-    } catch (error) {
-        return new Response(
-            { message: "Internal Server Error." },
-            { status: 500 }
-        );
-    } finally {
-        console.log("GET REQUEST FINISHED");
-    }
-}
-
-async function retrieveUsers(req, res) {
-    try {
-        console.log("HELLO");
-        const users = await User.findall().exec();
-
-        const formattedUsers = users.map((user) => ({
-            id: user.id,
-            name: `${user.firstName} ${user.lastName}`,
-            email: user.email,
-        }));
-        console.log(formattedUsers);
-
-        res.status(200).json({
-            message: "Successfully retrieved users.",
-            users: formattedUsers,
-        });
-    } catch (error) {
-        res.status(500).json({ message: "Error retrieving users." });
+    } 
+    else {
+        try {
+            await connectToDatabase();
+            const email = url.searchParams.get("email");
+            const password = url.searchParams.get("password");
+            if (!email || !password) {
+                return new Response({ message: "Invalid login" }, { status: 500 });
+            }
+            return await retrieveUser(email, password);
+        } catch (error) {
+            return new Response(
+                { message: "Internal Server Error." },
+                { status: 500 }
+            );
+        } finally {
+            console.log("GET REQUEST FINISHED");
+        }
     }
 }

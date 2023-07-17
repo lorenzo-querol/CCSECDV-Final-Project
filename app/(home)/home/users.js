@@ -13,7 +13,11 @@ export default function Users() {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await axios.get('/api/users');
+        const response = await axios.get('/api/users', {
+          params : {
+            option: 1,
+        },
+      });
         if (response.status === 200) {
           const data = response.data;
           setUsers(data.users);
