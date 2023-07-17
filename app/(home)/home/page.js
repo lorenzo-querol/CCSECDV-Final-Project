@@ -47,7 +47,7 @@ export default function Sidebar({ }) {
     };
 
     return (
-        <div className="fixed left-0 flex">
+        <div className="fixed left-0 flex w-full h-screen">
             <div
                 className={`${close ? "w-20" : "w-72"
                     } relative h-screen bg-indigo-900 p-5 pt-8 duration-300 flex flex-col justify-start`}
@@ -108,7 +108,7 @@ export default function Sidebar({ }) {
                     </a>
                 </div>
             </div>
-            <div className="flex-1 w-screen h-screen">
+            <div className="flex-1">
                 {renderContent()} {/* Render content based on activeMenuItem */}
             </div>
         </div>
