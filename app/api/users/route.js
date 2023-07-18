@@ -4,6 +4,7 @@ import { writeFile } from "fs/promises";
 import { Buffer } from "buffer";
 import { nanoid } from "nanoid";
 
+import { NextResponse } from "next/server";
 import { database } from "@/utils/database";
 import { getLogger } from "@/utils/logger";
 
@@ -160,65 +161,60 @@ export async function POST(req) {
     }
 }
 
-async function retrieveUser(email, password) {
-    const user = await User.find({ email }).exec();
-    const pwCheck = await bcrypt.compare(password, user[0].password);
-    if (pwCheck)
-        return new Response({ message: "Successful login." }, { status: 201 });
-
-    return new Response({ message: "Error login user." }, { status: 401 });
-}
-
-export async function GET(req) {
-    const url = new URL(req.url);
-    let option = url.searchParams.get("option")
+export async function GET(req, res) {
+    const logger = getLogger();
+    // const url = new URL(req.url);
+    // let option = url.searchParams.get("option")
     // NOTE: This is temporary solution, so I am passing integer parameter "option" from axios to determine which GET functionality
     //       to do. We're using one model for GET so I am guessing we will have to make do with 'this' for now.
-    if (option == 1) {
-        try {
-            //TODO: Query
-            await database.connect();
-            // 5. Execute the query
-            const query ="SELECT * FROM users";
-            const result = await database.query(query, [
-                user.email,
-                user.firstName,
-                user.lastName,
-            ]);
-            // 6. Close the connection
-            await database.end();
-            const formattedUsers = users.map((user) => ({
-                id: user.id,
-                name: `${user.firstName} ${user.lastName}`,
-                email: user.email,
-            }));
-            console.log(formattedUsers);
-            return new Response({ 
-                message: "Successfully retrieved users.", 
-                users : formattedUsers }, { 
-                status: 200 
-            });
-        } catch (error) {
-            console.log("Cant")
-            return new Response({ message: "Error Retrieving Users" }, { status: 500 });
-        }
-    } 
-    else {
-        try {
-            await connectToDatabase();
-            const email = url.searchParams.get("email");
-            const password = url.searchParams.get("password");
-            if (!email || !password) {
-                return new Response({ message: "Invalid login" }, { status: 500 });
+
+    try {
+        const query = "SELECT * FROM users";
+
+        await database.connect();
+        const result = await database.query(query);
+        await database.end();
+
+        const formattedUsers = result.map((user) => ({
+            id: user.public_id,
+            name: `${user.first_name} ${user.last_name}`,
+            email: user.email,
+        }));
+
+        return new Response(
+            JSON.stringify({
+                error: null,
+                message: "Successfully retrieved users.",
+                data: formattedUsers,
+            }),
+            {
+                status: 200,
             }
-            return await retrieveUser(email, password);
-        } catch (error) {
-            return new Response(
-                { message: "Internal Server Error." },
-                { status: 500 }
-            );
-        } finally {
-            console.log("GET REQUEST FINISHED");
-        }
+        );
+    } catch (error) {
+        logger.error(error.message);
+        return new Response(
+            { message: "Internal server errror." },
+            { status: 500 }
+        );
     }
+
+    // else {
+    //     try {
+    //         await connectToDatabase();
+    //         const email = url.searchParams.get("email");
+    //         const password = url.searchParams.get("password");
+    //         if (!email || !password) {
+    //             return new Response({ message: "Invalid login" }, { status: 500 });
+    //         }
+    //         return await retrieveUser(email, password);
+    //     } catch (error) {
+    //         return new Response(
+    //             { message: "Internal Server Error." },
+    //             { status: 500 }
+    //         );
+    //     } finally {
+    //         console.log("GET REQUEST FINISHED");
+    //     }
+    // }
 }
