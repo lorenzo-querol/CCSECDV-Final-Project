@@ -1,33 +1,67 @@
-import User from "@/models/user";
+import { getLogger } from "@/utils/logger";
+import { NextResponse } from "next/server";
+import { database } from "@/utils/database";
+import path from "path";
+import fs from "fs";
 
-export async function GET(req) {
+export async function GET(req, { params }) {
+    const logger = getLogger();
+
     try {
-        const { searchParams } = new URL(request.url);
-        const email = searchParams.get("email");
+        const { email } = params;
 
-        const user = User.findOne({ email });
+        await database.connect();
+        const query =
+            "SELECT public_id, email, first_name, last_name, password, phone_num, avatar FROM users WHERE email = ?";
+        const result = await database.query(query, [email]);
+        await database.end();
 
-        if (!user)
-            return new Response({ message: "User not found" }, { status: 404 });
+        if (result.length === 0)
+            return NextResponse.json({
+                error: "notfound",
+                status: 400,
+                ok: false,
+                data: null,
+            });
 
-        return new Response({ message: "User found" }, { status: 200 });
+        const imagePath = path.join(process.cwd(), result[0].avatar);
+        const imageBuffer = fs.readFileSync(imagePath);
+        const base64Image = Buffer.from(imageBuffer).toString("base64");
+
+        return NextResponse.json({
+            error: null,
+            status: 200,
+            ok: true,
+            data: {
+                ...result[0],
+                avatar: {
+                    ext: path.extname(imagePath),
+                    data: base64Image,
+                },
+            },
+        });
     } catch (error) {
-        console.log(`[${new Date().toLocaleString()}]`, error.message);
-        return new Response({ message: "Error finding user" }, { status: 500 });
+        logger.error(error.message);
+        return NextResponse.json({
+            error: "internal",
+            status: 500,
+            ok: false,
+            data: null,
+        });
     }
 }
 
-export async function PATCH(req) {
+export async function PATCH(req, { params }) {
+    const logger = getLogger();
     try {
-        const { searchParams } = new URL(request.url);
-        const email = searchParams.get("email");
-
-        
+        const { email } = params;
     } catch (error) {
-        console.log(`[${new Date().toLocaleString()}]`, error.message);
-        return new Response(
-            { message: "Error updating user" },
-            { status: 500 }
-        );
+        logger.error(error.message);
+        return NextResponse.json({
+            error: "internal",
+            status: 500,
+            ok: false,
+            data: null,
+        });
     }
 }

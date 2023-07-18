@@ -43,7 +43,7 @@ const authHandler = async (req, res) => {
                         // Throw an error if limit is reached
                         if (rateLimited)
                             throw new Error(
-                                "Too many requests, please try again later"
+                                "Too many requests, please try again later."
                             );
 
                         // 3. Check if the user exists
@@ -65,7 +65,9 @@ const authHandler = async (req, res) => {
                         // 5. If the password matches, return the user object
                         if (user && samePassword)
                             return {
+                                public_id: user.public_id,
                                 email: user.email,
+                                name: `${user.first_name} ${user.last_name}`,
                             };
 
                         return null;
@@ -75,8 +77,9 @@ const authHandler = async (req, res) => {
             callbacks: {
                 async jwt(token, user) {
                     if (user) {
-                        // token.id = user.id;
+                        token.public_id = user.public_id;
                         token.email = user.email;
+                        token.name = `${user.first_name} ${user.last_name}`;
                     }
 
                     return token;
@@ -90,10 +93,12 @@ const authHandler = async (req, res) => {
         });
     } catch (error) {
         logger.error(error.message);
-        return new Response(
-            { message: "Internal Server Error." },
-            { status: 500 }
-        );
+        return NextResponse.json({
+            error: "internal",
+            status: 500,
+            ok: false,
+            data: null,
+        });
     }
 };
 

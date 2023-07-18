@@ -44,7 +44,7 @@ export default function Register() {
         formData.append("userInfo", JSON.stringify(cleanedData));
 
         try {
-            await axios.post("/api/users", formData, {
+            const { data } = await axios.post("/api/users", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

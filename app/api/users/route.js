@@ -58,22 +58,14 @@ const validateData = (firstName, lastName, phoneNumber, email) => {
  */
 async function saveUser(user, avatar) {
     try {
-        // 1. Prepare the avatar for saving to the file system
-        const bytes = await avatar.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        const path = `${process.cwd()}/${user.avatar}`;
-
-        // 2. Save the avatar to the file system and user to the database
-        await writeFile(path, buffer);
-
-        // 3. Prepare the query
+        // 1. Prepare the query
         const query =
             "INSERT INTO users (public_id, email, first_name, last_name, password, phone_num, avatar) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        // 4. Connect to database
+        // 2. Connect to database
         await database.connect();
 
-        // 5. Execute the query
+        // 3. Execute the query
         await database.query(query, [
             user.public_id,
             user.email,
@@ -84,8 +76,16 @@ async function saveUser(user, avatar) {
             user.avatar,
         ]);
 
-        // 6. Close the connection
+        // 4. Close the connection
         await database.end();
+
+        // 5. Prepare the avatar for saving to the file system
+        const bytes = await avatar.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const path = `${process.cwd()}/${user.avatar}`;
+
+        // 6. Save the avatar to the file system and user to the database
+        await writeFile(path, buffer);
     } catch (error) {
         throw new Error(error.message);
     }
@@ -93,7 +93,6 @@ async function saveUser(user, avatar) {
 
 export async function POST(req) {
     const logger = getLogger();
-
     try {
         // 1. Parse the form data
         const data = await req.formData();
@@ -148,25 +147,43 @@ export async function POST(req) {
         await saveUser(user, avatar);
 
         logger.info("User creation successful");
-        return new Response(
-            { message: "User creation successful." },
-            { status: 201 }
-        );
+        return NextResponse.json({
+            error: null,
+            status: 201,
+            ok: true,
+            data: null,
+        });
     } catch (error) {
         logger.error(error.message);
-        return new Response(
-            { message: "Internal server errror." },
-            { status: 500 }
-        );
+        if (error.message.includes("ER_DUP_ENTRY")) {
+            return NextResponse.json({
+                error: "duplicate",
+                status: 400,
+                ok: false,
+                data: null,
+            });
+        }
+
+        if (error.message.includes("ER_DATA_TOO_LONG")) {
+            return NextResponse.json({
+                error: "long_data",
+                status: 400,
+                ok: false,
+                data: null,
+            });
+        }
+
+        return NextResponse.json({
+            error: "internal",
+            status: 500,
+            ok: false,
+            data: null,
+        });
     }
 }
 
 export async function GET(req, res) {
     const logger = getLogger();
-    // const url = new URL(req.url);
-    // let option = url.searchParams.get("option")
-    // NOTE: This is temporary solution, so I am passing integer parameter "option" from axios to determine which GET functionality
-    //       to do. We're using one model for GET so I am guessing we will have to make do with 'this' for now.
 
     try {
         const query = "SELECT * FROM users";
@@ -175,46 +192,25 @@ export async function GET(req, res) {
         const result = await database.query(query);
         await database.end();
 
-        const formattedUsers = result.map((user) => ({
+        const users = result.map((user) => ({
             id: user.public_id,
-            name: `${user.first_name} ${user.last_name}`,
             email: user.email,
+            name: `${user.first_name} ${user.last_name}`,
         }));
 
-        return new Response(
-            JSON.stringify({
-                error: null,
-                message: "Successfully retrieved users.",
-                data: formattedUsers,
-            }),
-            {
-                status: 200,
-            }
-        );
+        return NextResponse.json({
+            error: null,
+            status: 200,
+            ok: true,
+            data: users,
+        });
     } catch (error) {
         logger.error(error.message);
-        return new Response(
-            { message: "Internal server errror." },
-            { status: 500 }
-        );
+        return NextResponse.json({
+            error: "internal",
+            status: 500,
+            ok: false,
+            data: null,
+        });
     }
-
-    // else {
-    //     try {
-    //         await connectToDatabase();
-    //         const email = url.searchParams.get("email");
-    //         const password = url.searchParams.get("password");
-    //         if (!email || !password) {
-    //             return new Response({ message: "Invalid login" }, { status: 500 });
-    //         }
-    //         return await retrieveUser(email, password);
-    //     } catch (error) {
-    //         return new Response(
-    //             { message: "Internal Server Error." },
-    //             { status: 500 }
-    //         );
-    //     } finally {
-    //         console.log("GET REQUEST FINISHED");
-    //     }
-    // }
 }
