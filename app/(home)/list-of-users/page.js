@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react'
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -14,10 +16,10 @@ export default function Users() {
     async function fetchUsers() {
       try {
         const response = await axios.get('/api/users', {
-          params : {
+          params: {
             option: 1,
-        },
-      });
+          },
+        });
         if (response.status === 200) {
           const data = response.data;
           setUsers(data.users);
