@@ -27,6 +27,7 @@ export default function Register() {
         handleSubmit,
         watch,
     } = useForm();
+    const [errorMessage, setErrorMessage] = useState(null); // State to store the error message
 
     const onSubmit = async (data) => {
         const formData = new FormData();
@@ -49,8 +50,17 @@ export default function Register() {
                     "Content-Type": "multipart/form-data",
                 },
             });
+
         } catch (error) {
             console.log("Error uploading file:", error.message);
+            // Error message
+            if (error.response.data.error) {
+                // If the error response contains the "error" property
+                setErrorMessage(error.response.data.message);
+            } else {
+                // Default error message
+                setErrorMessage("An error occurred during registration.");
+            }
         }
     };
 
@@ -311,6 +321,11 @@ export default function Register() {
                             {errors.avatar?.message}
                         </p>
                     )}
+                </div>
+
+                {/* Render the error message */}
+                <div>
+                    {errorMessage && <p className="text-sm text-center text-red-500">{errorMessage}</p>}
                 </div>
 
                 <div>

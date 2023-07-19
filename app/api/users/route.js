@@ -7,6 +7,7 @@ import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { database } from "@/utils/database";
 import { getLogger } from "@/utils/logger";
+import { log } from "console";
 
 // Turn off body parsing, and instead use the raw body
 export const config = {
@@ -161,6 +162,7 @@ export async function POST(req) {
                 status: 400,
                 ok: false,
                 data: null,
+                message: "Email already exists.",
             });
         }
 
@@ -170,6 +172,7 @@ export async function POST(req) {
                 status: 400,
                 ok: false,
                 data: null,
+                message: "Data too long. Please register again.",
             });
         }
 
@@ -178,6 +181,7 @@ export async function POST(req) {
             status: 500,
             ok: false,
             data: null,
+            message: "Internal server error. Please try again later.",
         });
     }
 }
