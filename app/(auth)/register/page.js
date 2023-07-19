@@ -158,12 +158,13 @@ export default function Register() {
                             placeholder="Phone Number"
                             className={styles.input_text}
                             {...register("phoneNumber", {
-                                required: "First name is required",
+                                required: "Phone number is required",
                                 pattern: {
-                                    value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
-                                    message: "Please enter a valid name",
+                                    value: /^\s*09\d{9}\s*$/,
+                                    message:
+                                        "Please enter a valid phone number (09xxxxxxxxx)",
                                 },
-                            })}
+                            })} // Matches a sequence of 10 to 12 digits
                         />
                         <span className="flex items-center px-4 ">
                             <HiOutlinePhone size={20} />
@@ -265,9 +266,8 @@ export default function Register() {
                         }}
                     >
                         <input
-                            type={`${
-                                show.confirmPassword ? "text" : "password"
-                            }`}
+                            type={`${show.confirmPassword ? "text" : "password"
+                                }`}
                             name="confirmPassword"
                             placeholder="Confirm Password"
                             className={styles.input_text}
@@ -305,13 +305,14 @@ export default function Register() {
                             required: "Profile photo is required",
                         })}
                     />
+                    {/* Error message */}
+                    {errors.avatar && (
+                        <p role="alert" className={styles.error_text}>
+                            {errors.avatar?.message}
+                        </p>
+                    )}
                 </div>
-                {/* Error message */}
-                {errors.avatar && (
-                    <p role="alert" className={styles.error_text}>
-                        {errors.avatar?.message}
-                    </p>
-                )}
+
                 <div>
                     {/* Register button */}
                     <button className={styles.button} type="submit">
