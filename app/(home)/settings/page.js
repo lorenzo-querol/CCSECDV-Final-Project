@@ -341,7 +341,7 @@ export default function Register() {
          {/* Save Changes */}
          {showSaveModal && (
             <div
-               class="fixed z-10 inset-0 overflow-y-auto "
+               className="fixed inset-0 z-10 overflow-y-auto "
                aria-labelledby="modal-title"
                role="dialog"
                aria-modal="true"
@@ -349,27 +349,27 @@ export default function Register() {
             >
                {/* <!-- Background --> */}
                <div
-                  class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+                  className="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0"
                >
                   {/* <!--  Gray Background --> */}
                   <div
-                     class="fixed inset-0 bg-gray-600 bg-opacity-80 transition-opacity"
+                     className="fixed inset-0 transition-opacity bg-gray-600 bg-opacity-80"
                      aria-hidden="true"
                   ></div>
                   {/* <!--  Center the pop-up message--> */}
                   <span
-                     class="hidden sm:inline-block sm:align-middle sm:h-screen"
+                     className="hidden sm:inline-block sm:align-middle sm:h-screen"
                      aria-hidden="true"
                   ></span>
 
                   <div
-                     class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+                     className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
                   >
-                     <div class="flex flex-row items-center justify-between p-4">
+                     <div className="flex flex-row items-center justify-between p-4">
                         {/* <!--  Top  --> */}
-                        <div class="flex flex-wrap">
+                        <div className="flex flex-wrap">
                            <div
-                              class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-400 sm:mx-0 sm:h-10 sm:w-10"
+                              className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-green-400 rounded-full sm:mx-0 sm:h-10 sm:w-10"
                            >
                               <span className="flex items-center px-4 ">
                                  <BsFillExclamationTriangleFill size={20} />
@@ -446,7 +446,7 @@ export default function Register() {
          {/* Deactivate Account */}
          {showDeactivateModal && (
             <div
-               class="fixed z-10 inset-0 overflow-y-auto "
+               className="fixed inset-0 z-10 overflow-y-auto "
                aria-labelledby="modal-title"
                role="dialog"
                aria-modal="true"
@@ -454,27 +454,27 @@ export default function Register() {
             >
                {/* <!-- Background --> */}
                <div
-                  class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+                  className="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0"
                >
                   {/* <!--  Gray Background --> */}
                   <div
-                     class="fixed inset-0 bg-gray-600 bg-opacity-80 transition-opacity"
+                     className="fixed inset-0 transition-opacity bg-gray-600 bg-opacity-80"
                      aria-hidden="true"
                   ></div>
                   {/* <!--  Center the pop-up message--> */}
                   <span
-                     class="hidden sm:inline-block sm:align-middle sm:h-screen"
+                     className="hidden sm:inline-block sm:align-middle sm:h-screen"
                      aria-hidden="true"
                   ></span>
 
                   <div
-                     class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+                     className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
                   >
-                     <div class="flex flex-row items-center justify-between p-4">
+                     <div className="flex flex-row items-center justify-between p-4">
                         {/* <!--  Top  --> */}
-                        <div class="flex flex-wrap">
+                        <div className="flex flex-wrap">
                            <div
-                              class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-400 sm:mx-0 sm:h-10 sm:w-10"
+                              className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-red-400 rounded-full sm:mx-0 sm:h-10 sm:w-10"
                            >
                               <span className="flex items-center px-4 ">
                                  <BsFillExclamationTriangleFill size={20} />

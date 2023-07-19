@@ -79,17 +79,17 @@ export default function Users() {
         </table>
       </div>
 
-      <div class="flex flex-col items-center">
+      <div className="flex flex-col items-center">
         {/* <!-- Help text --> */}
-        <span class="text-sm text-indigo-700 dark:text-indigo-400">
-          Showing <span class="font-semibold text-indigo-900 dark:text-white">1</span> to <span class="font-semibold text-indigo-900 dark:text-white">10</span> of <span class="font-semibold text-indigo-900 dark:text-white">100</span> Users
+        <span className="text-sm text-indigo-700 dark:text-indigo-400">
+          Showing <span className="font-semibold text-indigo-900 dark:text-white">1</span> to <span className="font-semibold text-indigo-900 dark:text-white">10</span> of <span className="font-semibold text-indigo-900 dark:text-white">100</span> Users
         </span>
         {/* <!-- Buttons --> */}
-        <div class="inline-flex mt-2 xs:mt-0">
-          <button class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-indigo-800 rounded-l hover:bg-indigo-900 dark:bg-indigo-800 dark:border-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-700 dark:hover:text-white">
+        <div className="inline-flex mt-2 xs:mt-0">
+          <button className="flex items-center justify-center h-8 px-3 text-sm font-medium text-white bg-indigo-800 rounded-l hover:bg-indigo-900 dark:bg-indigo-800 dark:border-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-700 dark:hover:text-white">
             <AiOutlineArrowLeft size={20} />
           </button>
-          <button class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-indigo-800 border-0 border-l border-indigo-700 rounded-r hover:bg-indigo-900 dark:bg-indigo-800 dark:border-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-700 dark:hover:text-white">
+          <button className="flex items-center justify-center h-8 px-3 text-sm font-medium text-white bg-indigo-800 border-0 border-l border-indigo-700 rounded-r hover:bg-indigo-900 dark:bg-indigo-800 dark:border-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-700 dark:hover:text-white">
             <AiOutlineArrowRight size={20} />
           </button>
         </div>
