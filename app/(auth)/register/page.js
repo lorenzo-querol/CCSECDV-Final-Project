@@ -27,7 +27,7 @@ export default function Register() {
         handleSubmit,
         watch,
     } = useForm();
-    const [errorMessage, setErrorMessage] = useState(null); // State to store the error message
+    const [errorMessage, setErrorMessage] = useState(false); // State to store the error message
 
     const onSubmit = async (data) => {
         const formData = new FormData();
@@ -43,24 +43,28 @@ export default function Register() {
 
         formData.append("avatar", data.avatar[0]);
         formData.append("userInfo", JSON.stringify(cleanedData));
-
         try {
             const { data } = await axios.post("/api/users", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             });
+            if (!data.ok)
+                throw new Error(data.message);
 
+            //if (data.error)
         } catch (error) {
-            console.log("Error uploading file:", error.message);
             // Error message
-            if (error.response.data.error) {
+
+            if (error.message != null) {
                 // If the error response contains the "error" property
-                setErrorMessage(error.response.data.message);
+                setErrorMessage(error.message);
             } else {
                 // Default error message
                 setErrorMessage("An error occurred during registration.");
             }
+        } finally {
+            ;
         }
     };
 
