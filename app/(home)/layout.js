@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import sidebar from "../layout";
 
 import {
     AiFillHome,
@@ -27,14 +26,26 @@ import logo from "@/public/vercel.svg";
 
 export default function Sidebar({ children }) {
     const [close, setClose] = useState(false);
-    const [activeMenuItem, setActiveMenuItem] = useState("Home"); // Set initial active menu item by title
+    const [activeMenuItem, setActiveMenuItem] = useState(""); // Set initial active menu item by title
+    const pathname = window.location.pathname;
 
-    const Menus = [
+    const Menus = useMemo(() => [
         { title: "Home", icon: <AiFillHome />, path: "/home" },
         { title: "List of Users", icon: <FaUsers />, path: "/list-of-users" },
         { title: "Settings", icon: <BsFillGearFill />, path: "/settings" },
         { title: "Log Out", icon: <AiOutlineLogout />, path: "/login" }
-    ];
+    ], []);
+
+    useEffect(() => {
+        // Set the active menu item initially based on the pathname
+        const cleanPathname = pathname.replace(/\/$/, "");
+
+        const menu = Menus.find((menu) => menu.path === cleanPathname);
+        // alert(menu.path)
+        if (menu) {
+            setActiveMenuItem(menu.title);
+        }
+    }, [pathname, Menus]);
 
     const handleMenuItemClick = (title, path) => {
         setActiveMenuItem(title);
