@@ -1,6 +1,9 @@
+"use client";
 import "./globals.css";
 import Image from "next/image";
 import BackgroundImage from "@/public/login.jpg";
+
+import { SessionProvider } from "next-auth/react";
 
 export const metadata = {
     title: "Create Next App",
@@ -11,8 +14,10 @@ export default function RootLayout({ children }) {
     return (
         <html className="relative w-full h-screen">
             <body className="flex items-center justify-center h-full">
-                {/* <Image src={BackgroundImage} alt="background image" fill /> */}
-                {children}
+                <SessionProvider>
+                    {/* <Image src={BackgroundImage} alt="background image" fill /> */}
+                    {children}
+                </SessionProvider>
             </body>
         </html>
     );
