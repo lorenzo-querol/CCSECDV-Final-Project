@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import sanitizeHtml from "sanitize-html";
 import styles from "@/app/Form.module.css";
 import axios from "axios";
-import Message from '../message'; // Adjust the import path according to your file structure
 
 // Icons
 import {
