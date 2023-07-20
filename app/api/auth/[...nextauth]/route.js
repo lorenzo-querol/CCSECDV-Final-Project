@@ -48,7 +48,7 @@ const authHandler = async (req, res) => {
 
                         // 3. Check if the user exists
                         const query =
-                            "SELECT email, password FROM users WHERE email = ?";
+                            "SELECT public_id, first_name, last_name, email, password FROM users WHERE email = ?";
 
                         await database.connect();
                         const user = await database.query(query, [
@@ -63,12 +63,18 @@ const authHandler = async (req, res) => {
                         );
 
                         // 5. If the password matches, return the user object
-                        if (user && samePassword)
+                        if (user && samePassword) {
+                            console.log({
+                                public_id: user[0].public_id,
+                                email: user[0].email,
+                                name: `${user[0].first_name} ${user[0].last_name}`,
+                            });
                             return {
-                                public_id: user.public_id,
-                                email: user.email,
-                                name: `${user.first_name} ${user.last_name}`,
+                                public_id: user[0].public_id,
+                                email: user[0].email,
+                                name: `${user[0].first_name} ${user[0].last_name}`,
                             };
+                        }
 
                         return null;
                     },
