@@ -16,7 +16,6 @@ import {
 } from "react-icons/hi";
 
 export default function Register() {
-    const inputFileRef = useRef();
     const [show, setShow] = useState({
         password: false,
         confirmPassword: false,
@@ -49,8 +48,12 @@ export default function Register() {
                     "Content-Type": "multipart/form-data",
                 },
             });
+<<<<<<< Updated upstream
             if (!data.ok)
                 throw new Error(data.message);
+=======
+            if (!data.ok) throw new Error(data.message);
+>>>>>>> Stashed changes
 
             //if (data.error)
         } catch (error) {
@@ -64,7 +67,10 @@ export default function Register() {
                 setErrorMessage("An error occurred during registration.");
             }
         } finally {
+<<<<<<< Updated upstream
             ;
+=======
+>>>>>>> Stashed changes
         }
     };
 
@@ -280,8 +286,9 @@ export default function Register() {
                         }}
                     >
                         <input
-                            type={`${show.confirmPassword ? "text" : "password"
-                                }`}
+                            type={`${
+                                show.confirmPassword ? "text" : "password"
+                            }`}
                             name="confirmPassword"
                             placeholder="Confirm Password"
                             className={styles.input_text}
@@ -329,7 +336,11 @@ export default function Register() {
 
                 {/* Render the error message */}
                 <div>
-                    {errorMessage && <p className="text-sm text-center text-red-500">{errorMessage}</p>}
+                    {errorMessage && (
+                        <p className="text-sm text-center text-red-500">
+                            {errorMessage}
+                        </p>
+                    )}
                 </div>
 
                 <div>
