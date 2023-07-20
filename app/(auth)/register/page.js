@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import sanitizeHtml from "sanitize-html";
 import styles from "@/app/Form.module.css";
 import axios from "axios";
+import Message from '../message'; // Adjust the import path according to your file structure
 
 // Icons
 import {
@@ -27,6 +28,7 @@ export default function Register() {
         watch,
     } = useForm();
     const [errorMessage, setErrorMessage] = useState(false); // State to store the error message
+    const [isRegister, setIsRegister] = useState(false); // State to store the isRegister message
 
     const onSubmit = async (data) => {
         const formData = new FormData();
@@ -48,17 +50,16 @@ export default function Register() {
                     "Content-Type": "multipart/form-data",
                 },
             });
-<<<<<<< Updated upstream
             if (!data.ok)
                 throw new Error(data.message);
-=======
-            if (!data.ok) throw new Error(data.message);
->>>>>>> Stashed changes
+
+            setErrorMessage("");    // Reset error message
+            setIsRegister(true);    // Show success message
 
             //if (data.error)
         } catch (error) {
+            setIsRegister(false);    // Hide success message
             // Error message
-
             if (error.message != null) {
                 // If the error response contains the "error" property
                 setErrorMessage(error.message);
@@ -66,11 +67,6 @@ export default function Register() {
                 // Default error message
                 setErrorMessage("An error occurred during registration.");
             }
-        } finally {
-<<<<<<< Updated upstream
-            ;
-=======
->>>>>>> Stashed changes
         }
     };
 
@@ -286,9 +282,7 @@ export default function Register() {
                         }}
                     >
                         <input
-                            type={`${
-                                show.confirmPassword ? "text" : "password"
-                            }`}
+                            type={`${show.confirmPassword ? "text" : "password"}`}
                             name="confirmPassword"
                             placeholder="Confirm Password"
                             className={styles.input_text}
@@ -341,6 +335,12 @@ export default function Register() {
                             {errorMessage}
                         </p>
                     )}
+
+                    {isRegister && (
+                        <p className="text-sm text-center text-green-500">
+                            Your account has been created successfully.
+                        </p>
+                    )}
                 </div>
 
                 <div>
@@ -356,7 +356,7 @@ export default function Register() {
                         <Link href="/login">Sign in</Link>
                     </span>
                 </p>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 }
