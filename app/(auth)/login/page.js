@@ -20,12 +20,11 @@ export default function Login() {
             event.preventDefault();
 
             const result = await signIn("credentials", {
-                redirect: false,
+                callbackUrl: "http://localhost:3000/list-of-users",
+                redirect: true,
                 email: email,
                 password: password,
             });
-
-            console.log(result);
 
             if (result.error) {
                 setLoginError(true);
@@ -34,7 +33,7 @@ export default function Login() {
 
             setLoginError(false);
         } catch (error) {
-            console.log(error);
+            console.log(error.message);
         }
     };
 
