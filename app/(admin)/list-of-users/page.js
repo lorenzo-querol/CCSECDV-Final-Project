@@ -8,12 +8,7 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 
 export default function Users() {
     const router = useRouter();
-    const { status } = useSession({
-        required: true,
-        onUnauthenticated() {
-            router.replace("/login");
-        },
-    });
+
     const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;

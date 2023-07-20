@@ -35,7 +35,6 @@ export default function Sidebar({ children }) {
         { title: "Home", icon: <AiFillHome />, path: "/home" },
         { title: "List of Users", icon: <FaUsers />, path: "/list-of-users" },
         { title: "Settings", icon: <BsFillGearFill />, path: "/settings" },
-        { title: "Log Out", icon: <AiOutlineLogout />, path: "/login" },
     ];
 
     const handleMenuItemClick = (title, path) => {
@@ -98,19 +97,25 @@ export default function Sidebar({ children }) {
                             </Link>
                         </li>
                     ))}
-                    <Link
-                        href={Menu.path}
-                        className="flex items-center space-x-2"
+                    <li
+                        className={`flex cursor-pointer items-center gap-x-4 rounded-md p-2 text-xl text-white hover:bg-indigo-700 mt-2`}
+                        onClick={() =>
+                            signOut({
+                                callbackUrl: "http://localhost:3000/login",
+                            })
+                        }
                     >
-                        {Menu.icon}
-                        <span
-                            className={`${
-                                close && "hidden"
-                            } origin-left duration-200`}
-                        >
-                            {Menu.title}
-                        </span>
-                    </Link>
+                        <div className="flex items-center space-x-2">
+                            <AiOutlineLogout />
+                            <span
+                                className={`${
+                                    close && "hidden"
+                                } origin-left duration-200`}
+                            >
+                                Log Out
+                            </span>
+                        </div>
+                    </li>
                 </ul>
 
                 {/* Account */}
