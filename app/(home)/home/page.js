@@ -64,7 +64,7 @@ export default function Home() {
       <>
          <div className='flex flex-row h-full overflow-y-auto'>
             {/* Middle */}
-            <div className="flex-grow w-4/6 h-full border-t-0 border-gray-600 border-x-2">
+            <div className="w-4/6 h-full border-t-0 border-gray-600 border-x-2">
                <div className="flex">
                   <div className="flex-1 m-2">
                      <h2 className="px-4 py-2 text-2xl font-bold text-white">Home</h2>
@@ -138,9 +138,9 @@ export default function Home() {
                <div></div>
 
                {/* List of posts */}
-               <div className="flex-col ">
+               <ul className="list-none">
                   {/* Post */}
-                  <div className="border-b-2 border-gray-600 ">
+                  <li className="border-b-2 border-gray-600 ">
                      <div className="flex flex-shrink-0 p-4 ">
                         <div className="flex-grow">
                            {/* Post: header */}
@@ -241,7 +241,7 @@ export default function Home() {
                         </div>
                      </div>
                      {/* <hr className="border-gray-600" /> */}
-                  </div>
+                  </li>
                   {/* Post */}
                   <div>
                      <div className="flex flex-shrink-0 p-4 ">
@@ -345,7 +345,7 @@ export default function Home() {
                      </div>
                      {/* <hr className="border-gray-600" /> */}
                   </div>
-               </div>
+               </ul>
 
 
             </div>
