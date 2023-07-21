@@ -94,6 +94,7 @@ async function saveUser(user, avatar) {
 
 export async function POST(req) {
     const logger = getLogger();
+
     try {
         // 1. Parse the form data
         const data = await req.formData();
@@ -186,15 +187,22 @@ export async function POST(req) {
     }
 }
 
-export async function GET(req, res) {
+export async function GET(req) {
     const logger = getLogger();
 
     try {
-        const query = "SELECT * FROM users";
+        const page = parseInt(req.nextUrl.searchParams.get("page"), 10) || 1; // default to page 1
+        const limit = 10;
+        const offset = (page - 1) * limit;
+
+        logger.info(`Page: ${page}, Limit: ${limit}, Offset: ${offset}`);
+        const query = "SELECT * FROM users LIMIT ? OFFSET ?";
 
         await database.connect();
-        const result = await database.query(query);
+        const result = await database.query(query, [limit, offset]);
         await database.end();
+
+        const totalPages = Math.ceil(result.length / limit);
 
         const users = result.map((user) => ({
             id: user.user_id,
@@ -206,7 +214,12 @@ export async function GET(req, res) {
             error: null,
             status: 200,
             ok: true,
-            data: users,
+            data: {
+                page,
+                totalPages,
+                limit,
+                users: users,
+            },
         });
     } catch (error) {
         logger.error(error.message);

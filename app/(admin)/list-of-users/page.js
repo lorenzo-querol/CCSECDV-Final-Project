@@ -1,45 +1,41 @@
-"use client";
-
 import React from "react";
-import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 
-export default function Users() {
-    const router = useRouter();
-
-    const [users, setUsers] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-
-    // Pagination
-    const totalItems = users.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const indexOfLastItem = Math.min(currentPage * itemsPerPage, totalItems);
-    const indexOfFirstItem = Math.min(
-        indexOfLastItem - itemsPerPage,
-        totalItems
-    );
-    const currentItems = users.slice(indexOfFirstItem, indexOfLastItem);
-
-    const fetchUsers = async () => {
-        try {
-            const { data } = await axios.get("/api/users");
-            if (!data.ok) {
-                console.error("Error retrieving users:", response.status);
-                return;
+const fetchUsers = async (page) => {
+    try {
+        const res = await fetch(
+            `http://localhost:3000/api/users?page=${page}`,
+            {
+                cache: "no-store",
             }
+        );
 
-            setUsers(data.data);
-        } catch (error) {
-            console.error("Error retrieving users:", error);
-        }
-    };
+        const { data } = await res.json();
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+        return data;
+    } catch (error) {
+        console.log("Something went wrong:", error.message);
+    }
+};
+
+export default async function Users() {
+    let currentPage = 1;
+    let { page, totalPages, limit, users } = await fetchUsers(currentPage);
+
+    console.log(users);
+    // Pagination
+    // const totalItems = users.length;
+    // const totalPages = Math.ceil(totalItems / itemsPerPage);
+    // const indexOfLastItem = Math.min(currentPage * itemsPerPage, totalItems);
+    // const indexOfFirstItem = Math.min(
+    //     indexOfLastItem - itemsPerPage,
+    //     totalItems
+    // );
+    // const currentItems = users.slice(indexOfFirstItem, indexOfLastItem);
+
+    if (!users) return <div>Error in fetching users</div>;
 
     return (
         <div className="w-full">
@@ -61,7 +57,7 @@ export default function Users() {
                         </tr>
                     </thead>
                     <tbody className="items-center justify-center w-full mx-auto">
-                        {currentItems.map((user) => (
+                        {users.map((user) => (
                             <tr key={user.id}>
                                 <td className="px-4 py-2 border-b">
                                     {user.name}
@@ -81,24 +77,24 @@ export default function Users() {
                 <span className="text-sm text-indigo-700 dark:text-indigo-400">
                     Showing{" "}
                     <span className="font-semibold text-indigo-900 dark:text-white">
-                        {Math.min(
+                        {/* {Math.min(
                             (currentPage - 1) * itemsPerPage + 1,
                             totalItems
-                        )}
+                        )} */}
                     </span>{" "}
                     to{" "}
                     <span className="font-semibold text-indigo-900 dark:text-white">
-                        {Math.min(currentPage * itemsPerPage, totalItems)}
+                        {/* {Math.min(currentPage * itemsPerPage, totalItems)} */}
                     </span>{" "}
                     of{" "}
                     <span className="font-semibold text-indigo-900 dark:text-white">
-                        {totalItems}
+                        {/* {totalItems} */}
                     </span>{" "}
                     Users
                 </span>
                 {/* Buttons */}
                 <div className="inline-flex mt-2 xs:mt-0">
-                    <button
+                    {/* <button
                         className="flex items-center justify-center h-8 px-3 text-sm font-medium text-white bg-indigo-800 rounded-l hover:bg-indigo-900 dark:bg-indigo-800 dark:border-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-700 dark:hover:text-white"
                         onClick={() => setCurrentPage(currentPage - 1)}
                         disabled={currentPage === 1}
@@ -111,7 +107,7 @@ export default function Users() {
                         disabled={currentPage === totalPages}
                     >
                         <AiOutlineArrowRight size={20} />
-                    </button>
+                    </button> */}
                 </div>
             </div>
         </div>
