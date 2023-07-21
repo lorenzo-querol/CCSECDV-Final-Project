@@ -27,7 +27,12 @@ import logo from "@/public/vercel.svg";
 export default function Sidebar({ children }) {
     const [close, setClose] = useState(false);
     const [activeMenuItem, setActiveMenuItem] = useState(""); // Set initial active menu item by title
-    const pathname = window.location.pathname;
+    const [pathname, setPathname] = useState(""); // Initialize pathname state with an empty string
+
+    useEffect(() => {
+        // Update pathname state with the current pathname when the component mounts
+        setPathname(window.location.pathname);
+    }, []);
 
     const Menus = useMemo(() => [
         { title: "Home", icon: <AiFillHome />, path: "/home" },
