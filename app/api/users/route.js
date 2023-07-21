@@ -61,14 +61,14 @@ async function saveUser(user, avatar) {
     try {
         // 1. Prepare the query
         const query =
-            "INSERT INTO users (public_id, email, first_name, last_name, password, phone_num, avatar) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            "INSERT INTO users (user_id, email, first_name, last_name, password, phone_num, avatar) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         // 2. Connect to database
         await database.connect();
 
         // 3. Execute the query
         await database.query(query, [
-            user.public_id,
+            user.user_id,
             user.email,
             user.firstName,
             user.lastName,
@@ -135,7 +135,7 @@ export async function POST(req) {
         // 4. Hash the password and create the user object with sanitization
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = {
-            public_id: nanoid(),
+            user_id: nanoid(),
             email: sanitizeHtml(email.trim()),
             firstName: sanitizeHtml(firstName.trim()),
             lastName: sanitizeHtml(lastName.trim()),
@@ -197,7 +197,7 @@ export async function GET(req, res) {
         await database.end();
 
         const users = result.map((user) => ({
-            id: user.public_id,
+            id: user.user_id,
             email: user.email,
             name: `${user.first_name} ${user.last_name}`,
         }));

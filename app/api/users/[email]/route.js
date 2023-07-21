@@ -12,7 +12,7 @@ export async function GET(req, { params }) {
 
         await database.connect();
         const query =
-            "SELECT public_id, email, first_name, last_name, password, phone_num, avatar FROM users WHERE email = ?";
+            "SELECT user_id, email, first_name, last_name, password, phone_num, avatar FROM users WHERE email = ?";
         const result = await database.query(query, [email]);
         await database.end();
 
