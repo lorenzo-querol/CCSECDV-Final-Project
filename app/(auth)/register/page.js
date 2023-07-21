@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import sanitizeHtml from "sanitize-html";
 import styles from "@/app/Form.module.css";
 import axios from "axios";
+import {userRouter} from 'next/navigation'
+
 
 // Icons
 import {
@@ -27,7 +29,13 @@ export default function Register() {
         handleSubmit,
         watch,
     } = useForm();
+<<<<<<< Updated upstream
 
+=======
+    const [errorMessage, setErrorMessage] = useState(false); // State to store the error message
+    const [isRegister, setIsRegister] = useState(false); // State to store the isRegister message
+    const router = userRouter();
+>>>>>>> Stashed changes
     const onSubmit = async (data) => {
         const formData = new FormData();
 
@@ -49,6 +57,16 @@ export default function Register() {
                     "Content-Type": "multipart/form-data",
                 },
             });
+<<<<<<< Updated upstream
+=======
+            if (!data.ok)
+                throw new Error(data.message);
+
+            setErrorMessage("");    // Reset error message
+            setIsRegister(true);    // Show success message
+            router.push("/home")    // Redirect to home
+            //if (data.error)
+>>>>>>> Stashed changes
         } catch (error) {
             console.error("Error uploading file:", error);
         }
