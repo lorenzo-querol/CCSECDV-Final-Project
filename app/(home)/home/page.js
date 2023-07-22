@@ -344,7 +344,7 @@ export default function Home() {
 						<input
 							type="search"
 							name="search"
-							placeholder="Search Twitter"
+							placeholder="Search Thoughts"
 							className="w-full h-10 px-10 pr-5 text-sm text-gray-200 bg-indigo-800 border-0 rounded-full shadow focus:outline-none"
 						/>
 					</div>

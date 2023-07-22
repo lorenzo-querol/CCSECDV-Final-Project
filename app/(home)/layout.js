@@ -77,7 +77,7 @@ export default function Sidebar({ children }) {
                         className={`origin-left text-3xl font-medium text-white duration-200 ${close && "scale-0"
                             }`}
                     >
-                        BRAND.
+                        THOUGHTS.
                     </h1>
                 </div>
                 <ul className="flex-grow pt-6">

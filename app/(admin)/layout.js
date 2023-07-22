@@ -68,7 +68,7 @@ export default function Sidebar({ children }) {
                             close && "scale-0"
                         }`}
                     >
-                        BRAND.
+                        THOUGHTS.
                     </h1>
                 </div>
                 <ul className="flex-grow pt-6">
