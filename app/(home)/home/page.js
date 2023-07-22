@@ -1,16 +1,26 @@
-'use client';
-import React, { useState } from 'react';
-import Image from 'next/image';
-import sanitizeHtml from 'sanitize-html';
+"use client";
+import React, { useState } from "react";
+import Image from "next/image";
+import sanitizeHtml from "sanitize-html";
 
-// import control from "@/public/control.png";
+import control from "@/public/control.png";
 // import pic from "@/posts/Zoom Background 2.png";   // temp
 
 // Icons
-import { BiImage, BiVideoPlus, BiSearch, BiDotsVerticalRounded } from 'react-icons/bi';
+import {
+	BiImage,
+	BiVideoPlus,
+	BiSearch,
+	BiDotsVerticalRounded,
+} from "react-icons/bi";
 
-import { AiOutlineHeart, AiFillHeart, AiOutlineMessage, AiFillCloseCircle } from 'react-icons/ai';
-import sanitize from 'sanitize-html';
+import {
+	AiOutlineHeart,
+	AiFillHeart,
+	AiOutlineMessage,
+	AiFillCloseCircle,
+} from "react-icons/ai";
+import sanitize from "sanitize-html";
 
 export default function Home() {
 	const [imageFile, setImageFile] = useState(null);
@@ -48,10 +58,10 @@ export default function Home() {
 	// Function to handle form submission
 	const handleSubmit = (e) => {
 		e.preventDefault(); // Prevent default form submission behavior
-		const postText = sanitizeHtml(e.target.elements['post-textarea'].value); // Extract post text from the form
+		const postText = sanitizeHtml(e.target.elements["post-textarea"].value); // Extract post text from the form
 
-		console.log('Posted Text:', postText);
-		console.log('Posted Image:', imagePreview);
+		console.log("Posted Text:", postText);
+		console.log("Posted Image:", imagePreview);
 	};
 
 	return (
@@ -187,7 +197,7 @@ export default function Home() {
 										<div className="absolute right-0 z-50 mt-2 bg-white rounded shadow-md">
 											<button
 												onClick={() => {
-													alert('Delete clicked!');
+													alert("Delete clicked!");
 												}}
 												className="block w-full px-4 py-2 text-left text-gray-800 rounded hover:bg-red-500 hover:text-white"
 											>
@@ -195,7 +205,7 @@ export default function Home() {
 											</button>
 											<button
 												onClick={() => {
-													alert('Edit clicked!');
+													alert("Edit clicked!");
 												}}
 												className="block w-full px-4 py-2 text-left text-gray-800 rounded hover:bg-yellow-500 hover:text-white"
 											>
@@ -203,7 +213,7 @@ export default function Home() {
 											</button>
 											<button
 												onClick={() => {
-													alert('Report clicked!');
+													alert("Report clicked!");
 												}}
 												className="block w-full px-4 py-2 text-left text-gray-800 rounded hover:bg-blue-500 hover:text-white"
 											>
@@ -217,19 +227,24 @@ export default function Home() {
 							<div className="pl-16">
 								<p className="flex-shrink w-auto text-base font-medium text-white">
 									Day 07 of the challenge
-									<span className="text-indigo-400">#100DaysOfCode</span> I was wondering what I can do with
-									<span className="text-indigo-400">#tailwindcss</span>, so just started building Twitter UI using
-									Tailwind and so far it looks so promising. I will post my code after completion. [07/100]
-									<span className="text-indigo-400"> #WomenWhoCode #CodeNewbie</span>
+									<span className="text-indigo-400">#100DaysOfCode</span> I was
+									wondering what I can do with
+									<span className="text-indigo-400">#tailwindcss</span>, so just
+									started building Twitter UI using Tailwind and so far it looks
+									so promising. I will post my code after completion. [07/100]
+									<span className="text-indigo-400">
+										{" "}
+										#WomenWhoCode #CodeNewbie
+									</span>
 								</p>
 
 								{/* Check if there's an image otherwise, show nothing. */}
 								<div className="relative mt-2">
-									<Image
+									{/* <Image
 										src={pic}
 										alt="Image Preview"
 										className="w-full max-w-80 max-h-64"
-									/>
+									/> */}
 								</div>
 
 								{/* Post: Footer */}
@@ -262,7 +277,9 @@ export default function Home() {
 													)}
 												</button>
 												{/* Only show if there's at least 2 likes */}
-												<span className="text-sm text-gray-200">Number of likes</span>
+												<span className="text-sm text-gray-200">
+													Number of likes
+												</span>
 											</div>
 										</div>
 									</div>
@@ -310,7 +327,7 @@ export default function Home() {
 										<div className="absolute right-0 mt-2 bg-white border rounded shadow-md">
 											<button
 												onClick={() => {
-													console.log('Delete clicked!');
+													console.log("Delete clicked!");
 												}}
 												className="block w-full px-4 py-2 text-left text-gray-800 border-none hover:bg-red-500 hover:text-white"
 											>
@@ -324,19 +341,24 @@ export default function Home() {
 							<div className="pl-16">
 								<p className="flex-shrink w-auto text-base font-medium text-white">
 									Day 07 of the challenge
-									<span className="text-indigo-400">#100DaysOfCode</span> I was wondering what I can do with
-									<span className="text-indigo-400">#tailwindcss</span>, so just started building Twitter UI using
-									Tailwind and so far it looks so promising. I will post my code after completion. [07/100]
-									<span className="text-indigo-400"> #WomenWhoCode #CodeNewbie</span>
+									<span className="text-indigo-400">#100DaysOfCode</span> I was
+									wondering what I can do with
+									<span className="text-indigo-400">#tailwindcss</span>, so just
+									started building Twitter UI using Tailwind and so far it looks
+									so promising. I will post my code after completion. [07/100]
+									<span className="text-indigo-400">
+										{" "}
+										#WomenWhoCode #CodeNewbie
+									</span>
 								</p>
 
 								{/* Check if there's an image otherwise, show nothing. */}
 								<div className="relative mt-2">
-									<Image
+									{/* <Image
 										src={pic}
 										alt="Image Preview"
 										className="w-full max-w-80 max-h-64"
-									/>
+									/> */}
 								</div>
 
 								{/* Post: Footer */}
@@ -369,7 +391,9 @@ export default function Home() {
 													)}
 												</button>
 												{/* Only show if there's at least 2 likes */}
-												<span className="text-sm text-gray-200">Number of likes</span>
+												<span className="text-sm text-gray-200">
+													Number of likes
+												</span>
 											</div>
 										</div>
 									</div>
