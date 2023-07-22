@@ -184,14 +184,30 @@ export default function Home() {
 										/>
 									</div>
 									{showDropdown && (
-										<div className="absolute right-0 mt-2 bg-white rounded shadow-md">
+										<div className="absolute right-0 z-50 mt-2 bg-white rounded shadow-md">
 											<button
 												onClick={() => {
-													console.log('Delete clicked!');
+													alert('Delete clicked!');
 												}}
 												className="block w-full px-4 py-2 text-left text-gray-800 rounded hover:bg-red-500 hover:text-white"
 											>
 												Delete
+											</button>
+											<button
+												onClick={() => {
+													alert('Edit clicked!');
+												}}
+												className="block w-full px-4 py-2 text-left text-gray-800 rounded hover:bg-yellow-500 hover:text-white"
+											>
+												Edit
+											</button>
+											<button
+												onClick={() => {
+													alert('Report clicked!');
+												}}
+												className="block w-full px-4 py-2 text-left text-gray-800 rounded hover:bg-blue-500 hover:text-white"
+											>
+												Report
 											</button>
 										</div>
 									)}
