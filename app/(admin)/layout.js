@@ -1,16 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import sidebar from "../layout";
-import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { AiFillHome, AiFillMessage, AiOutlineLogout } from "react-icons/ai";
-
 import {
     BsFillGearFill
 } from "react-icons/bs";
+import React, { useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 
 import {
     FaListAlt
@@ -18,33 +13,36 @@ import {
 
 
 import { FaUsers } from "react-icons/fa";
-
+import Image from "next/image";
+import Link from "next/link";
 import control from "@/public/control.png";
+import sidebar from "../layout";
+import { useRouter } from "next/navigation";
 
 export default function Sidebar({ children }) {
-    const router = useRouter();
-    const { status } = useSession({
-        required: true,
-        onUnauthenticated() {
-            router.replace("/login");
-        },
-    });
+	const router = useRouter();
+	const { status } = useSession({
+		required: true,
+		onUnauthenticated() {
+			router.replace("/login");
+		},
+	});
 
-    const [close, setClose] = useState(false);
-    const [activeMenuItem, setActiveMenuItem] = useState("Home"); // Set initial active menu item by title
+	const [close, setClose] = useState(false);
+	const [activeMenuItem, setActiveMenuItem] = useState("Home"); // Set initial active menu item by title
 
     const Menus = [
         { title: "List of Users", icon: <FaListAlt />, path: "/list-of-users" },
         { title: "Settings", icon: <BsFillGearFill />, path: "/settings" },
     ];
 
-    const handleMenuItemClick = (title, path) => {
-        setActiveMenuItem(title);
-    };
+	const handleMenuItemClick = (title, path) => {
+		setActiveMenuItem(title);
+	};
 
-    if (status === "loading") {
-        return <div>Loading...</div>;
-    }
+	if (status === "loading") {
+		return <div>Loading...</div>;
+	}
 
     return (
         <div className="fixed left-0 flex w-full h-screen">
@@ -112,31 +110,34 @@ export default function Sidebar({ children }) {
                     </li>
                 </ul>
 
-                {/* Account */}
-                <div className="flex flex-shrink-0 mt-auto rounded-full hover:bg-blue-00">
-                    <a href="#" className="flex-shrink-0 block group">
-                        <div className="flex items-center">
-                            <div>
-                                <Image
-                                    className="inline-block w-10 h-10 rounded-full"
-                                    src={control}
-                                    alt=""
-                                    width={40}
-                                    height={40}
-                                />
-                            </div>
-                            {!close && (
-                                <div className="ml-3">
-                                    <p className="text-xl font-medium leading-6 text-white">
-                                        User
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div className="flex-1">{children}</div>
-        </div>
-    );
+				{/* Account */}
+				<div className="flex flex-shrink-0 mt-auto rounded-full hover:bg-blue-00">
+					<a
+						href="#"
+						className="flex-shrink-0 block group"
+					>
+						<div className="flex items-center">
+							<div>
+								<Image
+									className="inline-block w-10 h-10 rounded-full"
+									src={control}
+									alt=""
+									width={40}
+									height={40}
+								/>
+							</div>
+							{!close && (
+								<div className="ml-3">
+									<p className="text-xl font-medium leading-6 text-white">
+										User
+									</p>
+								</div>
+							)}
+						</div>
+					</a>
+				</div>
+			</div>
+			<div className="flex-1">{children}</div>
+		</div>
+	);
 }
