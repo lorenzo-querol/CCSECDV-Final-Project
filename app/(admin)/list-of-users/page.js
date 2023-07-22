@@ -1,9 +1,11 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
-import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'react-icons/ai';
-import { BiSort, BiBlock } from 'react-icons/bi';
+"use client";
+
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
+import { BiBlock, BiSort } from "react-icons/bi";
+import React, { useEffect, useState } from "react";
+
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Users() {
 	const [page, setPage] = useState(1);
@@ -11,14 +13,14 @@ export default function Users() {
 	const [limit, setLimit] = useState();
 	const [totalPages, setTotalPages] = useState();
 	const [totalUsers, setTotalUsers] = useState();
-	const [status, setStatus] = useState('pending'); // Default status is 'pending'
+	const [status, setStatus] = useState("pending"); // Default status is 'pending'
 
 	const handleNext = () => setPage((prevPage) => prevPage + 1);
 	const handlePrev = () => setPage((prevPage) => prevPage - 1);
 
 	// Function to handle sorting when the button is clicked
 	const handleSortClick = (field) => {
-		alert('Sort!');
+		alert("Sort!");
 	};
 
 	// Function to handle status change
@@ -29,9 +31,12 @@ export default function Users() {
 	useEffect(() => {
 		const fetchUsers = async (page) => {
 			try {
-				const res = await fetch(`http://localhost:3000/api/users?page=${page}`, {
-					cache: 'no-store',
-				});
+				const res = await fetch(
+					`${process.env.NEXTAUTH_URL}/api/users?page=${page}`,
+					{
+						cache: "no-store",
+					},
+				);
 
 				const { data } = await res.json();
 				setUsers(data.users);
@@ -39,7 +44,7 @@ export default function Users() {
 				setTotalPages(data.totalPages);
 				setTotalUsers(data.totalUsers[0].count);
 			} catch (error) {
-				console.log('Something went wrong:', error.message);
+				console.log("Something went wrong:", error.message);
 			}
 		};
 
@@ -51,10 +56,12 @@ export default function Users() {
 	return (
 		<div className="w-full h-full overflow-y-auto">
 			{/* List of users */}
-			<div className='h-1/2'>
+			<div className="h-1/2">
 				<div className="flex">
 					<div className="flex-1 m-2">
-						<h2 className="px-4 py-2 text-2xl font-bold text-white">List of Users</h2>
+						<h2 className="px-4 py-2 text-2xl font-bold text-white">
+							List of Users
+						</h2>
 					</div>
 				</div>
 				<hr className="border-indigo-600" />
@@ -64,15 +71,25 @@ export default function Users() {
 						<thead>
 							<tr>
 								<th className="w-1/2 px-4 py-2 border-b ">
-									<div className='flex items-center justify-center'>
+									<div className="flex items-center justify-center">
 										Name
-										<button onClick={() => handleSortClick('name')} className='flex justify-center'><BiSort size={20} /></button>
+										<button
+											onClick={() => handleSortClick("name")}
+											className="flex justify-center"
+										>
+											<BiSort size={20} />
+										</button>
 									</div>
 								</th>
 								<th className="w-1/2 px-4 py-2 border-b">
-									<div className='flex items-center justify-center'>
+									<div className="flex items-center justify-center">
 										Email
-										<button onClick={() => handleSortClick('email')} className='flex justify-center'><BiSort size={20} /></button>
+										<button
+											onClick={() => handleSortClick("email")}
+											className="flex justify-center"
+										>
+											<BiSort size={20} />
+										</button>
 									</div>
 								</th>
 							</tr>
@@ -92,12 +109,19 @@ export default function Users() {
 				<div className="bottom-0 flex flex-col items-center">
 					{/* Help text */}
 					<span className="text-sm text-indigo-700 dark:text-indigo-400">
-						Showing{' '}
+						Showing{" "}
 						<span className="font-semibold text-indigo-900 dark:text-white">
 							{Math.min((page - 1) * limit + 1, totalUsers)}
-						</span>{' '}
-						to <span className="font-semibold text-indigo-900 dark:text-white">{Math.min(page * limit, totalUsers)}</span>{' '}
-						of <span className="font-semibold text-indigo-900 dark:text-white">{totalUsers}</span> Users
+						</span>{" "}
+						to{" "}
+						<span className="font-semibold text-indigo-900 dark:text-white">
+							{Math.min(page * limit, totalUsers)}
+						</span>{" "}
+						of{" "}
+						<span className="font-semibold text-indigo-900 dark:text-white">
+							{totalUsers}
+						</span>{" "}
+						Users
 					</span>
 					{/* Buttons */}
 					<div className="inline-flex mt-2 xs:mt-0">
@@ -123,10 +147,12 @@ export default function Users() {
 			<div></div>
 
 			{/* List of Reported Users */}
-			<div className='h-1/2'>
+			<div className="h-1/2">
 				<div className="flex">
 					<div className="flex-1 m-2">
-						<h2 className="px-4 py-2 text-2xl font-bold text-white">List of Reported Users</h2>
+						<h2 className="px-4 py-2 text-2xl font-bold text-white">
+							List of Reported Users
+						</h2>
 					</div>
 				</div>
 				<hr className="border-indigo-600" />
@@ -136,37 +162,50 @@ export default function Users() {
 						<thead>
 							<tr>
 								<th className="w-1/5 px-4 py-2 border-b ">
-									<div className='flex items-center justify-center'>
+									<div className="flex items-center justify-center">
 										Name
-										<button onClick={() => handleSortClick('name')} className='flex justify-center'><BiSort size={20} /></button>
+										<button
+											onClick={() => handleSortClick("name")}
+											className="flex justify-center"
+										>
+											<BiSort size={20} />
+										</button>
 									</div>
 								</th>
 								<th className="w-1/5 px-4 py-2 border-b">
-									<div className='flex items-center justify-center'>
+									<div className="flex items-center justify-center">
 										Report
-										<button onClick={() => handleSortClick('report')} className='flex justify-center'><BiSort size={20} /></button>
+										<button
+											onClick={() => handleSortClick("report")}
+											className="flex justify-center"
+										>
+											<BiSort size={20} />
+										</button>
 									</div>
 								</th>
 								<th className="w-1/5 px-4 py-2 border-b">
-									<div className='flex items-center justify-center'>
+									<div className="flex items-center justify-center">
 										Report Status
-										<button onClick={() => handleSortClick('status')} className='flex justify-center'><BiSort size={20} /></button>
+										<button
+											onClick={() => handleSortClick("status")}
+											className="flex justify-center"
+										>
+											<BiSort size={20} />
+										</button>
 									</div>
 								</th>
 								<th className="w-1/5 px-4 py-2 border-b">
-									<div className='flex items-center justify-center'>
-										Action
-									</div>
+									<div className="flex items-center justify-center">Action</div>
 								</th>
 								<th className="w-1/5 px-4 py-2 border-b">
-									<div className='flex items-center justify-center'>
+									<div className="flex items-center justify-center">
 										Cooldown
 									</div>
 								</th>
 							</tr>
 						</thead>
 						<tbody className="items-center justify-center w-full mx-auto">
-							<tr >
+							<tr>
 								<td className="px-4 py-2 border-b">name</td>
 								<td className="px-4 py-2 border-b">description</td>
 								<td className="px-4 py-2 border-b">
@@ -183,13 +222,12 @@ export default function Users() {
 									</div>
 								</td>
 								<td className="items-center px-4 py-2 border-b">
-									<div className='flex items-center justify-center '>
-										<button className='flex justify-center p-2 rounded-r hover:bg-indigo-500'>
+									<div className="flex items-center justify-center ">
+										<button className="flex justify-center p-2 rounded-r hover:bg-indigo-500">
 											<BiBlock size={20} />
 											Timeout
 										</button>
 									</div>
-
 								</td>
 								<td className="px-4 py-2 border-b">countdown</td>
 							</tr>
@@ -201,17 +239,19 @@ export default function Users() {
 				<div className="flex flex-col items-center">
 					{/* Help text */}
 					<span className="text-sm text-indigo-700 dark:text-indigo-400">
-						Showing{' '}
+						Showing{" "}
 						<span className="font-semibold text-indigo-900 dark:text-white">
-							{/* {Math.min((page - 1) * limit + 1, totalReports)} */}
-							N
-						</span>{' '}
-						to <span className="font-semibold text-indigo-900 dark:text-white">
+							{/* {Math.min((page - 1) * limit + 1, totalReports)} */}N
+						</span>{" "}
+						to{" "}
+						<span className="font-semibold text-indigo-900 dark:text-white">
 							{/* {Math.min(page * limit, totalReports)} */} N
-						</span>{' '}
-						of <span className="font-semibold text-indigo-900 dark:text-white">
+						</span>{" "}
+						of{" "}
+						<span className="font-semibold text-indigo-900 dark:text-white">
 							{/* {totalReports} */}
-						</span> Reported Users
+						</span>{" "}
+						Reported Users
 					</span>
 					{/* Buttons */}
 					<div className="inline-flex mt-2 xs:mt-0">
