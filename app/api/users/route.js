@@ -1,13 +1,13 @@
-import bcrypt from 'bcrypt';
-import sanitizeHtml from 'sanitize-html';
-import { writeFile } from 'fs/promises';
-import { Buffer } from 'buffer';
-import { nanoid } from 'nanoid';
+import bcrypt from "bcrypt";
+import sanitizeHtml from "sanitize-html";
+import { writeFile } from "fs/promises";
+import { Buffer } from "buffer";
+import { nanoid } from "nanoid";
 
-import { NextResponse } from 'next/server';
-import { database } from '@/utils/database';
-import { getLogger } from '@/utils/logger';
-import { log } from 'console';
+import { NextResponse } from "next/server";
+import { database } from "@/utils/database";
+import { getLogger } from "@/utils/logger";
+import { log } from "console";
 
 // Turn off body parsing, and instead use the raw body
 export const config = {
@@ -25,7 +25,8 @@ export const config = {
 const checkPassword = (password, confirmPassword) => {
 	if (confirmPassword) return password === confirmPassword;
 
-	const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])(?!.*\s).{12,64}$/;
+	const passwordRegex =
+		/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])(?!.*\s).{12,64}$/;
 	return passwordRegex.test(password);
 };
 
@@ -40,10 +41,14 @@ const checkPassword = (password, confirmPassword) => {
 const validateData = (firstName, lastName, phoneNumber, email) => {
 	const nameRegex = /^[\w\s\u00C0-\u017F]{2,}$/;
 	const phoneRegex = /^\s*09\d{9}\s*$/;
-	const emailRegex = /^[\w.\-]+[a-zA-Z0-9]*@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/;
+	const emailRegex =
+		/^[\w.\-]+[a-zA-Z0-9]*@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/;
 
 	return (
-		nameRegex.test(firstName) && nameRegex.test(lastName) && phoneRegex.test(phoneNumber) && emailRegex.test(email)
+		nameRegex.test(firstName) &&
+		nameRegex.test(lastName) &&
+		phoneRegex.test(phoneNumber) &&
+		emailRegex.test(email)
 	);
 };
 
@@ -56,7 +61,7 @@ async function saveUser(user, avatar) {
 	try {
 		// 1. Prepare the query
 		const query =
-			'INSERT INTO users (user_id, email, first_name, last_name, password, phone_num, avatar) VALUES (?, ?, ?, ?, ?, ?, ?)';
+			"INSERT INTO users (user_id, email, first_name, last_name, password, phone_num, avatar) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
 		// 2. Connect to database
 		await database.connect();
@@ -93,26 +98,39 @@ export async function POST(req) {
 	try {
 		// 1. Parse the form data
 		const data = await req.formData();
-		const userInfo = JSON.parse(data.get('userInfo'));
+		const userInfo = JSON.parse(data.get("userInfo"));
 
 		// EXTRA: Replace the avatar name with a UUID but keep the extension
-		let avatar = data.get('avatar');
-		let avatarName = avatar.name.split('.');
+		let avatar = data.get("avatar");
+		let avatarName = avatar.name.split(".");
 		avatarName[0] = nanoid();
-		avatarName = avatarName.join('.');
+		avatarName = avatarName.join(".");
 
 		// 2. Extract the user info
-		const { email, firstName, lastName, password, phoneNumber, confirmPassword } = userInfo;
+		const {
+			email,
+			firstName,
+			lastName,
+			password,
+			phoneNumber,
+			confirmPassword,
+		} = userInfo;
 
 		// 3. Check if the passwords match and the data is valid
 		if (!checkPassword(password, confirmPassword)) {
-			logger.error('Passwords do not match');
-			return new Response({ message: 'User creation failed.' }, { status: 500 });
+			logger.error("Passwords do not match");
+			return new Response(
+				{ message: "User creation failed." },
+				{ status: 500 },
+			);
 		}
 
 		if (!validateData(firstName, lastName, phoneNumber, email)) {
-			logger.error('Invalid data');
-			return new Response({ message: 'User creation failed.' }, { status: 500 });
+			logger.error("Invalid data");
+			return new Response(
+				{ message: "User creation failed." },
+				{ status: 500 },
+			);
 		}
 
 		// 4. Hash the password and create the user object with sanitization
@@ -124,13 +142,13 @@ export async function POST(req) {
 			lastName: sanitizeHtml(lastName.trim()),
 			password: hashedPassword,
 			phoneNumber: sanitizeHtml(phoneNumber.trim()),
-			avatar: 'avatars/' + avatarName,
+			avatar: "avatars/avatar_" + avatarName,
 		};
 
 		// 5. Save the user
 		await saveUser(user, avatar);
 
-		logger.info('User creation successful');
+		logger.info(`User ${user.email} (id: ${user.user_id}) created.`);
 		return NextResponse.json({
 			error: null,
 			status: 201,
@@ -139,32 +157,32 @@ export async function POST(req) {
 		});
 	} catch (error) {
 		logger.error(error.message);
-		if (error.message.includes('ER_DUP_ENTRY')) {
+		if (error.message.includes("ER_DUP_ENTRY")) {
 			return NextResponse.json({
-				error: 'duplicate',
+				error: "duplicate",
 				status: 400,
 				ok: false,
 				data: null,
-				message: 'Email already exists.',
+				message: "Email already exists.",
 			});
 		}
 
-		if (error.message.includes('ER_DATA_TOO_LONG')) {
+		if (error.message.includes("ER_DATA_TOO_LONG")) {
 			return NextResponse.json({
-				error: 'long_data',
+				error: "long_data",
 				status: 400,
 				ok: false,
 				data: null,
-				message: 'Data too long. Please register again.',
+				message: "Data too long. Please register again.",
 			});
 		}
 
 		return NextResponse.json({
-			error: 'internal',
+			error: "internal",
 			status: 500,
 			ok: false,
 			data: null,
-			message: 'Internal server error. Please try again later.',
+			message: "Internal server error. Please try again later.",
 		});
 	}
 }
@@ -173,12 +191,12 @@ export async function GET(req) {
 	const logger = getLogger();
 
 	try {
-		const page = parseInt(req.nextUrl.searchParams.get('page'), 10) || 1; // default to page 1
+		const page = parseInt(req.nextUrl.searchParams.get("page"), 10) || 1; // default to page 1
 		const limit = 5;
 		const offset = (page - 1) * limit;
 
-		const query = 'SELECT * FROM users LIMIT ? OFFSET ?';
-		const totalCountQuery = 'SELECT COUNT(*) AS count FROM users';
+		const query = "SELECT * FROM users LIMIT ? OFFSET ?";
+		const totalCountQuery = "SELECT COUNT(*) AS count FROM users";
 
 		await database.connect();
 		const result = await database.query(query, [limit, offset]);
@@ -208,7 +226,7 @@ export async function GET(req) {
 	} catch (error) {
 		logger.error(error.message);
 		return NextResponse.json({
-			error: 'internal',
+			error: "internal",
 			status: 500,
 			ok: false,
 			data: null,
