@@ -1,8 +1,7 @@
-import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcrypt";
+import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
-
+import bcrypt from "bcrypt";
 import { database } from "@/utils/database";
 import { getLogger } from "@/utils/logger";
 import rateLimit from "@/utils/rate_limit";
@@ -90,6 +89,9 @@ const authHandler = async (req, res) => {
 					session.user = token;
 					return session;
 				},
+			},
+			pages: {
+				signIn: "/login",
 			},
 		});
 	} catch (error) {
