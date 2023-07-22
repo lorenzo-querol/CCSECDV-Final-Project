@@ -1,10 +1,9 @@
-import { getLogger } from "@/utils/logger";
-import { database } from "@/utils/database";
-import { nanoid } from "nanoid";
-import { NextResponse } from "next/server";
-
-import { writeFile } from "fs/promises";
 import { Buffer } from "buffer";
+import { NextResponse } from "next/server";
+import { database } from "@/utils/database";
+import { getLogger } from "@/utils/logger";
+import { nanoid } from "nanoid";
+import { writeFile } from "fs/promises";
 
 // Matches /api/posts
 // HTTP methods: GET, POST

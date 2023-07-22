@@ -1,12 +1,11 @@
-import bcrypt from "bcrypt";
-import sanitizeHtml from "sanitize-html";
-import { writeFile } from "fs/promises";
 import { Buffer } from "buffer";
-import { nanoid } from "nanoid";
-
 import { NextResponse } from "next/server";
+import bcrypt from "bcrypt";
 import { database } from "@/utils/database";
 import { getLogger } from "@/utils/logger";
+import { nanoid } from "nanoid";
+import sanitizeHtml from "sanitize-html";
+import { writeFile } from "fs/promises";
 
 // Turn off body parsing, and instead use the raw body
 export const config = {
