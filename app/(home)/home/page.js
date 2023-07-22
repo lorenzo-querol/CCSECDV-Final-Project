@@ -2,7 +2,10 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import sanitizeHtml from "sanitize-html";
-
+import { useSession } from "next-auth/react"
+import { signIn } from 'next-auth/react';
+import { useEffect } from 'react';
+import  Date  from '@/component/date';
 import control from "@/public/control.png";
 // import pic from "@/posts/Zoom Background 2.png";   // temp
 
@@ -29,13 +32,34 @@ import {
 import sanitize from "sanitize-html";
 
 export default function Home() {
+	// const { data: session, status } = useSession() TODO: session check // redirect to login if not signed in
+
+  
+	
 	const [imageFile, setImageFile] = useState(null);
 	const [imagePreview, setImagePreview] = useState(null);
 	const [isLiked, setIsLiked] = useState(false); // State to track heart fill
 	const [showDropdown, setShowDropdown] = useState(false); // Dropdown
 	const [showReportModal, setShowReportModal] = useState(false);
 	const [reportReason, setReportReason] = useState('');
+	const [posts, setPosts] = useState(null)
 
+
+	async function fetchData(){
+		const res = await fetch('api/posts', { 
+			method: 'GET'})
+			const data = await res.json();
+			console.log("hi")
+			//console.log(data)
+			//console.log(data.data)
+			console.log(data.data.result)
+			setPosts(data.data.result);
+	  }
+
+	  useEffect(() => {
+		fetchData();
+	 }, []); // 
+	
 	// Function to handle image selection
 	const handleImageChange = (e) => {
 		const file = e.target.files[0];
@@ -69,16 +93,36 @@ export default function Home() {
 	};
 
 	// Function to handle form submission
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault(); // Prevent default form submission behavior
 		const postText = sanitizeHtml(e.target.elements["post-textarea"].value); // Extract post text from the form
+		try {
+			console.log("hi")
+			e.preventDefault();
+			const res = await fetch(`/api/posts`, {
 
+					headers: {
+					  'Content-Type': 'application/json',
+					},
+					method: 'POST'
+				  }
+			);
+			console.log("are u here")
+			const data = await res.json();
+			console.log(data);
+
+		} catch (error) {
+
+			console.log(error.message);
+		}
 		console.log("Posted Text:", postText);
 		console.log("Posted Image:", imagePreview);
 	};
-
+	if (!posts) return <div>Fetching posts...</div>;
 	return (
 		<>
+
+		
 			<div className="flex flex-row h-full overflow-y-auto">
 				{/* Middle */}
 				<div className="w-4/6 h-full border-t-0 border-gray-600 border-x-2">
@@ -169,8 +213,10 @@ export default function Home() {
 					<div></div>
 
 					{/* List of posts */}
+					
 					<ul className="list-none">
 						{/* Post */}
+						{posts.map((post) => (
 						<li className="border-b-2 border-gray-600 ">
 							<div className="flex flex-shrink-0 p-4 ">
 								<div className="flex-grow">
@@ -186,11 +232,14 @@ export default function Home() {
 												/>
 											</div>
 											{/* Details */}
+											
 											<div className="ml-3">
 												<p className="text-base font-medium leading-6 text-white">
-													FirstName LastName
+													{post.name}
 													<span className="text-sm font-medium leading-5 text-gray-400 transition duration-150 ease-in-out group-hover:text-gray-300">
-														. 16 April
+							    
+													&nbsp;&nbsp; • &nbsp;&nbsp;<Date dateString={post.date_created} /> 
+														
 													</span>
 												</p>
 											</div>
@@ -237,22 +286,14 @@ export default function Home() {
 							{/* Post: content */}
 							<div className="pl-16">
 								<p className="flex-shrink w-auto text-base font-medium text-white">
-									Day 07 of the challenge
-									<span className="text-indigo-400">#100DaysOfCode</span> I was
-									wondering what I can do with
-									<span className="text-indigo-400">#tailwindcss</span>, so just
-									started building Twitter UI using Tailwind and so far it looks
-									so promising. I will post my code after completion. [07/100]
-									<span className="text-indigo-400">
-										{" "}
-										#WomenWhoCode #CodeNewbie
-									</span>
-								</p>
+								{post.description}
 
+								</p>
+								
 								{/* Check if there's an image otherwise, show nothing. */}
 								<div className="relative mt-2">
 									{/* <Image
-										src={pic}
+										src="{post.image},
 										alt="Image Preview"
 										className="w-full max-w-80 max-h-64"
 									/> */}
@@ -263,16 +304,6 @@ export default function Home() {
 								<div className="flex">
 									<div className="w-full">
 										<div className="flex items-center">
-											{/* <div className="flex-1 ">
-                                    <div className="flex items-center justify-center flex-1 py-2 m-2 text-center">
-                                       <a
-                                          href="#"
-                                          className="flex items-center w-12 px-3 py-2 mt-1 text-base font-medium leading-6 text-gray-500 rounded-full group hover:bg-indigo-800 hover:text-indigo-300"
-                                       >
-                                          <AiOutlineMessage size={25} />
-                                       </a>
-                                    </div>
-                                 </div> */}
 											<div className="flex flex-col items-center justify-center flex-1 py-2 m-2 space-x-2 text-center">
 												<button
 													onClick={handleLike}
@@ -289,7 +320,7 @@ export default function Home() {
 												</button>
 												{/* Only show if there's at least 2 likes */}
 												<span className="text-sm text-gray-200">
-													Number of likes
+												{post.heart_count}
 												</span>
 											</div>
 										</div>
@@ -298,7 +329,7 @@ export default function Home() {
 							</div>
 							{/* <hr className="border-gray-600" /> */}
 						</li>
-
+						))}
 					</ul>
 				</div>
 				{/* right menu */}
