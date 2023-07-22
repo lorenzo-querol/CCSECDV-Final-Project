@@ -1,27 +1,30 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import axios from 'axios';
-import { FcGoogle } from 'react-icons/fc';
-import { HiAtSymbol, HiFingerPrint } from 'react-icons/hi';
-import { signIn } from 'next-auth/react';
+"use client";
 
-import styles from '@/app/Form.module.css';
-import sanitizeHtml from 'sanitize-html';
+import { HiAtSymbol, HiFingerPrint } from "react-icons/hi";
+import React, { useEffect, useState } from "react";
+
+import { FcGoogle } from "react-icons/fc";
+import Link from "next/link";
+import axios from "axios";
+import sanitizeHtml from "sanitize-html";
+import { signIn } from "next-auth/react";
+import styles from "@/app/Form.module.css";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+	const router = useRouter();
 	const [show, setShow] = useState(false);
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
 	const [loginError, setLoginError] = useState(false); // New state variable for login error
 
 	const handleSubmit = async (event) => {
 		try {
 			event.preventDefault();
 
-			const result = await signIn('credentials', {
-				callbackUrl: 'http://localhost:3000/list-of-users',
-				redirect: true,
+			console.log(email, password);
+			const result = await signIn("credentials", {
+				redirect: false,
 				email: email,
 				password: password,
 			});
@@ -31,6 +34,7 @@ export default function Login() {
 				return;
 			}
 
+			router.push("/home");
 			setLoginError(false);
 		} catch (error) {
 			console.log(error.message);
@@ -62,7 +66,7 @@ export default function Login() {
 			{/* Password */}
 			<div className={styles.input_group}>
 				<input
-					type={`${show ? 'text' : 'password'}`}
+					type={`${show ? "text" : "password"}`}
 					name="password"
 					placeholder="Password"
 					className={styles.input_text}
@@ -78,7 +82,9 @@ export default function Login() {
 			<div>
 				{/* Error Message */}
 				{loginError && (
-					<label className="flex justify-center text-red-500">Login failed; Invalid email or password!</label>
+					<label className="flex justify-center text-red-500">
+						Login failed; Invalid email or password!
+					</label>
 				)}
 				<button className={styles.button}>Sign In</button>
 			</div>
