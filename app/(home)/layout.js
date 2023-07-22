@@ -36,6 +36,7 @@ export default function Sidebar({ children }) {
 
     const Menus = useMemo(() => [
         { title: "Home", icon: <AiFillHome />, path: "/home" },
+        { title: "Profile", icon: <FaUsers />, path: "/profile" },
         { title: "List of Users", icon: <FaUsers />, path: "/list-of-users" },
         { title: "Settings", icon: <BsFillGearFill />, path: "/settings" },
         { title: "Log Out", icon: <AiOutlineLogout />, path: "/login" }
