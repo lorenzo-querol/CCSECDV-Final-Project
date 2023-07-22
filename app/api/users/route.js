@@ -7,7 +7,6 @@ import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { database } from "@/utils/database";
 import { getLogger } from "@/utils/logger";
-import { log } from "console";
 
 // Turn off body parsing, and instead use the raw body
 export const config = {
@@ -100,7 +99,7 @@ export async function POST(req) {
 		const data = await req.formData();
 		const userInfo = JSON.parse(data.get("userInfo"));
 
-		// EXTRA: Replace the avatar name with a UUID but keep the extension
+		// EXTRA: Replace the avatar name with a nanoid but keep the extension
 		let avatar = data.get("avatar");
 		let avatarName = avatar.name.split(".");
 		avatarName[0] = nanoid();

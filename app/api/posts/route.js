@@ -3,6 +3,9 @@ import { database } from "@/utils/database";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 
+import { writeFile } from "fs/promises";
+import { Buffer } from "buffer";
+
 // Matches /api/posts
 // HTTP methods: GET, POST
 
@@ -49,11 +52,15 @@ export async function POST(req) {
 	const logger = getLogger();
 
 	try {
-		const { user_id, name, description, image } = await req.json();
+		const data = await req.formData();
+		const postInfo = JSON.parse(data.get("postInfo"));
 
+		const image = data.get("image");
 		let imageName = image.split(".");
 		imageName[0] = nanoid();
 		imageName = imageName.join(".");
+
+		const { user_id, name, description } = postInfo;
 
 		const post = {
 			post_id: nanoid(),
