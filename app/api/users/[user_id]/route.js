@@ -10,7 +10,6 @@ import path from "path";
 
 export async function GET(req, { params }) {
 	const logger = getLogger();
-
 	try {
 		const token = await getToken({ req });
 		if (!token) {
@@ -42,11 +41,11 @@ export async function GET(req, { params }) {
 			status: 200,
 			ok: true,
 			data: {
-				...result[0],
 				avatar: {
 					ext: path.extname(imagePath),
 					data: base64Image,
 				},
+				name: `${result[0].first_name} ${result[0].last_name}`,
 			},
 		});
 	} catch (error) {

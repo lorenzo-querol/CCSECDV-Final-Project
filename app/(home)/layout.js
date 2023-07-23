@@ -41,13 +41,16 @@ export default function Sidebar({ children }) {
     });
     async function getSesh() {
         const session = await getSession()
+        console.log(session)
         fetchUserData(session.user.user_id);
       }
 
     useEffect(() => {
         if (session) { // SESSION IS CALLED RIGHT AFTER LOGGING IN
+            console.log(session)
             fetchUserData(session.user.user_id);
         }
+        
         else { // THIS PART IS CALLED SINCE SESSION BECOMES UNDEFINED ONCE PAGE IS REFRESHED / RELOADED
             getSesh()
         }
