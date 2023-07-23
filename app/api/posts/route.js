@@ -51,23 +51,27 @@ export async function POST(req) {
 	const data = await req.json()
 
 	try {
-		
+		let finalImg = '';
 		console.log(data)
 		//const postInfo = JSON.parse(data.avatar);
-
-		const image = data.avatar;
-		let imageName = image.split(".");
-		imageName[0] = nanoid();
-		imageName = imageName.join(".");
-
-		const { user_id, name, description } = postInfo;
+		if (data.avatar != null) {
+			const image = data.avatar;
+			let imageName = image.split(".");
+			imageName[0] = nanoid();
+			imageName = imageName.join(".");
+			finalImg = "posts/post_" + imageName;
+		}
+		else {
+			finalImg = ""
+		}
+		const { user_id, name, description } = data;
 
 		const post = {
 			post_id: nanoid(),
 			user_id: user_id,
 			name: name,
 			description: description,
-			image: "posts/post_" + imageName,
+			image: finalImg
 		};
 
 		const query =
@@ -82,13 +86,13 @@ export async function POST(req) {
 			post.image,
 		]);
 		await database.end();
-
+		if (data.avatar != null) {
 		const bytes = await avatar.arrayBuffer();
 		const buffer = Buffer.from(bytes);
 		const path = `${process.cwd()}/${user.post}`;
 
 		await writeFile(path, buffer);
-
+		}
 		logger.info(
 			`User ${post.name} (id: ${post.user_id}) created a post with id ${post.post_id}.`,
 		);
