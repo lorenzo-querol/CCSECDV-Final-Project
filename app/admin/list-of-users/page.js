@@ -14,13 +14,16 @@ export default function Users() {
 	const [totalPages, setTotalPages] = useState();
 	const [totalUsers, setTotalUsers] = useState();
 	const [status, setStatus] = useState("pending"); // Default status is 'pending'
+	const [sortBy, setSortBy] = useState("name"); // Default sort by is 'name'
+	const [sortOrder, setSortOrder] = useState("ASC"); // Default sort order is 'ASC'
 
 	const handleNext = () => setPage((prevPage) => prevPage + 1);
 	const handlePrev = () => setPage((prevPage) => prevPage - 1);
 
 	// Function to handle sorting when the button is clicked
 	const handleSortClick = (field) => {
-		alert("Sort!");
+		setSortBy(field);
+		setSortOrder((prevOrder) => (prevOrder === "ASC" ? "DESC" : "ASC"));
 	};
 
 	// Function to handle status change
@@ -29,11 +32,14 @@ export default function Users() {
 	};
 
 	useEffect(() => {
-		const fetchUsers = async (page) => {
+		const fetchUsers = async (page, sortBy, sortOrder) => {
 			try {
-				const res = await fetch(`/api/users?page=${page}`, {
-					cache: "no-store",
-				});
+				const res = await fetch(
+					`/api/users?page=${page}&sortby=${sortBy}&order=${sortOrder}`,
+					{
+						cache: "no-store",
+					},
+				);
 
 				const { data } = await res.json();
 				setUsers(data.users);
@@ -45,8 +51,8 @@ export default function Users() {
 			}
 		};
 
-		fetchUsers(page);
-	}, [page]);
+		fetchUsers(page, sortBy, sortOrder);
+	}, [page, sortBy, sortOrder]);
 
 	if (!users) return <div>Fetching users...</div>;
 
@@ -92,8 +98,8 @@ export default function Users() {
 							</tr>
 						</thead>
 						<tbody className="items-center justify-center w-full mx-auto">
-							{users.map((user) => (
-								<tr key={user.id}>
+							{users.map((user, index) => (
+								<tr key={index}>
 									<td className="px-4 py-2 border-b">{user.name}</td>
 									<td className="px-4 py-2 border-b">{user.email}</td>
 								</tr>

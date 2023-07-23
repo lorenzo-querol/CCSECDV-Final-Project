@@ -190,10 +190,13 @@ export async function GET(req) {
 
 	try {
 		const page = parseInt(req.nextUrl.searchParams.get("page"), 10) || 1; // default to page 1
+		const sortBy = req.nextUrl.searchParams.get("sortby") || "name";
+		const sortOrder = req.nextUrl.searchParams.get("order") || "ASC";
+
 		const limit = 5;
 		const offset = (page - 1) * limit;
 
-		const query = "SELECT * FROM users LIMIT ? OFFSET ?";
+		const query = `SELECT email, CONCAT(first_name,' ',last_name) AS name FROM users ORDER BY ${sortBy} ${sortOrder} LIMIT ? OFFSET ?`;
 		const totalCountQuery = "SELECT COUNT(*) AS count FROM users";
 
 		await database.connect();
@@ -206,7 +209,7 @@ export async function GET(req) {
 		const users = result.map((user) => ({
 			id: user.user_id,
 			email: user.email,
-			name: `${user.first_name} ${user.last_name}`,
+			name: user.name,
 		}));
 
 		return NextResponse.json({
