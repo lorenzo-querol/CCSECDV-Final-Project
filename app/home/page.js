@@ -31,8 +31,6 @@ import { useSession } from "next-auth/react";
 export default function Home() {
 	const { data: session, status } = useSession(); //TODO: session check // redirect to login if not signed in
 
-	console.log(session);
-
 	const [imageFile, setImageFile] = useState(null);
 	const [imagePreview, setImagePreview] = useState(null);
 	const [isLiked, setIsLiked] = useState(false); // State to track heart fill
