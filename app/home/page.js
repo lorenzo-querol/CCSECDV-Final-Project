@@ -29,28 +29,33 @@ import { useSession } from "next-auth/react";
 // import pic from "@/posts/Zoom Background 2.png";   // temp
 
 export default function Home() {
-	const { data: session, status } = useSession(); //TODO: session check // redirect to login if not signed in
+	
 
 	const [imageFile, setImageFile] = useState(null);
 	const [imagePreview, setImagePreview] = useState(null);
 	const [isLiked, setIsLiked] = useState(false); // State to track heart fill
 	const [showDropdown, setShowDropdown] = useState(false); // Dropdown
 	const [showReportModal, setShowReportModal] = useState(false);
-	const [reportReason, setReportReason] = useState("");
-	const [posts, setPosts] = useState(null);
+	const [reportReason, setReportReason] = useState('');
+	const [posts, setPosts] = useState(null)
+	const { data : session, status } = useSession()
+
+
 
 	async function fetchData() {
-		let res = await fetch("api/posts", {
+		const res = await fetch("api/posts", {
 			method: "GET",
 		});
-		res = await res.json();
-		setPosts(res.data);
+		const data = await res.json();
+		console.log(data)
+		setPosts(data.data);
+		//res = await res.json();
+		//setPosts(res.data);
 	}
 
-	useEffect(() => {
-		fetchData();
-	}, []); //
-
+	  useEffect(() => {
+		fetchData(); 
+	  })
 	// Function to handle image selection
 	const handleImageChange = (e) => {
 		const file = e.target.files[0];
@@ -75,29 +80,58 @@ export default function Home() {
 	};
 
 	// Function to show dropdown
-	const toggleDropdown = () => {
+	const toggleDropdown = (param) => {
 		setShowDropdown(!showDropdown);
 	};
 
 	const handleReportChange = (event) => {
 		setReportReason(event.target.value);
 	};
+	async function fetchUserData(userID){ // Data to display current user name and avatar
+        const url = 'api/users/' + userID 
+        const res = await fetch(url, { 
+			method: 'GET'})
+		const data = await res.json();
+		return data
+	  }
+    async function getSesh() { 
+		if (session) {
+			const userDATA = await fetchUserData(session.user.user_id)
+			return [ userDATA, session.user.user_id ]
+		}
+		else {
+			const sessionGET = await getSession()
+			const userGETDATA = await fetchUserData(sessionGET.user.user_id)
+			return [ userGETDATA, sessionGET.user.user_id];
+		}
+
+    }
 
 	// Function to handle form submission
 	const handleSubmit = async (e) => {
 		e.preventDefault(); // Prevent default form submission behavior
 		const postText = sanitizeHtml(e.target.elements["post-textarea"].value); // Extract post text from the form
 		try {
-			console.log("hi");
-			e.preventDefault();
+			const sessionOBJ = await getSesh()
+			console.log(sessionOBJ)
+			const name = sessionOBJ[0].data.name
+			const user_id = sessionOBJ[1]
+
+			//	name: name,
+			//	description: description,
+			//	image: "posts/post_" + imageName,
+			//};
+			
 			const res = await fetch(`api/posts`, {
-				headers: {
-					"Content-Type": "application/json",
-				},
-				method: "POST",
-				body: JSON.stringify({ description: postText, avatar: imagePreview }),
-			});
-			console.log("are u here");
+
+					headers: {
+					  'Content-Type': 'application/json',
+					},
+					method: 'POST',
+					body: JSON.stringify({ description : postText, avatar : imagePreview, user_id : user_id, name : name })
+				  }
+			);
+			console.log("are u here")
 			const data = await res.json();
 			console.log(data);
 		} catch (error) {
@@ -202,8 +236,10 @@ export default function Home() {
 
 					<ul className="list-none">
 						{/* Post */}
-						{posts.map((post) => (
-							<li className="border-b-2 border-gray-600 ">
+						{posts.map((post, index) => (
+							
+							<li key={index} className="border-b-2 border-gray-600 ">
+								
 								<div className="flex flex-shrink-0 p-4 ">
 									<div className="flex-grow">
 										{/* Post: header */}
@@ -277,7 +313,7 @@ export default function Home() {
 									{/* Check if there's an image otherwise, show nothing. */}
 									<div className="relative mt-2">
 										{/* <Image
-										src="{post.image},
+										src="{`data:image/${post.avatar.ext.slice(1)};base64,${post.avatar.data}`	},
 										alt="Image Preview"
 										className="w-full max-w-80 max-h-64"
 									/> */}
