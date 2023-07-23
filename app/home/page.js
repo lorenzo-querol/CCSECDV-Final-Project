@@ -29,7 +29,7 @@ import { useSession } from "next-auth/react";
 // import pic from "@/posts/Zoom Background 2.png";   // temp
 
 export default function Home() {
-	
+
 
 	const [imageFile, setImageFile] = useState(null);
 	const [imagePreview, setImagePreview] = useState(null);
@@ -38,7 +38,7 @@ export default function Home() {
 	const [showReportModal, setShowReportModal] = useState(false);
 	const [reportReason, setReportReason] = useState('');
 	const [posts, setPosts] = useState(null)
-	const { data : session, status } = useSession()
+	const { data: session, status } = useSession()
 
 
 
@@ -53,9 +53,9 @@ export default function Home() {
 		//setPosts(res.data);
 	}
 
-	  useEffect(() => {
-		fetchData(); 
-	  })
+	useEffect(() => {
+		fetchData();
+	})
 	// Function to handle image selection
 	const handleImageChange = (e) => {
 		const file = e.target.files[0];
@@ -87,25 +87,26 @@ export default function Home() {
 	const handleReportChange = (event) => {
 		setReportReason(event.target.value);
 	};
-	async function fetchUserData(userID){ // Data to display current user name and avatar
-        const url = 'api/users/' + userID 
-        const res = await fetch(url, { 
-			method: 'GET'})
+	async function fetchUserData(userID) { // Data to display current user name and avatar
+		const url = 'api/users/' + userID
+		const res = await fetch(url, {
+			method: 'GET'
+		})
 		const data = await res.json();
 		return data
-	  }
-    async function getSesh() { 
+	}
+	async function getSesh() {
 		if (session) {
 			const userDATA = await fetchUserData(session.user.user_id)
-			return [ userDATA, session.user.user_id ]
+			return [userDATA, session.user.user_id]
 		}
 		else {
 			const sessionGET = await getSession()
 			const userGETDATA = await fetchUserData(sessionGET.user.user_id)
-			return [ userGETDATA, sessionGET.user.user_id];
+			return [userGETDATA, sessionGET.user.user_id];
 		}
 
-    }
+	}
 
 	// Function to handle form submission
 	const handleSubmit = async (e) => {
@@ -121,15 +122,15 @@ export default function Home() {
 			//	description: description,
 			//	image: "posts/post_" + imageName,
 			//};
-			
+
 			const res = await fetch(`api/posts`, {
 
-					headers: {
-					  'Content-Type': 'application/json',
-					},
-					method: 'POST',
-					body: JSON.stringify({ description : postText, avatar : imagePreview, user_id : user_id, name : name })
-				  }
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				method: 'POST',
+				body: JSON.stringify({ description: postText, avatar: imagePreview, user_id: user_id, name: name })
+			}
 			);
 			console.log("are u here")
 			const data = await res.json();
@@ -233,13 +234,12 @@ export default function Home() {
 					<div></div>
 
 					{/* List of posts */}
-
 					<ul className="list-none">
 						{/* Post */}
 						{posts.map((post, index) => (
-							
+
 							<li key={index} className="border-b-2 border-gray-600 ">
-								
+
 								<div className="flex flex-shrink-0 p-4 ">
 									<div className="flex-grow">
 										{/* Post: header */}
@@ -324,7 +324,7 @@ export default function Home() {
 									<div className="flex">
 										<div className="w-full">
 											<div className="flex items-center">
-												<div className="flex flex-col items-center justify-center flex-1 py-2 m-2 space-x-2 text-center">
+												<div className="flex items-center justify-center flex-1 py-2 m-2 space-x-2 text-center">
 													<button
 														onClick={handleLike}
 														className="flex items-center w-12 px-3 py-1 mt-1 text-base font-medium leading-6 text-gray-500 rounded-full group hover:bg-indigo-800 hover:text-indigo-300"
@@ -507,11 +507,10 @@ export default function Home() {
 							{/* <!--  Bottom --> */}
 							<div className="flex flex-row-reverse justify-between p-2 sm:px-6 sm:flex sm:flex-row-reverse">
 								<button
-									className={`px-5 py-3 mt-8 text-white rounded  ${
-										reportReason
-											? "bg-green-600 cursor-pointer hover:bg-green-500"
-											: "bg-gray-400 cursor-not-allowed"
-									}`}
+									className={`px-5 py-3 mt-8 text-white rounded  ${reportReason
+										? "bg-green-600 cursor-pointer hover:bg-green-500"
+										: "bg-gray-400 cursor-not-allowed"
+										}`}
 									type="submit"
 									disabled={!reportReason} // Disable the button if reportReason is empty
 								>
