@@ -40,11 +40,11 @@ export default function Home() {
 	const [posts, setPosts] = useState(null);
 
 	async function fetchData() {
-		const res = await fetch("api/posts", {
+		let res = await fetch("api/posts", {
 			method: "GET",
 		});
-		const { data } = await res.json();
-		setPosts(data);
+		res = await res.json();
+		setPosts(res.data);
 	}
 
 	useEffect(() => {
