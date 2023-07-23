@@ -11,16 +11,12 @@ import path from "path";
 export async function GET(req, { params }) {
 	const logger = getLogger();
 	try {
-		const token = await getToken({ req });
-		if (!token) {
-			return NextResponse.next();
-		}
-
 		const { user_id } = params;
 
-		await database.connect();
 		const query =
 			"SELECT email, first_name, last_name, password, phone_num, avatar FROM users WHERE user_id = ?";
+
+		await database.connect();
 		const result = await database.query(query, [user_id]);
 		await database.end();
 
