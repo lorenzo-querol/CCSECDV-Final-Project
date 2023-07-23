@@ -13,7 +13,8 @@ const limiter = rateLimit({
 
 const authHandler = async (req, res) => {
 	const logger = getLogger();
-
+	//console.log(req)
+	console.log("NA SA AUTH")
 	try {
 		return await NextAuth(req, res, {
 			providers: [
@@ -76,18 +77,27 @@ const authHandler = async (req, res) => {
 				}),
 			],
 			callbacks: {
-				async jwt(token, user) {
+				async jwt({ token, user }) {
+					console.log("Token is")
+					console.log(token)
+					console.log("User is")
+					console.log(user)
 					if (user) {
+
 						token.user_id = user.user_id;
 						token.email = user.email;
 						token.name = `${user.first_name} ${user.last_name}`;
 					}
 
-					return token;
+					return Promise.resolve(token);
 				},
-				async session(session, token) {
+				async session({session, token}) {
+					console.log("Token is")
+					console.log(token)
+					console.log("Session is")
+					console.log(session)
 					session.user = token;
-					return session;
+					return Promise.resolve(session);
 				},
 			},
 			pages: {

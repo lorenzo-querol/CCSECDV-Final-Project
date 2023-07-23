@@ -7,10 +7,8 @@ import { writeFile } from "fs/promises";
 
 // Matches /api/posts
 // HTTP methods: GET, POST
-
 export async function GET(req) {
 	const logger = getLogger();
-
 	try {
 		const query =
 			"SELECT date_created, name, description, image, heart_count FROM posts";
@@ -48,13 +46,16 @@ export async function GET(req) {
 
 // TODO: Under construction
 export async function POST(req) {
+
 	const logger = getLogger();
+	const data = await req.json()
 
 	try {
-		const data = await req.formData();
-		const postInfo = JSON.parse(data.get("postInfo"));
+		
+		console.log(data)
+		//const postInfo = JSON.parse(data.avatar);
 
-		const image = data.get("image");
+		const image = data.avatar;
 		let imageName = image.split(".");
 		imageName[0] = nanoid();
 		imageName = imageName.join(".");

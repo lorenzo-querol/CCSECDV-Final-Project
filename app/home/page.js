@@ -32,9 +32,9 @@ import {
 import sanitize from "sanitize-html";
 
 export default function Home() {
-	// const { data: session, status } = useSession() TODO: session check // redirect to login if not signed in
+	const { data: session, status } = useSession()//TODO: session check // redirect to login if not signed in
 
-  
+	console.log(status)
 	
 	const [imageFile, setImageFile] = useState(null);
 	const [imagePreview, setImagePreview] = useState(null);
@@ -43,21 +43,18 @@ export default function Home() {
 	const [showReportModal, setShowReportModal] = useState(false);
 	const [reportReason, setReportReason] = useState('');
 	const [posts, setPosts] = useState(null)
-
+	
 
 	async function fetchData(){
 		const res = await fetch('api/posts', { 
 			method: 'GET'})
 			const data = await res.json();
-			console.log("hi")
-			//console.log(data)
-			//console.log(data.data)
-			console.log(data.data.result)
 			setPosts(data.data.result);
 	  }
 
 	  useEffect(() => {
 		fetchData();
+
 	 }, []); // 
 	
 	// Function to handle image selection
@@ -99,12 +96,13 @@ export default function Home() {
 		try {
 			console.log("hi")
 			e.preventDefault();
-			const res = await fetch(`/api/posts`, {
+			const res = await fetch(`api/posts`, {
 
 					headers: {
 					  'Content-Type': 'application/json',
 					},
-					method: 'POST'
+					method: 'POST',
+					body: JSON.stringify({ description : postText, avatar : imagePreview })
 				  }
 			);
 			console.log("are u here")
