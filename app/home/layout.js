@@ -8,7 +8,7 @@ import {
 	BsSearch,
 } from "react-icons/bs";
 import React, { useEffect, useMemo, useState } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession, getSession, signOut } from "next-auth/react";
 
 import { FaUsers } from "react-icons/fa";
 import Image from "next/image";
@@ -20,12 +20,38 @@ export default function Sidebar({ children }) {
 	const [close, setClose] = useState(false);
 	const [activeMenuItem, setActiveMenuItem] = useState(""); // Set initial active menu item by title
 	const [pathname, setPathname] = useState(""); // Initialize pathname state with an empty string
+	const [user, setUser] = useState(null)
+	const { data : session, status} = useSession({
+        required: true,
+        onUnauthenticated() {
+            router.replace("/login");
+        },
+    });
+	async function fetchUserData(userID){ // Data to display current user name and avatar
+        const url = 'api/users/' + userID 
+        const res = await fetch(url, { 
+			method: 'GET'})
+		const data = await res.json();
+		console.log(data)
+		setUser(data.data)
+	  }
+    async function getSesh() { // getSession
+        const session = await getSession()
+		fetchUserData(session.user.user_id);
+      }
 
-	useEffect(() => {
-		// Update pathname state with the current pathname when the component mounts
-		setPathname(window.location.pathname);
-	}, []);
-
+    useEffect(() => {
+        if (session) { // SESSION IS CALLED RIGHT AFTER LOGGING IN
+           fetchUserData(session.user.user_id);
+        }
+        
+        else { // THIS PART IS CALLED SINCE SESSION BECOMES UNDEFINED ONCE PAGE IS REFRESHED / RELOADED
+			
+           getSesh();
+		   
+        }
+        setPathname(window.location.pathname);
+    }, []);
 	const Menus = useMemo(
 		() => [
 			{ title: "Home", icon: <AiFillHome />, path: "/home" },
@@ -49,7 +75,7 @@ export default function Sidebar({ children }) {
 	const handleMenuItemClick = (title, path) => {
 		setActiveMenuItem(title);
 	};
-
+	if (!user) return <div>Loading...</div>;
 	return (
 		<div className="fixed left-0 flex w-full h-screen">
 			<div
@@ -121,11 +147,12 @@ export default function Sidebar({ children }) {
 						href="#"
 						className="flex-shrink-0 block group"
 					>
+
 						<div className="flex items-center">
 							<div>
 								<Image
 									className="inline-block w-10 h-10 rounded-full"
-									src={control}
+									src={`data:image/${user.avatar.ext.slice(1)};base64,${user.avatar.data}`}
 									alt=""
 									width={40}
 									height={40}
@@ -134,11 +161,12 @@ export default function Sidebar({ children }) {
 							{!close && (
 								<div className="ml-3">
 									<p className="text-xl font-medium leading-6 text-white">
-										User
+										{user.name}
 									</p>
 								</div>
 							)}
 						</div>
+
 					</a>
 				</div>
 			</div>

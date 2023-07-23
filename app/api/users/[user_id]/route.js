@@ -9,7 +9,6 @@ import fs from 'fs';
 
 export async function GET(req, { params }) {
 	const logger = getLogger();
-
 	try {
 		const { user_id } = params;
 
@@ -29,17 +28,17 @@ export async function GET(req, { params }) {
 		const imagePath = path.join(process.cwd(), result[0].avatar);
 		const imageBuffer = fs.readFileSync(imagePath);
 		const base64Image = Buffer.from(imageBuffer).toString('base64');
-
+		
 		return NextResponse.json({
 			error: null,
 			status: 200,
 			ok: true,
 			data: {
-				...result[0],
 				avatar: {
 					ext: path.extname(imagePath),
 					data: base64Image,
 				},
+				name: `${result[0].first_name} ${result[0].last_name}`
 			},
 		});
 	} catch (error) {
