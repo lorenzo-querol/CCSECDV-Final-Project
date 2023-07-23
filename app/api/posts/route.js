@@ -29,9 +29,7 @@ export async function GET(req) {
 			error: null,
 			status: 200,
 			ok: true,
-			data: {
-				result,
-			},
+			data: result,
 		});
 	} catch (error) {
 		logger.error(error.message);
@@ -46,9 +44,8 @@ export async function GET(req) {
 
 // TODO: Under construction
 export async function POST(req) {
-
 	const logger = getLogger();
-	const data = await req.json()
+	const data = await req.json();
 
 	try {
 		let finalImg = '';

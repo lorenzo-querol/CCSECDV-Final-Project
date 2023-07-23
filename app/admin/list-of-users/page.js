@@ -4,9 +4,6 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { BiBlock, BiSort } from "react-icons/bi";
 import React, { useEffect, useState } from "react";
 
-import axios from "axios";
-import { useRouter } from "next/navigation";
-
 export default function Users() {
 	const [page, setPage] = useState(1);
 	const [users, setUsers] = useState();
@@ -14,13 +11,16 @@ export default function Users() {
 	const [totalPages, setTotalPages] = useState();
 	const [totalUsers, setTotalUsers] = useState();
 	const [status, setStatus] = useState("pending"); // Default status is 'pending'
+	const [sortBy, setSortBy] = useState("name"); // Default sort by is 'name'
+	const [sortOrder, setSortOrder] = useState("ASC"); // Default sort order is 'ASC'
 
 	const handleNext = () => setPage((prevPage) => prevPage + 1);
 	const handlePrev = () => setPage((prevPage) => prevPage - 1);
 
-	// Function to handle sorting when the button is clicked
+	// Function to handle sorting when the sort button is clicked
 	const handleSortClick = (field) => {
-		alert("Sort!");
+		setSortBy(field);
+		setSortOrder((prevOrder) => (prevOrder === "ASC" ? "DESC" : "ASC"));
 	};
 
 	// Function to handle status change
@@ -28,25 +28,28 @@ export default function Users() {
 		setStatus(event.target.value);
 	};
 
-	useEffect(() => {
-		const fetchUsers = async (page) => {
-			try {
-				const res = await fetch(`/api/users?page=${page}`, {
+	const fetchUsers = async (page, sortBy, sortOrder) => {
+		try {
+			const res = await fetch(
+				`/api/users?page=${page}&sortby=${sortBy}&order=${sortOrder}`,
+				{
 					cache: "no-store",
-				});
+				},
+			);
 
-				const { data } = await res.json();
-				setUsers(data.users);
-				setLimit(data.limit);
-				setTotalPages(data.totalPages);
-				setTotalUsers(data.totalUsers[0].count);
-			} catch (error) {
-				console.log("Something went wrong:", error.message);
-			}
-		};
+			const { data } = await res.json();
+			setUsers(data.users);
+			setLimit(data.limit);
+			setTotalPages(data.totalPages);
+			setTotalUsers(data.totalUsers[0].count);
+		} catch (error) {
+			console.log("Something went wrong:", error.message);
+		}
+	};
 
-		fetchUsers(page);
-	}, [page]);
+	useEffect(() => {
+		fetchUsers(page, sortBy, sortOrder);
+	}, [page, sortBy, sortOrder]);
 
 	if (!users) return <div>Fetching users...</div>;
 
@@ -92,8 +95,8 @@ export default function Users() {
 							</tr>
 						</thead>
 						<tbody className="items-center justify-center w-full mx-auto">
-							{users.map((user) => (
-								<tr key={user.id}>
+							{users.map((user, index) => (
+								<tr key={index}>
 									<td className="px-4 py-2 border-b">{user.name}</td>
 									<td className="px-4 py-2 border-b">{user.email}</td>
 								</tr>
