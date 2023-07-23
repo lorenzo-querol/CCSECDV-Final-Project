@@ -4,9 +4,6 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { BiBlock, BiSort } from "react-icons/bi";
 import React, { useEffect, useState } from "react";
 
-import axios from "axios";
-import { useRouter } from "next/navigation";
-
 export default function Users() {
 	const [page, setPage] = useState(1);
 	const [users, setUsers] = useState();
@@ -20,7 +17,7 @@ export default function Users() {
 	const handleNext = () => setPage((prevPage) => prevPage + 1);
 	const handlePrev = () => setPage((prevPage) => prevPage - 1);
 
-	// Function to handle sorting when the button is clicked
+	// Function to handle sorting when the sort button is clicked
 	const handleSortClick = (field) => {
 		setSortBy(field);
 		setSortOrder((prevOrder) => (prevOrder === "ASC" ? "DESC" : "ASC"));
@@ -31,26 +28,26 @@ export default function Users() {
 		setStatus(event.target.value);
 	};
 
+	const fetchUsers = async (page, sortBy, sortOrder) => {
+		try {
+			const res = await fetch(
+				`/api/users?page=${page}&sortby=${sortBy}&order=${sortOrder}`,
+				{
+					cache: "no-store",
+				},
+			);
+
+			const { data } = await res.json();
+			setUsers(data.users);
+			setLimit(data.limit);
+			setTotalPages(data.totalPages);
+			setTotalUsers(data.totalUsers[0].count);
+		} catch (error) {
+			console.log("Something went wrong:", error.message);
+		}
+	};
+
 	useEffect(() => {
-		const fetchUsers = async (page, sortBy, sortOrder) => {
-			try {
-				const res = await fetch(
-					`/api/users?page=${page}&sortby=${sortBy}&order=${sortOrder}`,
-					{
-						cache: "no-store",
-					},
-				);
-
-				const { data } = await res.json();
-				setUsers(data.users);
-				setLimit(data.limit);
-				setTotalPages(data.totalPages);
-				setTotalUsers(data.totalUsers[0].count);
-			} catch (error) {
-				console.log("Something went wrong:", error.message);
-			}
-		};
-
 		fetchUsers(page, sortBy, sortOrder);
 	}, [page, sortBy, sortOrder]);
 
