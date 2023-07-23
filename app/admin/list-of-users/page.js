@@ -31,12 +31,9 @@ export default function Users() {
 	useEffect(() => {
 		const fetchUsers = async (page) => {
 			try {
-				const res = await fetch(
-					`${process.env.NEXTAUTH_URL}/api/users?page=${page}`,
-					{
-						cache: "no-store",
-					},
-				);
+				const res = await fetch(`/api/users?page=${page}`, {
+					cache: "no-store",
+				});
 
 				const { data } = await res.json();
 				setUsers(data.users);

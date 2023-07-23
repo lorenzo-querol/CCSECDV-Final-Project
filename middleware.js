@@ -6,7 +6,6 @@ async function authenticateAndAuthorize(req) {
 	const token = await getToken({ req });
 	if (!token) return { isAuthenticated: false };
 
-	console.log(token);
 	let { is_admin } = token;
 	const isAdmin = parseInt(is_admin, 10) === 1;
 

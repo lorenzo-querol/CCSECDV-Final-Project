@@ -14,7 +14,7 @@ const limiter = rateLimit({
 const authHandler = async (req, res) => {
 	const logger = getLogger();
 	//console.log(req)
-	console.log("NA SA AUTH")
+	console.log("NA SA AUTH");
 	try {
 		return await NextAuth(req, res, {
 			providers: [
@@ -46,7 +46,7 @@ const authHandler = async (req, res) => {
 
 						// 3. Check if the user exists
 						const query =
-							"SELECT user_id, first_name, last_name, email, password FROM users WHERE email = ?";
+							"SELECT user_id, first_name, last_name, email, password, is_admin FROM users WHERE email = ?";
 
 						await database.connect();
 						const user = await database.query(query, [credentials.email]);
@@ -60,15 +60,11 @@ const authHandler = async (req, res) => {
 
 						// 5. If the password matches, return the user object
 						if (user && samePassword) {
-							console.log({
-								user_id: user[0].user_id,
-								email: user[0].email,
-								name: `${user[0].first_name} ${user[0].last_name}`,
-							});
 							return {
 								user_id: user[0].user_id,
 								email: user[0].email,
 								name: `${user[0].first_name} ${user[0].last_name}`,
+								is_admin: user[0].is_admin,
 							};
 						}
 
@@ -78,26 +74,22 @@ const authHandler = async (req, res) => {
 			],
 			callbacks: {
 				async jwt({ token, user }) {
-					console.log("Token is")
-					console.log(token)
-					console.log("User is")
-					console.log(user)
 					if (user) {
-
 						token.user_id = user.user_id;
 						token.email = user.email;
-						token.name = `${user.first_name} ${user.last_name}`;
+						token.name = user.name;
+						token.is_admin = user.is_admin;
 					}
 
-					return Promise.resolve(token);
+					return token;
 				},
-				async session({session, token}) {
-					console.log("Token is")
-					console.log(token)
-					console.log("Session is")
-					console.log(session)
-					session.user = token;
-					return Promise.resolve(session);
+				async session({ session, token }) {
+					session.user.user_id = token.user_id;
+					session.user.email = token.email;
+					session.user.name = token.name;
+					if (token.is_admin) session.user.is_admin = token.is_admin;
+
+					return session;
 				},
 			},
 			pages: {

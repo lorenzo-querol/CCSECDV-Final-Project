@@ -23,7 +23,6 @@ export default function Login() {
 		try {
 			event.preventDefault();
 
-			console.log(email, password);
 			const result = await signIn("credentials", {
 				redirect: false,
 				email: email,
