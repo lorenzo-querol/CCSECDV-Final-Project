@@ -1,8 +1,9 @@
-import { getLogger } from '@/utils/logger';
-import { NextResponse } from 'next/server';
-import { database } from '@/utils/database';
-import path from 'path';
-import fs from 'fs';
+import { NextResponse } from "next/server";
+import { database } from "@/utils/database";
+import fs from "fs";
+import { getLogger } from "@/utils/logger";
+import { getToken } from "next-auth/jwt";
+import path from "path";
 
 // Matches /api/users/[user_id]
 // HTTP methods: GET, PATCH, DELETE
@@ -12,14 +13,16 @@ export async function GET(req, { params }) {
 	try {
 		const { user_id } = params;
 
+		const query =
+			"SELECT email, first_name, last_name, password, phone_num, avatar FROM users WHERE user_id = ?";
+
 		await database.connect();
-		const query = 'SELECT email, first_name, last_name, password, phone_num, avatar FROM users WHERE user_id = ?';
 		const result = await database.query(query, [user_id]);
 		await database.end();
 
 		if (result.length === 0)
 			return NextResponse.json({
-				error: 'notfound',
+				error: "notfound",
 				status: 400,
 				ok: false,
 				data: null,
@@ -27,8 +30,8 @@ export async function GET(req, { params }) {
 
 		const imagePath = path.join(process.cwd(), result[0].avatar);
 		const imageBuffer = fs.readFileSync(imagePath);
-		const base64Image = Buffer.from(imageBuffer).toString('base64');
-		
+		const base64Image = Buffer.from(imageBuffer).toString("base64");
+
 		return NextResponse.json({
 			error: null,
 			status: 200,
@@ -38,13 +41,13 @@ export async function GET(req, { params }) {
 					ext: path.extname(imagePath),
 					data: base64Image,
 				},
-				name: `${result[0].first_name} ${result[0].last_name}`
+				name: `${result[0].first_name} ${result[0].last_name}`,
 			},
 		});
 	} catch (error) {
 		logger.error(error.message);
 		return NextResponse.json({
-			error: 'internal',
+			error: "internal",
 			status: 500,
 			ok: false,
 			data: null,
@@ -59,7 +62,7 @@ export async function PATCH(req, { params }) {
 	} catch (error) {
 		logger.error(error.message);
 		return NextResponse.json({
-			error: 'internal',
+			error: "internal",
 			status: 500,
 			ok: false,
 			data: null,
@@ -72,7 +75,7 @@ export async function DELETE(req, { params }) {
 
 	try {
 		const { user_id } = params;
-		const query = 'DELETE FROM users WHERE user_id = ?';
+		const query = "DELETE FROM users WHERE user_id = ?";
 
 		await database.connect();
 		const result = await database.query(query, [user_id]);
@@ -80,7 +83,7 @@ export async function DELETE(req, { params }) {
 
 		if (result.affectedRows === 0)
 			return NextResponse.json({
-				error: 'notfound',
+				error: "notfound",
 				status: 400,
 				ok: false,
 				data: null,
@@ -95,7 +98,7 @@ export async function DELETE(req, { params }) {
 	} catch (error) {
 		logger.error(error.message);
 		return NextResponse.json({
-			error: 'internal',
+			error: "internal",
 			status: 500,
 			ok: false,
 			data: null,

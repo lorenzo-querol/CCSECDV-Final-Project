@@ -2,16 +2,17 @@
 
 import { HiAtSymbol, HiFingerPrint } from "react-icons/hi";
 import React, { useEffect, useState } from "react";
+import { signIn, useSession } from "next-auth/react";
 
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 import axios from "axios";
 import sanitizeHtml from "sanitize-html";
-import { signIn } from "next-auth/react";
 import styles from "@/app/Form.module.css";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
+	const { status } = useSession();
 	const router = useRouter();
 	const [show, setShow] = useState(false);
 	const [email, setEmail] = useState("");
@@ -22,7 +23,6 @@ export default function Login() {
 		try {
 			event.preventDefault();
 
-			console.log(email, password);
 			const result = await signIn("credentials", {
 				redirect: false,
 				email: email,
@@ -40,6 +40,10 @@ export default function Login() {
 			console.log(error.message);
 		}
 	};
+
+	useEffect(() => {
+		if (status === "authenticated") router.replace("/home");
+	}, [status, router]);
 
 	return (
 		<form
