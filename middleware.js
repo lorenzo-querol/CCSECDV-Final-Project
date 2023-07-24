@@ -15,7 +15,13 @@ async function authenticateAndAuthorize(req) {
 function redirectLogin(req) {
 	const url = req.nextUrl.clone();
 	url.pathname = "/login";
-	return NextResponse.redirect(url);
+	return NextResponse.rewrite(url);
+}
+
+function redirectAdmin(req) {
+	const url = req.nextUrl.clone();
+	url.pathname = "/admin/list-of-users";
+	return NextResponse.rewrite(url);
 }
 
 export async function middleware(req) {
@@ -29,6 +35,8 @@ export async function middleware(req) {
 	const { isAuthenticated, isAdmin } = await authenticateAndAuthorize(req);
 
 	if (!isAuthenticated) return redirectLogin(req);
+
+	if (isAdmin) return redirectAdmin(req);
 
 	if (requiresAdmin && !isAdmin) {
 		return new NextResponse(
