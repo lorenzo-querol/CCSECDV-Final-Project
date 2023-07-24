@@ -219,7 +219,7 @@ export async function GET(req) {
 			data: {
 				page,
 				totalPages,
-				totalUsers,
+				totalUsers: totalUsers[0].count,
 				limit,
 				users: users,
 			},

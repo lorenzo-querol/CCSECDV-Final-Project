@@ -1,10 +1,15 @@
 "use client";
 
-import { AiOutlineArrowLeft, AiOutlineArrowRight, AiFillCheckCircle, AiFillCloseCircle } from "react-icons/ai";
+import {
+	AiFillCheckCircle,
+	AiFillCloseCircle,
+	AiOutlineArrowLeft,
+	AiOutlineArrowRight,
+} from "react-icons/ai";
 import { BiBlock, BiSort } from "react-icons/bi";
 import React, { useEffect, useState } from "react";
-import { useRouter } from 'next/router';
 
+import { useRouter } from "next/router";
 
 export default function Users() {
 	const [page, setPage] = useState(1);
@@ -14,8 +19,8 @@ export default function Users() {
 	const [totalUsers, setTotalUsers] = useState();
 	const [sortBy, setSortBy] = useState("name"); // Default sort by is 'name'
 	const [sortOrder, setSortOrder] = useState("ASC"); // Default sort order is 'ASC'
-	const [timeValue, setTimeValue] = useState(''); // State to handle the time input value
-	const [timeUnit, setTimeUnit] = useState('minutes'); // State to handle the selected time unit
+	const [timeValue, setTimeValue] = useState(""); // State to handle the time input value
+	const [timeUnit, setTimeUnit] = useState("minutes"); // State to handle the selected time unit
 
 	const handleNext = () => setPage((prevPage) => prevPage + 1);
 	const handlePrev = () => setPage((prevPage) => prevPage - 1);
@@ -28,15 +33,15 @@ export default function Users() {
 
 	// Function to handle time input and dropdown changes
 	const handleTimeChange = (event) => {
-		if (event.target.name === 'timeValue') {
+		if (event.target.name === "timeValue") {
 			setTimeValue(event.target.value);
-		} else if (event.target.name === 'timeUnit') {
+		} else if (event.target.name === "timeUnit") {
 			setTimeUnit(event.target.value);
 		}
 	};
 
 	const handleNameClick = () => {
-		alert('Go to userProfile-report')
+		alert("Go to userProfile-report");
 		// router.push('/userProfile_report'); // Change the path to the appropriate route
 	};
 
@@ -53,7 +58,7 @@ export default function Users() {
 			setUsers(data.users);
 			setLimit(data.limit);
 			setTotalPages(data.totalPages);
-			setTotalUsers(data.totalUsers[0].count);
+			setTotalUsers(data.totalUsers);
 		} catch (error) {
 			console.log("Something went wrong:", error.message);
 		}
@@ -207,7 +212,9 @@ export default function Users() {
 									</div>
 								</th>
 								<th className="w-1/6 px-4 py-2 border-b">
-									<div className="flex items-center justify-center">Set Cooldown</div>
+									<div className="flex items-center justify-center">
+										Set Cooldown
+									</div>
 								</th>
 								<th className="w-1/6 px-4 py-2 border-b">
 									<div className="flex items-center justify-center">
@@ -221,13 +228,24 @@ export default function Users() {
 						</thead>
 						<tbody className="items-center justify-center w-full mx-auto">
 							<tr>
-								<td className="px-4 py-2 border-b cursor-pointer" onClick={handleNameClick}>name</td>
+								<td
+									className="px-4 py-2 border-b cursor-pointer"
+									onClick={handleNameClick}
+								>
+									name
+								</td>
 								<td className="px-4 py-2 border-b">description</td>
 								<td className="px-4 py-2 border-b">
 									<div className="flex items-center justify-center ">
-										<div className="px-2 py-1 bg-yellow-500 rounded-lg">Pending</div>
-										<div className="px-2 py-1 bg-green-500 rounded-lg">Approved</div>
-										<div className="px-2 py-1 bg-red-500 rounded-lg">Disapproved</div>
+										<div className="px-2 py-1 bg-yellow-500 rounded-lg">
+											Pending
+										</div>
+										<div className="px-2 py-1 bg-green-500 rounded-lg">
+											Approved
+										</div>
+										<div className="px-2 py-1 bg-red-500 rounded-lg">
+											Disapproved
+										</div>
 									</div>
 								</td>
 								<td className="items-center px-4 py-2 border-b">
@@ -247,9 +265,24 @@ export default function Users() {
 											value={timeUnit}
 											onChange={handleTimeChange}
 										>
-											<option value="minutes" className="bg-indigo-500">Minutes</option>
-											<option value="hours" className="bg-indigo-500">Hours</option>
-											<option value="days" className="bg-indigo-500">Days</option>
+											<option
+												value="minutes"
+												className="bg-indigo-500"
+											>
+												Minutes
+											</option>
+											<option
+												value="hours"
+												className="bg-indigo-500"
+											>
+												Hours
+											</option>
+											<option
+												value="days"
+												className="bg-indigo-500"
+											>
+												Days
+											</option>
 										</select>
 									</div>
 								</td>

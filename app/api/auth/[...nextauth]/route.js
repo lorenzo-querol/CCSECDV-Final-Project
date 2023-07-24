@@ -46,7 +46,7 @@ const authHandler = async (req, res) => {
 
 						// 3. Check if the user exists
 						const query =
-							"SELECT user_id, first_name, last_name, email, password, is_admin FROM users WHERE email = ?";
+							"SELECT user_id, first_name, last_name, email, password, is_admin, cooldown_until FROM users WHERE email = ?";
 
 						await database.connect();
 						const user = await database.query(query, [credentials.email]);
@@ -65,6 +65,7 @@ const authHandler = async (req, res) => {
 								email: user[0].email,
 								name: `${user[0].first_name} ${user[0].last_name}`,
 								is_admin: user[0].is_admin,
+								cooldown_until: user[0].cooldown_until,
 							};
 						}
 
@@ -79,6 +80,7 @@ const authHandler = async (req, res) => {
 						token.email = user.email;
 						token.name = user.name;
 						token.is_admin = user.is_admin;
+						token.cooldown_until = user.cooldown_until;
 					}
 
 					return token;
@@ -88,6 +90,8 @@ const authHandler = async (req, res) => {
 					session.user.email = token.email;
 					session.user.name = token.name;
 					if (token.is_admin) session.user.is_admin = token.is_admin;
+					if (token.cooldown_until)
+						session.user.cooldown_until = token.cooldown_until;
 
 					return session;
 				},

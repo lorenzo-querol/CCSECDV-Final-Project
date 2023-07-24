@@ -89,25 +89,22 @@ export async function PATCH(req, { params }) {
 
 		const coolDown = parseDuration(duration);
 
-		const query =
+		const userQuery = "SELECT user_id FROM reports WHERE report_id = ?";
+		const reportUpdateQuery =
 			"UPDATE reports SET status = ?, duration = ?, cooldown_until = ? WHERE report_id = ?";
+		const updateUserQuery =
+			"UPDATE users SET cooldown_until = ? WHERE user_id = ?";
 
 		await database.connect();
-		const result = await database.query(query, [
+		await database.query(reportUpdateQuery, [
 			status,
 			duration,
 			coolDown,
 			report_id,
 		]);
+		const userResult = await database.query(userQuery, [report_id]);
+		await database.query(updateUserQuery, [coolDown, userResult[0].user_id]);
 		await database.end();
-
-		if (result.affectedRows === 0)
-			return NextResponse.json({
-				error: "notfound",
-				status: 404,
-				ok: false,
-				data: null,
-			});
 
 		return NextResponse.json({
 			error: null,
