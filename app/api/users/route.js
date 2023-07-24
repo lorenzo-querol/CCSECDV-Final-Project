@@ -1,7 +1,8 @@
+import { database, s3 } from "@/utils/database";
+
 import { Buffer } from "buffer";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { database } from "@/utils/database";
 import { getLogger } from "@/utils/logger";
 import { nanoid } from "nanoid";
 import sanitizeHtml from "sanitize-html";
@@ -57,14 +58,10 @@ const validateData = (firstName, lastName, phoneNumber, email) => {
  */
 async function saveUser(user, avatar) {
 	try {
-		// 1. Prepare the query
 		const query =
 			"INSERT INTO users (user_id, email, first_name, last_name, password, phone_num, avatar) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-		// 2. Connect to database
 		await database.connect();
-
-		// 3. Execute the query
 		await database.query(query, [
 			user.user_id,
 			user.email,
@@ -74,17 +71,20 @@ async function saveUser(user, avatar) {
 			user.phoneNumber,
 			user.avatar,
 		]);
-
-		// 4. Close the connection
 		await database.end();
 
-		// 5. Prepare the avatar for saving to the file system
 		const bytes = await avatar.arrayBuffer();
 		const buffer = Buffer.from(bytes);
-		const path = `${process.cwd()}/${user.avatar}`;
 
-		// 6. Save the avatar to the file system and user to the database
-		await writeFile(path, buffer);
+		await s3
+			.upload({
+				Bucket: process.env.S3_BUCKET_NAME,
+				Key: user.avatar,
+				Body: buffer,
+				ContentType: avatar.name.split(".").pop(),
+				ACL: "public-read",
+			})
+			.promise();
 	} catch (error) {
 		throw new Error(error.message);
 	}
@@ -94,17 +94,14 @@ export async function POST(req) {
 	const logger = getLogger();
 
 	try {
-		// 1. Parse the form data
 		const data = await req.formData();
 		const userInfo = JSON.parse(data.get("userInfo"));
 
-		// EXTRA: Replace the avatar name with a nanoid but keep the extension
 		let avatar = data.get("avatar");
 		let avatarName = avatar.name.split(".");
 		avatarName[0] = nanoid();
 		avatarName = avatarName.join(".");
 
-		// 2. Extract the user info
 		const {
 			email,
 			firstName,
@@ -114,7 +111,6 @@ export async function POST(req) {
 			confirmPassword,
 		} = userInfo;
 
-		// 3. Check if the passwords match and the data is valid
 		if (!checkPassword(password, confirmPassword)) {
 			logger.error("Passwords do not match");
 			return new Response(
@@ -131,7 +127,6 @@ export async function POST(req) {
 			);
 		}
 
-		// 4. Hash the password and create the user object with sanitization
 		const hashedPassword = await bcrypt.hash(password, 10);
 		const user = {
 			user_id: nanoid(),
@@ -140,10 +135,9 @@ export async function POST(req) {
 			lastName: sanitizeHtml(lastName.trim()),
 			password: hashedPassword,
 			phoneNumber: sanitizeHtml(phoneNumber.trim()),
-			avatar: "avatars/avatar_" + avatarName,
+			avatar: "avatar_" + avatarName,
 		};
 
-		// 5. Save the user
 		await saveUser(user, avatar);
 
 		logger.info(`User ${user.email} (id: ${user.user_id}) created.`);

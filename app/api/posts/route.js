@@ -1,14 +1,15 @@
-import { Buffer } from "buffer";
+import { database, s3 } from "@/utils/database";
+
 import { NextResponse } from "next/server";
-import { database } from "@/utils/database";
 import { getLogger } from "@/utils/logger";
 import { nanoid } from "nanoid";
-import { writeFile } from "fs/promises";
 
 // Matches /api/posts
 // HTTP methods: GET, POST
+
 export async function GET(req) {
 	const logger = getLogger();
+
 	try {
 		const query =
 			"SELECT post_id, date_created, name, description, image, heart_count FROM posts";
@@ -42,6 +43,43 @@ export async function GET(req) {
 	}
 }
 
+/**
+ * Saves the post to the database and uploads the image to Amazon S3
+ * @param {*} post The post object
+ * @param {*} image The image file
+ */
+const savePost = async (post, image) => {
+	try {
+		const query =
+			"INSERT INTO posts (post_id, user_id, name, description, image) VALUES (?, ?, ?, ?, ?)";
+
+		await database.connect();
+		await database.query(query, [
+			post.post_id,
+			post.user_id,
+			post.name,
+			post.description,
+			post.image,
+		]);
+		await database.end();
+
+		const bytes = await image.arrayBuffer();
+		const buffer = image.from(bytes);
+
+		await s3
+			.upload({
+				Bucket: process.env.S3_BUCKET_NAME,
+				Key: post.image,
+				Body: buffer,
+				ContentType: image.name.split(".").pop(),
+				ACL: "public-read",
+			})
+			.promise();
+	} catch (error) {
+		throw new Error(error.message);
+	}
+};
+
 // TODO: Under construction
 export async function POST(req) {
 	const logger = getLogger();
@@ -56,7 +94,7 @@ export async function POST(req) {
 			let imageName = image.split(".");
 			imageName[0] = nanoid();
 			imageName = imageName.join(".");
-			finalImg = "posts/post_" + imageName;
+			finalImg = "post_" + imageName;
 		} else {
 			finalImg = "";
 		}
@@ -70,25 +108,8 @@ export async function POST(req) {
 			image: finalImg,
 		};
 
-		const query =
-			"INSERT INTO posts (post_id, user_id, name, description, image) VALUES (?, ?, ?, ?, ?)";
+		savePost(post, image);
 
-		await database.connect();
-		await database.query(query, [
-			post.post_id,
-			post.user_id,
-			post.name,
-			post.description,
-			post.image,
-		]);
-		await database.end();
-		if (data.avatar != null) {
-			const bytes = await avatar.arrayBuffer();
-			const buffer = Buffer.from(bytes);
-			const path = `${process.cwd()}/${user.post}`;
-
-			await writeFile(path, buffer);
-		}
 		logger.info(
 			`User ${post.name} (id: ${post.user_id}) created a post with id ${post.post_id}.`,
 		);
