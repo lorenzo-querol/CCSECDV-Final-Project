@@ -11,7 +11,7 @@ export async function GET(req) {
 	const logger = getLogger();
 	try {
 		const query =
-			"SELECT date_created, name, description, image, heart_count FROM posts";
+			"SELECT post_id, date_created, name, description, image, heart_count FROM posts";
 
 		await database.connect();
 		const result = await database.query(query);

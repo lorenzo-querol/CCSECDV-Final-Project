@@ -60,8 +60,8 @@ export default function Sidebar({ children }) {
 	const Menus = useMemo(
 		() => [
 			{ title: "Home", icon: <AiFillHome />, path: "/home" },
-			{ title: "Profile", icon: <FaUsers />, path: "/profile" },
-			{ title: "Settings", icon: <BsFillGearFill />, path: "/settings" },
+			{ title: "Profile", icon: <FaUsers />, path: "/home/profile" },
+			{ title: "Settings", icon: <BsFillGearFill />, path: "/home/settings" },
 		],
 		[],
 	);
