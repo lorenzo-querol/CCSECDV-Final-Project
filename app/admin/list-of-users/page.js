@@ -41,7 +41,7 @@ export default function Users() {
 	};
 
 	const handleNameClick = () => {
-		alert("Go to userProfile-report");
+		alert("Go to userProfile");
 		// router.push('/userProfile_report'); // Change the path to the appropriate route
 	};
 
@@ -114,7 +114,7 @@ export default function Users() {
 						<tbody className="items-center justify-center w-full mx-auto">
 							{users.map((user, index) => (
 								<tr key={index}>
-									<td className="px-4 py-2 border-b">{user.name}</td>
+									<td className="px-4 py-2 border-b" onclick={handleNameClick}>{user.name}</td>
 									<td className="px-4 py-2 border-b">{user.email}</td>
 								</tr>
 							))}

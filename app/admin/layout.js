@@ -41,25 +41,22 @@ export default function Sidebar({ children }) {
 	return (
 		<div className="fixed left-0 flex w-full h-screen">
 			<div
-				className={`${
-					close ? "w-20" : "w-72"
-				} relative h-screen bg-indigo-900 p-5 pt-8 duration-300 flex flex-col justify-start`}
+				className={`${close ? "w-20" : "w-72"
+					} relative h-screen bg-indigo-900 p-5 pt-8 duration-300 flex flex-col justify-start`}
 			>
 				<Image
 					src={control}
 					alt="Control Icon"
-					className={`absolute -right-3 top-9 w-7 cursor-pointer rounded-full border-2 border-indigo-900  ${
-						!close && "rotate-180"
-					}`}
+					className={`absolute -right-3 top-9 w-7 cursor-pointer rounded-full border-2 border-indigo-900  ${!close && "rotate-180"
+						}`}
 					onClick={() => setClose(!close)}
 					width={24}
 					height={24}
 				/>
 				<div className="flex items-center gap-x-4">
 					<h1
-						className={`origin-left text-3xl font-medium text-white duration-200 ${
-							close && "scale-0"
-						}`}
+						className={`origin-left text-3xl font-medium text-white duration-200 ${close && "scale-0"
+							}`}
 					>
 						THOUGHTS.
 					</h1>
@@ -68,9 +65,8 @@ export default function Sidebar({ children }) {
 					{Menus.map((Menu, index) => (
 						<li
 							key={index}
-							className={`flex cursor-pointer items-center gap-x-4 rounded-md p-2 text-xl text-white hover:bg-indigo-700 ${
-								Menu.gap ? "mt-9" : "mt-2"
-							} ${Menu.title === activeMenuItem && "bg-indigo-700"}`} // Add condition to apply active class
+							className={`flex cursor-pointer items-center gap-x-4 rounded-md p-2 text-xl text-white hover:bg-indigo-700 ${Menu.gap ? "mt-9" : "mt-2"
+								} ${Menu.title === activeMenuItem && "bg-indigo-700"}`} // Add condition to apply active class
 							onClick={() => handleMenuItemClick(Menu.title)} // Pass the title to the click event handler
 						>
 							<Link
@@ -105,8 +101,7 @@ export default function Sidebar({ children }) {
 
 				{/* Account */}
 				<div className="flex flex-shrink-0 mt-auto rounded-full hover:bg-blue-00">
-					<a
-						href="#"
+					<div
 						className="flex-shrink-0 block group"
 					>
 						<div className="flex items-center">
@@ -127,7 +122,7 @@ export default function Sidebar({ children }) {
 								</div>
 							)}
 						</div>
-					</a>
+					</div>
 				</div>
 			</div>
 			<div className="flex-1">{children}</div>

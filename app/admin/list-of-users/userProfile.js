@@ -119,7 +119,7 @@ export default function Home() {
                         <div className="flex">
                            <div className="w-full">
                               <div className="flex items-center">
-                                 <div className="flex flex-col items-center justify-center flex-1 py-2 m-2 space-x-2 text-center">
+                                 <div className="flex flex-col items-center justify-center flex-1 py-2 m-2 text-center">
                                     <button
                                        className="flex items-center w-12 px-3 py-1 mt-1 text-base font-medium leading-6 text-red-500 rounded-full group"
                                     >
@@ -134,7 +134,6 @@ export default function Home() {
                            </div>
                         </div>
                      </div>
-                     {/* <hr className="border-gray-600" /> */}
                   </li>
                </ul>
             </div>
