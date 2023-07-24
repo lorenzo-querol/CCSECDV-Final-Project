@@ -72,7 +72,6 @@ const savePost = async (post, image) => {
 				Key: post.image,
 				Body: buffer,
 				ContentType: image.name.split(".").pop(),
-				ACL: "public-read",
 			})
 			.promise();
 	} catch (error) {
