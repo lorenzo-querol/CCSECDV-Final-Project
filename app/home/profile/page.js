@@ -169,17 +169,7 @@ export default function Home() {
 								<div className="flex">
 									<div className="w-full">
 										<div className="flex items-center">
-											{/* <div className="flex-1 ">
-                                    <div className="flex items-center justify-center flex-1 py-2 m-2 text-center">
-                                       <a
-                                          href="#"
-                                          className="flex items-center w-12 px-3 py-2 mt-1 text-base font-medium leading-6 text-gray-500 rounded-full group hover:bg-indigo-800 hover:text-indigo-300"
-                                       >
-                                          <AiOutlineMessage size={25} />
-                                       </a>
-                                    </div>
-                                 </div> */}
-											<div className="flex flex-col items-center justify-center flex-1 py-2 m-2 space-x-2 text-center">
+											<div className="flex flex-col items-center justify-center flex-1 py-2 m-2 text-center">
 												<button
 													onClick={handleLike}
 													className="flex items-center w-12 px-3 py-1 mt-1 text-base font-medium leading-6 text-gray-500 rounded-full group hover:bg-indigo-800 hover:text-indigo-300"
@@ -195,128 +185,13 @@ export default function Home() {
 												</button>
 												{/* Only show if there's at least 2 likes */}
 												<span className="text-sm text-gray-200">
-													Number of likes
+													post.heart_count
 												</span>
 											</div>
 										</div>
 									</div>
 								</div>
 							</div>
-							{/* <hr className="border-gray-600" /> */}
-						</li>
-						{/* Post */}
-						<li className="border-b-2 border-gray-600 ">
-							<div className="flex flex-shrink-0 p-4 ">
-								<div className="flex-grow">
-									{/* Post: header */}
-									<div className="flex items-center justify-between ">
-										<div className="flex items-center">
-											{/* Image profile */}
-											<div>
-												<Image
-													className="inline-block w-10 h-10 rounded-full"
-													src={control}
-													alt=""
-												/>
-											</div>
-											{/* Details */}
-											<div className="ml-3">
-												<p className="text-base font-medium leading-6 text-white">
-													FirstName LastName
-													<span className="text-sm font-medium leading-5 text-gray-400 transition duration-150 ease-in-out group-hover:text-gray-300">
-														. 16 April
-													</span>
-												</p>
-											</div>
-										</div>
-									</div>
-								</div>
-								{/* Only show if its the user's post */}
-								{/* Dropdown icon */}
-								<div className="relative">
-									<div className="flex items-center flex-shrink-0 ml-auto">
-										<BiDotsVerticalRounded
-											size={25}
-											onClick={toggleDropdown}
-										/>
-									</div>
-									{showDropdown && (
-										<div className="absolute right-0 mt-2 bg-white rounded shadow-md">
-											<button
-												onClick={() => {
-													console.log("Delete clicked!");
-												}}
-												className="block w-full px-4 py-2 text-left text-gray-800 rounded hover:bg-red-500 hover:text-white"
-											>
-												Delete
-											</button>
-										</div>
-									)}
-								</div>
-							</div>
-							{/* Post: content */}
-							<div className="pl-16">
-								<p className="flex-shrink w-auto text-base font-medium text-white">
-									Day 07 of the challenge
-									<span className="text-indigo-400">#100DaysOfCode</span> I was
-									wondering what I can do with
-									<span className="text-indigo-400">#tailwindcss</span>, so just
-									started building Twitter UI using Tailwind and so far it looks
-									so promising. I will post my code after completion. [07/100]
-									<span className="text-indigo-400">
-										{" "}
-										#WomenWhoCode #CodeNewbie
-									</span>
-								</p>
-
-								{/* Check if there's an image otherwise, show nothing. */}
-								<div className="relative mt-2">
-									{/* <Image
-										src={pic}
-										alt="Image Preview"
-										className="w-full max-w-80 max-h-64"
-									/> */}
-								</div>
-
-								{/* Post: Footer */}
-								{/* Icons */}
-								<div className="flex">
-									<div className="w-full">
-										<div className="flex items-center">
-											{/* <div className="flex-1 ">
-                                    <div className="flex items-center justify-center flex-1 py-2 m-2 text-center">
-                                       <a
-                                          href="#"
-                                          className="flex items-center w-12 px-3 py-2 mt-1 text-base font-medium leading-6 text-gray-500 rounded-full group hover:bg-indigo-800 hover:text-indigo-300"
-                                       >
-                                          <AiOutlineMessage size={25} />
-                                       </a>
-                                    </div>
-                                 </div> */}
-											<div className="flex flex-col items-center justify-center flex-1 py-2 m-2 space-x-2 text-center">
-												<button
-													onClick={handleLike}
-													className="flex items-center w-12 px-3 py-1 mt-1 text-base font-medium leading-6 text-gray-500 rounded-full group hover:bg-indigo-800 hover:text-indigo-300"
-												>
-													{isLiked ? (
-														<AiFillHeart
-															size={25}
-															className="text-red-500"
-														/>
-													) : (
-														<AiOutlineHeart size={25} />
-													)}
-												</button>
-												{/* Only show if there's at least 2 likes */}
-												<span className="text-sm text-gray-200">
-													Number of likes
-												</span>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							{/* <hr className="border-gray-600" /> */}
 						</li>
 					</ul>
 				</div>

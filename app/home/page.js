@@ -322,25 +322,27 @@ export default function Home() {
 									{/* Post: Footer */}
 									{/* Icons */}
 									<div className="flex">
-										<div className="flex items-center w-full">
-											<div className="flex flex-col items-center justify-center flex-1 py-2 m-2 space-x-2 text-center">
-												<button
-													onClick={handleLike}
-													className="flex items-center w-12 px-3 py-1 mt-1 text-base font-medium leading-6 text-gray-500 rounded-full group hover:bg-indigo-800 hover:text-indigo-300"
-												>
-													{isLiked ? (
-														<AiFillHeart
-															size={25}
-															className="text-red-500"
-														/>
-													) : (
-														<AiOutlineHeart size={25} />
-													)}
-												</button>
-												{/* Only show if there's at least 2 likes */}
-												<span className="text-sm text-gray-200">
-													{post.heart_count}
-												</span>
+										<div className="w-full">
+											<div className="flex items-center">
+												<div className="flex flex-col items-center justify-center flex-1 py-2 m-2 text-center">
+													<button
+														onClick={handleLike}
+														className="flex items-center w-12 px-3 py-1 mt-1 text-base font-medium leading-6 text-gray-500 rounded-full group hover:bg-indigo-800 hover:text-indigo-300"
+													>
+														{isLiked ? (
+															<AiFillHeart
+																size={25}
+																className="text-red-500"
+															/>
+														) : (
+															<AiOutlineHeart size={25} />
+														)}
+													</button>
+													{/* Only show if there's at least 2 likes */}
+													<span className="text-sm text-gray-200">
+														{post.heart_count}
+													</span>
+												</div>
 											</div>
 										</div>
 									</div>
