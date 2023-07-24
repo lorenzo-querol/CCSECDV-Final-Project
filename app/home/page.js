@@ -29,33 +29,31 @@ import { useSession } from "next-auth/react";
 // import pic from "@/posts/Zoom Background 2.png";   // temp
 
 export default function Home() {
-
-
 	const [imageFile, setImageFile] = useState(null);
 	const [imagePreview, setImagePreview] = useState(null);
 	const [isLiked, setIsLiked] = useState(false); // State to track heart fill
 	const [showDropdown, setShowDropdown] = useState(false); // Dropdown
 	const [showReportModal, setShowReportModal] = useState(false);
-	const [reportReason, setReportReason] = useState('');
-	const [posts, setPosts] = useState(null)
-	const { data: session, status } = useSession()
-
-
+	const [reportReason, setReportReason] = useState("");
+	const [posts, setPosts] = useState(null);
+	const { data: session, status } = useSession();
 
 	async function fetchData() {
-		const res = await fetch("api/posts", {
-			method: "GET",
-		});
-		const data = await res.json();
-		console.log(data)
-		setPosts(data.data);
-		//res = await res.json();
-		//setPosts(res.data);
+		try {
+			const res = await fetch("/api/posts", {
+				method: "GET",
+			});
+			const { data } = await res.json();
+			setPosts(data);
+		} catch (error) {
+			console.log(error.message);
+		}
 	}
 
 	useEffect(() => {
 		fetchData();
-	})
+	}, []);
+
 	// Function to handle image selection
 	const handleImageChange = (e) => {
 		const file = e.target.files[0];
@@ -87,25 +85,24 @@ export default function Home() {
 	const handleReportChange = (event) => {
 		setReportReason(event.target.value);
 	};
-	async function fetchUserData(userID) { // Data to display current user name and avatar
-		const url = 'api/users/' + userID
+	async function fetchUserData(userID) {
+		// Data to display current user name and avatar
+		const url = "api/users/" + userID;
 		const res = await fetch(url, {
-			method: 'GET'
-		})
+			method: "GET",
+		});
 		const data = await res.json();
-		return data
+		return data;
 	}
 	async function getSesh() {
 		if (session) {
-			const userDATA = await fetchUserData(session.user.user_id)
-			return [userDATA, session.user.user_id]
-		}
-		else {
-			const sessionGET = await getSession()
-			const userGETDATA = await fetchUserData(sessionGET.user.user_id)
+			const userDATA = await fetchUserData(session.user.user_id);
+			return [userDATA, session.user.user_id];
+		} else {
+			const sessionGET = await getSession();
+			const userGETDATA = await fetchUserData(sessionGET.user.user_id);
 			return [userGETDATA, sessionGET.user.user_id];
 		}
-
 	}
 
 	// Function to handle form submission
@@ -113,10 +110,10 @@ export default function Home() {
 		e.preventDefault(); // Prevent default form submission behavior
 		const postText = sanitizeHtml(e.target.elements["post-textarea"].value); // Extract post text from the form
 		try {
-			const sessionOBJ = await getSesh()
-			console.log(sessionOBJ)
-			const name = sessionOBJ[0].data.name
-			const user_id = sessionOBJ[1]
+			const sessionOBJ = await getSesh();
+			console.log(sessionOBJ);
+			const name = sessionOBJ[0].data.name;
+			const user_id = sessionOBJ[1];
 
 			//	name: name,
 			//	description: description,
@@ -124,15 +121,18 @@ export default function Home() {
 			//};
 
 			const res = await fetch(`api/posts`, {
-
 				headers: {
-					'Content-Type': 'application/json',
+					"Content-Type": "application/json",
 				},
-				method: 'POST',
-				body: JSON.stringify({ description: postText, avatar: imagePreview, user_id: user_id, name: name })
-			}
-			);
-			console.log("are u here")
+				method: "POST",
+				body: JSON.stringify({
+					description: postText,
+					avatar: imagePreview,
+					user_id: user_id,
+					name: name,
+				}),
+			});
+			console.log("are u here");
 			const data = await res.json();
 			console.log(data);
 		} catch (error) {
@@ -141,7 +141,9 @@ export default function Home() {
 		console.log("Posted Text:", postText);
 		console.log("Posted Image:", imagePreview);
 	};
+
 	if (!posts) return <div>Fetching posts...</div>;
+
 	return (
 		<>
 			<div className="flex flex-row h-full overflow-y-auto">
@@ -237,9 +239,10 @@ export default function Home() {
 					<ul className="list-none">
 						{/* Post */}
 						{posts.map((post, index) => (
-
-							<li key={index} className="border-b-2 border-gray-600 ">
-
+							<li
+								key={index}
+								className="border-b-2 border-gray-600 "
+							>
 								<div className="flex flex-shrink-0 p-4 ">
 									<div className="flex-grow">
 										{/* Post: header */}
@@ -507,10 +510,11 @@ export default function Home() {
 							{/* <!--  Bottom --> */}
 							<div className="flex flex-row-reverse justify-between p-2 sm:px-6 sm:flex sm:flex-row-reverse">
 								<button
-									className={`px-5 py-3 mt-8 text-white rounded  ${reportReason
-										? "bg-green-600 cursor-pointer hover:bg-green-500"
-										: "bg-gray-400 cursor-not-allowed"
-										}`}
+									className={`px-5 py-3 mt-8 text-white rounded  ${
+										reportReason
+											? "bg-green-600 cursor-pointer hover:bg-green-500"
+											: "bg-gray-400 cursor-not-allowed"
+									}`}
 									type="submit"
 									disabled={!reportReason} // Disable the button if reportReason is empty
 								>

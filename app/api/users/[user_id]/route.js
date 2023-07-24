@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { database } from "@/utils/database";
-import fs from "fs";
 import { getLogger } from "@/utils/logger";
-import { getToken } from "next-auth/jwt";
-import path from "path";
 
 // Matches /api/users/[user_id]
 // HTTP methods: GET, PATCH, DELETE
@@ -28,21 +25,11 @@ export async function GET(req, { params }) {
 				data: null,
 			});
 
-		const imagePath = path.join(process.cwd(), result[0].avatar);
-		const imageBuffer = fs.readFileSync(imagePath);
-		const base64Image = Buffer.from(imageBuffer).toString("base64");
-
 		return NextResponse.json({
 			error: null,
 			status: 200,
 			ok: true,
-			data: {
-				avatar: {
-					ext: path.extname(imagePath),
-					data: base64Image,
-				},
-				name: `${result[0].first_name} ${result[0].last_name}`,
-			},
+			data: result[0],
 		});
 	} catch (error) {
 		logger.error(error.message);
