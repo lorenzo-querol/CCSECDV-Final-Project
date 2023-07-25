@@ -49,31 +49,52 @@ export async function GET(req) {
  * @param {*} image The image file
  */
 const savePost = async (post, image) => {
+	
 	try {
-		const query =
+		const imageData = image == null ? null : post.image;
+		if (image === null) {
+			const query =
 			"INSERT INTO posts (post_id, user_id, name, description, image) VALUES (?, ?, ?, ?, ?)";
+			
 
-		await database.connect();
-		await database.query(query, [
-			post.post_id,
-			post.user_id,
-			post.name,
-			post.description,
-			post.image,
-		]);
-		await database.end();
+			console.log("TRY LANG")
+			await database.connect();
+			await database.query(query, [
+				post.post_id,
+				post.user_id,
+				post.name,
+				post.description,
+				0,
+			]);
 
-		const bytes = await image.arrayBuffer();
-		const buffer = image.from(bytes);
+			await database.end();
+		}
+		else {
+			const query =
+				"INSERT INTO posts (post_id, user_id, name, description, image) VALUES (?, ?, ?, ?, ?)";
+				console.log("MAY IMAGE")
+			await database.connect();
+			await database.query(query, [
+				post.post_id,
+				post.user_id,
+				post.name,
+				post.description,
+				imageData,
+			]);
+			await database.end();
 
-		await s3
-			.upload({
-				Bucket: process.env.S3_BUCKET_NAME,
-				Key: post.image,
-				Body: buffer,
-				ContentType: image.name.split(".").pop(),
-			})
-			.promise();
+			const bytes = await image.arrayBuffer();
+			const buffer = image.from(bytes);
+
+			await s3
+				.upload({
+					Bucket: process.env.S3_BUCKET_NAME,
+					Key: post.image,
+					Body: buffer,
+					ContentType: image.name.split(".").pop(),
+				})
+				.promise();
+		}
 	} catch (error) {
 		throw new Error(error.message);
 	}
@@ -86,6 +107,7 @@ export async function POST(req) {
 
 	try {
 		let finalImg = "";
+		console.log("DATA IS CONSOLED")
 		console.log(data);
 		//const postInfo = JSON.parse(data.avatar);
 		if (data.avatar != null) {
@@ -93,18 +115,18 @@ export async function POST(req) {
 			let imageName = image.split(".");
 			imageName[0] = nanoid();
 			imageName = imageName.join(".");
-			finalImg = "post_" + imageName;
+			finalImg = "avatar_" + imageName;
 		} else {
-			finalImg = "";
+			finalImg = null;
 		}
-		const { user_id, name, description } = data;
+		const { user_id, name, description, image } = data;
 
 		const post = {
 			post_id: nanoid(),
 			user_id: user_id,
 			name: name,
 			description: description,
-			image: finalImg,
+			heart_count: 0,
 		};
 
 		savePost(post, image);
