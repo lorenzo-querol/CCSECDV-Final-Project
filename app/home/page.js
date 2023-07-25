@@ -54,21 +54,30 @@ export default function Home() {
 	useEffect(() => {
 		fetchData();
 	}, []); 
+
+	
 	const setAvatar = (userID) => {
-		
 		const avatar = fetchAvatar(userID)
-		console.log("Avatar is: ")
-		console.log(avatar)
-		return avatar
+			.then(avatar => {
+				if (avatar)
+					return avatar
+				else 
+					return ''
+			})
+
+	
+		
+		
 	}
 	async function fetchAvatar(userID) {
 		try {
-			const url = "/api/users/" + userID
+			const url = `/api/users/${userID}`
 			const res = await fetch(url, {
 				method: "GET",
 			});
 			const { data } = await res.json();
 			console.log(data.avatar)
+			console.log(typeof(data.avatar))
 			return data.avatar
 		} catch (error) {
 			console.log(error.message);
@@ -286,12 +295,21 @@ export default function Home() {
 											<div className="flex items-center">
 												{/* Image profile */}
 												<div>
-													<Image
+														{post.avatar ? (
+															<Image
+															className="inline-block w-10 h-10 rounded-full"
+															fill={true}
+															src={control}
+															alt=""
+														/>
+														) : (
+															<Image
 														className="inline-block w-10 h-10 rounded-full"
-														
+														fill={true}
 														src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${setAvatar(post.user_id)}`}
 														alt=""
 													/>
+														)}
 												</div>
 												{/* Details */}
 
