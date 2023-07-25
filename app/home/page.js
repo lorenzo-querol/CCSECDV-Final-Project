@@ -73,15 +73,37 @@ export default function Home() {
 	};
 
 	// Function to handle heart icon click
-	const handleLike = () => {
-		setIsLiked((prevIsLiked) => !prevIsLiked);
-	};
+	const handleLike = (postId) => {
+		setIsLiked((prevIsLiked) => ({
+		  ...prevIsLiked,
+		  [postId]: !prevIsLiked[postId],
+		}));
+		if (isLiked[postId]) { 
+			console.log("POST id:" + postId + " has -1 heart")
+		  } else {
+			console.log("POST id:" + postId + " has +1 heart")
+		  }
+	  };
 
 	// Function to show dropdown
-	const toggleDropdown = (param) => {
-		setShowDropdown(!showDropdown);
+	const toggleDropdown = (postId) => {
+		console.log("Selected Post ID: " + postId)
+		Object.keys(showDropdown).forEach((key) => {
+			if (key !== postId) {
+			  setShowDropdown((prevShowDropdown) => ({
+				...prevShowDropdown,
+				[key]: false,
+			  }));
+			}
+	  })
+	  // this segment basically just hides the currently selected dropdown 
+	  setShowDropdown((prevShowDropdown) => ({
+		...prevShowDropdown,
+		[postId]: !prevShowDropdown[postId],
+	  }));
 	};
 
+	
 	const handleReportChange = (event) => {
 		setReportReason(event.target.value);
 	};
@@ -111,35 +133,28 @@ export default function Home() {
 		const postText = sanitizeHtml(e.target.elements["post-textarea"].value); // Extract post text from the form
 		try {
 			const sessionOBJ = await getSesh();
-			console.log(sessionOBJ);
-			const name = sessionOBJ[0].data.name;
-			const user_id = sessionOBJ[1];
 
-			//	name: name,
-			//	description: description,
-			//	image: "posts/post_" + imageName,
-			//};
+			const fname = sessionOBJ[0].data.first_name;
+			const lname = sessionOBJ[0].data.last_name;
+			const user_id = sessionOBJ[1];
 
 			const res = await fetch(`api/posts`, {
 				headers: {
-					"Content-Type": "application/json",
+					"Content-Type": "multipart/form-data",
 				},
 				method: "POST",
 				body: JSON.stringify({
 					description: postText,
 					avatar: imagePreview,
 					user_id: user_id,
-					name: name,
+					name: fname + ' ' + lname,
+					image : imagePreview
 				}),
 			});
-			console.log("are u here");
 			const data = await res.json();
-			console.log(data);
 		} catch (error) {
 			console.log(error.message);
 		}
-		console.log("Posted Text:", postText);
-		console.log("Posted Image:", imagePreview);
 	};
 
 	if (!posts) return <div>Fetching posts...</div>;
@@ -252,7 +267,7 @@ export default function Home() {
 												<div>
 													<Image
 														className="inline-block w-10 h-10 rounded-full"
-														src={control}
+														src={post.avatar}
 														alt=""
 													/>
 												</div>
@@ -276,10 +291,10 @@ export default function Home() {
 										<div className="flex items-center flex-shrink-0 ml-auto">
 											<BiDotsVerticalRounded
 												size={25}
-												onClick={toggleDropdown}
+												onClick={() => toggleDropdown(post.post_id)}
 											/>
 										</div>
-										{showDropdown && (
+										{showDropdown[post.post_id] && (
 											<div className="absolute right-0 w-32 mt-2 bg-white rounded shadow-md z-35">
 												<button
 													onClick={() => {
@@ -329,10 +344,10 @@ export default function Home() {
 											<div className="flex items-center">
 												<div className="flex flex-col items-center justify-center flex-1 py-2 m-2 text-center">
 													<button
-														onClick={handleLike}
+														 onClick={() => handleLike(post.post_id)}
 														className="flex items-center w-12 px-3 py-1 mt-1 text-base font-medium leading-6 text-gray-500 rounded-full group hover:bg-indigo-800 hover:text-indigo-300"
 													>
-														{isLiked ? (
+														{isLiked[post.post_id] ? (
 															<AiFillHeart
 																size={25}
 																className="text-red-500"
