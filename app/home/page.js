@@ -36,7 +36,6 @@ export default function Home() {
 	const [showReportModal, setShowReportModal] = useState(false);
 	const [reportReason, setReportReason] = useState("");
 	const [posts, setPosts] = useState(null);
-
 	const { data: session, status } = useSession();
 
 	async function fetchData() {
@@ -53,37 +52,8 @@ export default function Home() {
 
 	useEffect(() => {
 		fetchData();
-	}, []); 
+	}, []);
 
-	
-	const setAvatar = (userID) => {
-		const avatar = fetchAvatar(userID)
-			.then(avatar => {
-				if (avatar)
-					return avatar
-				else 
-					return ''
-			})
-
-	
-		
-		
-	}
-	async function fetchAvatar(userID) {
-		try {
-			const url = `/api/users/${userID}`
-			const res = await fetch(url, {
-				method: "GET",
-			});
-			const { data } = await res.json();
-			console.log(data.avatar)
-			console.log(typeof(data.avatar))
-			return data.avatar
-		} catch (error) {
-			console.log(error.message);
-		}
-		
-	}
 	// Function to handle image selection
 	const handleImageChange = (e) => {
 		const file = e.target.files[0];
@@ -103,37 +73,15 @@ export default function Home() {
 	};
 
 	// Function to handle heart icon click
-	const handleLike = (postId) => {
-		setIsLiked((prevIsLiked) => ({
-		  ...prevIsLiked,
-		  [postId]: !prevIsLiked[postId],
-		}));
-		if (isLiked[postId]) { 
-			console.log("POST id:" + postId + " has -1 heart")
-		  } else {
-			console.log("POST id:" + postId + " has +1 heart")
-		  }
-	  };
-
-	// Function to show dropdown
-	const toggleDropdown = (postId) => {
-		console.log("Selected Post ID: " + postId)
-		Object.keys(showDropdown).forEach((key) => {
-			if (key !== postId) {
-			  setShowDropdown((prevShowDropdown) => ({
-				...prevShowDropdown,
-				[key]: false,
-			  }));
-			}
-	  })
-	  // this segment basically just hides the currently selected dropdown 
-	  setShowDropdown((prevShowDropdown) => ({
-		...prevShowDropdown,
-		[postId]: !prevShowDropdown[postId],
-	  }));
+	const handleLike = () => {
+		setIsLiked((prevIsLiked) => !prevIsLiked);
 	};
 
-	
+	// Function to show dropdown
+	const toggleDropdown = (param) => {
+		setShowDropdown(!showDropdown);
+	};
+
 	const handleReportChange = (event) => {
 		setReportReason(event.target.value);
 	};
@@ -163,28 +111,35 @@ export default function Home() {
 		const postText = sanitizeHtml(e.target.elements["post-textarea"].value); // Extract post text from the form
 		try {
 			const sessionOBJ = await getSesh();
-
-			const fname = sessionOBJ[0].data.first_name;
-			const lname = sessionOBJ[0].data.last_name;
+			console.log(sessionOBJ);
+			const name = sessionOBJ[0].data.name;
 			const user_id = sessionOBJ[1];
+
+			//	name: name,
+			//	description: description,
+			//	image: "posts/post_" + imageName,
+			//};
 
 			const res = await fetch(`api/posts`, {
 				headers: {
-					"Content-Type": "multipart/form-data",
+					"Content-Type": "application/json",
 				},
 				method: "POST",
 				body: JSON.stringify({
 					description: postText,
 					avatar: imagePreview,
 					user_id: user_id,
-					name: fname + ' ' + lname,
-					image : imagePreview
+					name: name,
 				}),
 			});
+			console.log("are u here");
 			const data = await res.json();
+			console.log(data);
 		} catch (error) {
 			console.log(error.message);
 		}
+		console.log("Posted Text:", postText);
+		console.log("Posted Image:", imagePreview);
 	};
 
 	if (!posts) return <div>Fetching posts...</div>;
@@ -216,9 +171,12 @@ export default function Home() {
 									className="w-full text-lg font-medium text-gray-400 bg-transparent"
 									rows="2"
 									cols="50"
-									name="post-textarea" // Give the textarea a name
+									name="post-textarea"
 									placeholder="What's happening?"
 								></textarea>
+								<div className="flex justify-center">
+									<p className="items-center font-semibold text-red-500">Maximum word/character exceeded. Max word/character is N.</p>
+								</div>
 								{/* Image Preview */}
 								{imagePreview && (
 									<div className="relative mt-2">
@@ -269,7 +227,7 @@ export default function Home() {
 							<div className="flex-1">
 								<button
 									type="submit" // Set the button type to submit
-									className="float-right px-8 py-2 mt-5 mr-8 font-bold text-white bg-indigo-400 rounded-full hover:bg-indigo-600"
+									className="float-right px-8 py-2 mt-4 mr-8 font-bold text-white bg-indigo-400 rounded-full hover:bg-indigo-600"
 								>
 									Post
 								</button>
@@ -295,21 +253,11 @@ export default function Home() {
 											<div className="flex items-center">
 												{/* Image profile */}
 												<div>
-														{post.avatar ? (
-															<Image
-															className="inline-block w-10 h-10 rounded-full"
-															fill={true}
-															src={control}
-															alt=""
-														/>
-														) : (
-															<Image
+													<Image
 														className="inline-block w-10 h-10 rounded-full"
-														fill={true}
-														src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${setAvatar(post.user_id)}`}
+														src={control}
 														alt=""
 													/>
-														)}
 												</div>
 												{/* Details */}
 
@@ -331,10 +279,10 @@ export default function Home() {
 										<div className="flex items-center flex-shrink-0 ml-auto">
 											<BiDotsVerticalRounded
 												size={25}
-												onClick={() => toggleDropdown(post.post_id)}
+												onClick={toggleDropdown}
 											/>
 										</div>
-										{showDropdown[post.post_id] && (
+										{showDropdown && (
 											<div className="absolute right-0 w-32 mt-2 bg-white rounded shadow-md z-35">
 												<button
 													onClick={() => {
@@ -344,14 +292,14 @@ export default function Home() {
 												>
 													Delete
 												</button>
-												<button
+												{/* <button
 													onClick={() => {
 														alert("Edit clicked!");
 													}}
 													className="block w-full px-4 py-2 text-left text-gray-800 rounded hover:bg-yellow-500 hover:text-white"
 												>
 													Edit
-												</button>
+												</button> */}
 												<button
 													className="block w-full px-4 py-2 text-left text-gray-800 rounded hover:bg-blue-500 hover:text-white"
 													onClick={() => setShowReportModal(true)}
@@ -384,10 +332,10 @@ export default function Home() {
 											<div className="flex items-center">
 												<div className="flex flex-col items-center justify-center flex-1 py-2 m-2 text-center">
 													<button
-														 onClick={() => handleLike(post.post_id)}
+														onClick={handleLike}
 														className="flex items-center w-12 px-3 py-1 mt-1 text-base font-medium leading-6 text-gray-500 rounded-full group hover:bg-indigo-800 hover:text-indigo-300"
 													>
-														{isLiked[post.post_id] ? (
+														{isLiked ? (
 															<AiFillHeart
 																size={25}
 																className="text-red-500"
@@ -565,11 +513,10 @@ export default function Home() {
 							{/* <!--  Bottom --> */}
 							<div className="flex flex-row-reverse justify-between p-2 sm:px-6 sm:flex sm:flex-row-reverse">
 								<button
-									className={`px-5 py-3 mt-8 text-white rounded  ${
-										reportReason
-											? "bg-green-600 cursor-pointer hover:bg-green-500"
-											: "bg-gray-400 cursor-not-allowed"
-									}`}
+									className={`px-5 py-3 mt-8 text-white rounded  ${reportReason
+										? "bg-green-600 cursor-pointer hover:bg-green-500"
+										: "bg-gray-400 cursor-not-allowed"
+										}`}
 									type="submit"
 									disabled={!reportReason} // Disable the button if reportReason is empty
 								>
