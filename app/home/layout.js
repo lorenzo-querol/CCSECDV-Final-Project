@@ -165,7 +165,7 @@ export default function Sidebar({ children }) {
 								{!close && (
 									<div className="ml-3">
 										<p className="text-xl font-medium leading-6 text-white">
-											{user.name}
+											{user.first_name + ' ' + user.last_name}
 										</p>
 									</div>
 								)}

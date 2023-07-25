@@ -1,8 +1,8 @@
 "use client";
 
 import { AiFillHome, AiFillMessage, AiOutlineLogout } from "react-icons/ai";
-import React, { useState } from "react";
-import { signOut, useSession } from "next-auth/react";
+import React, { useEffect, useMemo, useState } from "react";
+import { getSession, signOut, useSession } from "next-auth/react";
 
 import { BsFillGearFill } from "react-icons/bs";
 import { FaListAlt } from "react-icons/fa";
@@ -15,13 +15,42 @@ import { useRouter } from "next/navigation";
 
 export default function Sidebar({ children }) {
 	const router = useRouter();
-	const { status } = useSession({
+	const [pathname, setPathname] = useState(""); // Initialize pathname state with an empty string
+	const [user, setUser] = useState(null);
+	const { data: session, status } = useSession({
 		required: true,
 		onUnauthenticated() {
 			router.replace("/login");
 		},
 	});
+	async function fetchUserData(userID) {
+		// Data to display current user name and avatar
+		const url = "api/users/" + userID;
+		const res = await fetch(url, {
+			method: "GET",
+		});
+		const data = await res.json();
+		console.log(data);
+		setUser(data.data);
+	}
 
+	async function getSesh() {
+		// getSession
+		const session = await getSession();
+		fetchUserData(session.user.user_id);
+	}
+
+	useEffect(() => {
+		if (session) {
+			// SESSION IS CALLED RIGHT AFTER LOGGING IN
+			fetchUserData(session.user.user_id);
+		} else {
+			// THIS PART IS CALLED SINCE SESSION BECOMES UNDEFINED ONCE PAGE IS REFRESHED / RELOADED
+
+			getSesh();
+		}
+		setPathname(window.location.pathname);
+	}, []);
 	const [close, setClose] = useState(false);
 	const [activeMenuItem, setActiveMenuItem] = useState("Home"); // Set initial active menu item by title
 
@@ -100,6 +129,7 @@ export default function Sidebar({ children }) {
 				</ul>
 
 				{/* Account */}
+				{user && (
 				<div className="flex flex-shrink-0 mt-auto rounded-full hover:bg-blue-00">
 					<div
 						className="flex-shrink-0 block group"
@@ -108,7 +138,7 @@ export default function Sidebar({ children }) {
 							<div>
 								<Image
 									className="inline-block w-10 h-10 rounded-full"
-									src={control}
+									src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${user.avatar}`}
 									alt=""
 									width={40}
 									height={40}
@@ -117,13 +147,14 @@ export default function Sidebar({ children }) {
 							{!close && (
 								<div className="ml-3">
 									<p className="text-xl font-medium leading-6 text-white">
-										User
+										{user.first_name + ' ' + user.last_name}
 									</p>
 								</div>
 							)}
 						</div>
 					</div>
 				</div>
+				)}
 			</div>
 			<div className="flex-1">{children}</div>
 		</div>
