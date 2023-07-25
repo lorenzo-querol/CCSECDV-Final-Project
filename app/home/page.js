@@ -44,7 +44,6 @@ export default function Home() {
 				method: "GET",
 			});
 			const { data } = await res.json();
-			console.log(data)
 			setPosts(data);
 		} catch (error) {
 			console.log(error.message);
@@ -79,15 +78,16 @@ export default function Home() {
 		  ...prevIsLiked,
 		  [postId]: !prevIsLiked[postId],
 		}));
-		//if (isLiked[postId]) {
-			// POST +1
-		  //} else {
-			//POST -1
-		  //}
+		if (isLiked[postId]) { 
+			console.log("POST id:" + postId + " has -1 heart")
+		  } else {
+			console.log("POST id:" + postId + " has +1 heart")
+		  }
 	  };
 
 	// Function to show dropdown
 	const toggleDropdown = (postId) => {
+		console.log("Selected Post ID: " + postId)
 		Object.keys(showDropdown).forEach((key) => {
 			if (key !== postId) {
 			  setShowDropdown((prevShowDropdown) => ({
@@ -96,6 +96,7 @@ export default function Home() {
 			  }));
 			}
 	  })
+	  // this segment basically just hides the currently selected dropdown 
 	  setShowDropdown((prevShowDropdown) => ({
 		...prevShowDropdown,
 		[postId]: !prevShowDropdown[postId],
@@ -132,16 +133,10 @@ export default function Home() {
 		const postText = sanitizeHtml(e.target.elements["post-textarea"].value); // Extract post text from the form
 		try {
 			const sessionOBJ = await getSesh();
-			console.log(sessionOBJ);
-			console.log("NA SA SESSIONOBJ")
+
 			const fname = sessionOBJ[0].data.first_name;
 			const lname = sessionOBJ[0].data.last_name;
 			const user_id = sessionOBJ[1];
-			
-			//	name: name,
-			//	description: description,
-			//	image: "posts/post_" + imageName,
-			//};
 
 			const res = await fetch(`api/posts`, {
 				headers: {
@@ -156,9 +151,7 @@ export default function Home() {
 					image : imagePreview
 				}),
 			});
-			console.log("are u here");
 			const data = await res.json();
-			console.log(data);
 		} catch (error) {
 			console.log(error.message);
 		}
@@ -364,7 +357,7 @@ export default function Home() {
 														)}
 													</button>
 													{/* Only show if there's at least 2 likes */}
-													<span id={post.post_id + "-count"}className="text-sm text-gray-200">
+													<span className="text-sm text-gray-200">
 														{post.heart_count}
 													</span>
 												</div>
