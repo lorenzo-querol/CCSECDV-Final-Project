@@ -12,7 +12,7 @@ export async function GET(req) {
 
 	try {
 		const query =
-			"SELECT post_id, date_created, name, description, image, heart_count FROM posts";
+			"SELECT user_id, post_id, date_created, name, description, image, heart_count FROM posts";
 
 		await database.connect();
 		const result = await database.query(query);
@@ -55,9 +55,6 @@ const savePost = async (post, image) => {
 		if (image === null) {
 			const query =
 			"INSERT INTO posts (post_id, user_id, name, description, image) VALUES (?, ?, ?, ?, ?)";
-			
-
-			console.log("TRY LANG")
 			await database.connect();
 			await database.query(query, [
 				post.post_id,
@@ -72,7 +69,6 @@ const savePost = async (post, image) => {
 		else {
 			const query =
 				"INSERT INTO posts (post_id, user_id, name, description, image) VALUES (?, ?, ?, ?, ?)";
-				console.log("MAY IMAGE")
 			await database.connect();
 			await database.query(query, [
 				post.post_id,
@@ -85,7 +81,8 @@ const savePost = async (post, image) => {
 
 			const bytes = await image.arrayBuffer();
 			const buffer = image.from(bytes);
-
+			console.log(buffer)
+			console.log("BUFFY")
 			await s3
 				.upload({
 					Bucket: process.env.S3_BUCKET_NAME,

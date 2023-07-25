@@ -36,6 +36,7 @@ export default function Home() {
 	const [showReportModal, setShowReportModal] = useState(false);
 	const [reportReason, setReportReason] = useState("");
 	const [posts, setPosts] = useState(null);
+
 	const { data: session, status } = useSession();
 
 	async function fetchData() {
@@ -52,8 +53,28 @@ export default function Home() {
 
 	useEffect(() => {
 		fetchData();
-	}, []);
-
+	}, []); 
+	const setAvatar = (userID) => {
+		
+		const avatar = fetchAvatar(userID)
+		console.log("Avatar is: ")
+		console.log(avatar)
+		return avatar
+	}
+	async function fetchAvatar(userID) {
+		try {
+			const url = "/api/users/" + userID
+			const res = await fetch(url, {
+				method: "GET",
+			});
+			const { data } = await res.json();
+			console.log(data.avatar)
+			return data.avatar
+		} catch (error) {
+			console.log(error.message);
+		}
+		
+	}
 	// Function to handle image selection
 	const handleImageChange = (e) => {
 		const file = e.target.files[0];
@@ -267,7 +288,8 @@ export default function Home() {
 												<div>
 													<Image
 														className="inline-block w-10 h-10 rounded-full"
-														src={post.avatar}
+														
+														src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${setAvatar(post.user_id)}`}
 														alt=""
 													/>
 												</div>
