@@ -41,6 +41,7 @@ export default function Home() {
 	const [text, setText] = useState('');
 	const maxCharacters = 180; 
   	const [remainingCharacters, setRemainingCharacters] = useState(maxCharacters);
+	const isSubmitDisabled = remainingCharacters < 0;
 	async function fetchData() {
 		try {
 			const res = await fetch("/api/posts", {
@@ -163,10 +164,19 @@ export default function Home() {
 	const handleSubmit = async (e) => {
 		e.preventDefault(); // Prevent default form submission behavior
 		const postText = sanitizeHtml(e.target.elements["post-textarea"].value); // Extract post text from the form
+
+		//var base64str = imagePreview.substr(22);
+		//var decoded = atob(base64str);
+
+		//console.log("FileSize: " + decoded.length/1024);
+		const sessionOBJ = await getSesh();
+		//const fname = sessionOBJ[0].data.first_name;
+		//console.log(sessionOBJ[0])
 		try {
+			if (postText.length <= 180) {
 			const sessionOBJ = await getSesh();
-			const fname = sessionOBJ[0].data.first_name;
-			const lname = sessionOBJ[0].data.last_name;
+			const fname = sessionOBJ[0].first_name;
+			const lname = sessionOBJ[0].last_name;
 			const user_id = sessionOBJ[1];
 			const avatar = sessionOBJ[0].data.avatar;
 			const res = await fetch(`api/posts`, {
@@ -184,9 +194,13 @@ export default function Home() {
 			});
 			const data = await res.json();
 			console.log(data)
+			}
+			else 
+				throw new Error('MAXIMUM WORD COUNT')
 		} catch (error) {
 			console.log(error.message);
 		}
+		
 	};
 
 	if (!posts) return <div>Fetching posts...</div>;
@@ -284,6 +298,7 @@ export default function Home() {
 							<div className="flex-1">
 								<button
 									type="submit" // Set the button type to submit
+									//disabled={isSubmitDisabled}
 									className="float-right px-8 py-2 mt-4 mr-8 font-bold text-white bg-indigo-400 rounded-full hover:bg-indigo-600"
 								>
 									Post
