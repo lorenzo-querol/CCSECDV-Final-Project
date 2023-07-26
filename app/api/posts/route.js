@@ -17,16 +17,21 @@ export async function GET(req) {
 		const result1 = await database.query(query1);
 		await database.end();
 		const userIds = result1.map((row) => row.user_id);
-		
+
 		const query2 =
-  			"SELECT avatar FROM users WHERE user_id IN (?)";
+  			"SELECT user_id, avatar FROM users WHERE user_id IN (?)";
 		await database.connect();
 		const result2 = await database.query(query2, [userIds]);
 		await database.end();
 		for (let i = 0; i < result1.length; i++) {
-			result1[i] = { ...result1[i], ...result2[i] };
+			for (let j = 0; j <result2.length; j++)
+				if (result1[i].user_id == result2[j].user_id){
+					const avatar = result2[j].avatar
+					result1[i] = { ...result1[i], ...{avatar} };
+					j = result2.length
+				}
+					
 		  }
-
 
 		if (result1.length === 0 && result2.length === 0)
 			return NextResponse.json({
