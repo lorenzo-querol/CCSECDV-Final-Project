@@ -38,7 +38,9 @@ export default function Home() {
 	const [posts, setPosts] = useState(null);
 	const [user, setUser] = useState(null);
 	const { data: session, status } = useSession();
-
+	const [text, setText] = useState('');
+	const maxCharacters = 180; 
+  	const [remainingCharacters, setRemainingCharacters] = useState(maxCharacters);
 	async function fetchData() {
 		try {
 			const res = await fetch("/api/posts", {
@@ -78,6 +80,13 @@ export default function Home() {
 		}
 		
 	}, []); 
+
+	const handleChange = (event) => {
+		  const inputText = event.target.value;
+		  const charCount = inputText.length;
+		  setRemainingCharacters(maxCharacters - charCount);
+		  setText(inputText);
+	};
 
 	// Function to handle image selection
 	const handleImageChange = (e) => {
@@ -174,11 +183,10 @@ export default function Home() {
 				}),
 			});
 			const data = await res.json();
+			console.log(data)
 		} catch (error) {
 			console.log(error.message);
 		}
-		console.log("Posted Text:", postText);
-		console.log("Posted Image:", imagePreview);
 	};
 
 	if (!posts) return <div>Fetching posts...</div>;
@@ -215,9 +223,16 @@ export default function Home() {
 									cols="50"
 									name="post-textarea"
 									placeholder="What's happening?"
+									onChange={handleChange}
 								></textarea>
 								<div className="flex justify-center">
-									<p className="items-center font-semibold text-red-500"> Maximum word / character exceeded. Max word/character is N. </p>
+								{remainingCharacters < 0 ? (
+									<p className="items-center font-semibold text-red-500">   Maximum character count exceeded ({maxCharacters}). </p>
+									) : (
+										<p className="items-center font-semibold text-gray-500">
+										 {remainingCharacters}/{maxCharacters}.
+										</p>
+									  )}
 								</div>
 								{/* Image Preview */}
 								{imagePreview && (
