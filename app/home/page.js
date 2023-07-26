@@ -10,10 +10,11 @@ import {
 import {
 	BiDotsVerticalRounded,
 	BiImage,
+	BiSearch,
 } from "react-icons/bi";
 import React, { useState } from "react";
 
-import { BsFillExclamationTriangleFill } from "react-icons/bs";
+import { BsFillExclamationTriangleFill } from "react-icons/bs"; BiSearch
 import DDate from "@/component/date";
 import Image from "next/image";
 import sanitizeHtml from "sanitize-html";
@@ -38,6 +39,13 @@ export default function Home() {
 	const [remainingCharacters, setRemainingCharacters] = useState(maxCharacters);
 	const isSubmitDisabled = remainingCharacters < 0;
 	const reversedPosts = [...(posts || [])].reverse();
+	const [searchQuery, setSearchQuery] = useState(""); // State to store the search query
+
+	// Function to handle form submission for search
+	const handleSearch = async (e) => {
+		e.preventDefault(); // Prevent form submission
+		alert("Searching for: " + sanitizeHtml(searchQuery.trim()));
+	};
 
 	async function fetchData() {
 		try {
@@ -227,6 +235,7 @@ export default function Home() {
 				const data = await res.json();
 				setPosts((prevPosts) => [...prevPosts, data.data]);
 				e.target.reset()
+				setRemainingCharacters(maxCharacters);
 			}
 			else
 				throw new Error('Invalid Submission Text')
@@ -462,7 +471,24 @@ export default function Home() {
 					)}
 				</div>
 				{/* right menu */}
-				<Search />
+				<form className="w-fit" onSubmit={handleSearch}>
+					<div className="relative w-full p-5 mr-16 text-gray-300">
+						<button
+							type="submit"
+							className="absolute mt-3 ml-4 mr-4"
+						>
+							<BiSearch size={20} />
+						</button>
+						<input
+							type="search"
+							name="search"
+							placeholder="Search Thoughts"
+							className="w-full h-10 px-10 pr-5 text-sm text-gray-200 bg-indigo-800 border-0 rounded-full shadow focus:outline-none"
+							value={searchQuery} // Use the searchQuery value as input value
+							onChange={(e) => setSearchQuery(e.target.value)} // Update the searchQuery state on input change
+						/>
+					</div>
+				</form>
 			</div>
 
 			{showReportModal && (

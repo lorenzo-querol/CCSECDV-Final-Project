@@ -21,11 +21,13 @@ import { BsFillExclamationTriangleFill } from "react-icons/bs";
 import Date from "@/component/date";
 import Image from "next/image";
 import control from "@/public/control.png";
+import sanitize from "sanitize-html";
 import sanitizeHtml from "sanitize-html";
 import { signIn } from "next-auth/react";
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
-import Search from "./search"
+
+// import pic from "@/posts/Zoom Background 2.png";   // temp
 
 export default function Home() {
    const [isLiked, setIsLiked] = useState(false); // State to track heart fill
@@ -42,6 +44,8 @@ export default function Home() {
       const data = await res.json();
       console.log(data)
       setPosts(data.data);
+      //res = await res.json();
+      //setPosts(res.data);
    }
 
    useEffect(() => {
@@ -249,7 +253,22 @@ export default function Home() {
                </ul>
             </div>
             {/* right menu */}
-            <Search />
+            <form className="w-fit">
+               <div className="relative w-full p-5 mr-16 text-gray-300">
+                  <button
+                     type="submit"
+                     className="absolute mt-3 ml-4 mr-4"
+                  >
+                     <BiSearch size={20} />
+                  </button>
+                  <input
+                     type="search"
+                     name="search"
+                     placeholder="Search Thoughts"
+                     className="w-full h-10 px-10 pr-5 text-sm text-gray-200 bg-indigo-800 border-0 rounded-full shadow focus:outline-none"
+                  />
+               </div>
+            </form>
          </div>
 
          {showReportModal && (
