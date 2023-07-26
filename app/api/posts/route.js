@@ -32,7 +32,9 @@ export async function GET(req) {
 				}
 					
 		  }
-
+		result1.sort(
+			(objA, objB) => Number(objB.date_created) - Number(objA.date_created)  
+		)
 		if (result1.length === 0 && result2.length === 0)
 			return NextResponse.json({
 				error: "notfound",
@@ -63,6 +65,8 @@ export async function GET(req) {
  * @param {*} post The post object
  * @param {*} image The image file
  */
+
+
 const savePost = async (post, image) => {
 	
 	try {
@@ -80,6 +84,7 @@ const savePost = async (post, image) => {
 			]);
 
 			await database.end();
+			
 		}
 		else {
 			const query =
@@ -96,8 +101,6 @@ const savePost = async (post, image) => {
 
 			const bytes = await image.arrayBuffer();
 			const buffer = image.from(bytes);
-			console.log(buffer)
-			console.log("BUFFY")
 			await s3
 				.upload({
 					Bucket: process.env.S3_BUCKET_NAME,
@@ -132,7 +135,7 @@ export async function POST(req) {
 			finalImg = null;
 		}
 		const { user_id, name, description, image } = data;
-
+		
 		const post = {
 			post_id: nanoid(),
 			user_id: user_id,
@@ -146,11 +149,22 @@ export async function POST(req) {
 		logger.info(
 			`User ${post.name} (id: ${post.user_id}) created a post with id ${post.post_id}.`,
 		);
+		const tempdate = new Date()
+		const date_created = tempdate.toISOString()
+		const final_post = {
+			post_id: nanoid(),
+			user_id: user_id,
+			name: name,
+			description: description,
+			heart_count: 0,
+			date_created : date_created,
+			avatar : data.avatar
+		};
 		return NextResponse.json({
 			error: null,
 			status: 200,
 			ok: true,
-			data: null,
+			data: final_post,
 		});
 	} catch (error) {
 		logger.error(error.message);

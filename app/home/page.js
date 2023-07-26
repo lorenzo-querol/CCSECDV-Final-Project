@@ -17,7 +17,7 @@ import {
 import React, { useState } from "react";
 
 import { BsFillExclamationTriangleFill } from "react-icons/bs";
-import Date from "@/component/date";
+import DDate from "@/component/date";
 import Image from "next/image";
 import control from "@/public/control.png";
 import sanitize from "sanitize-html";
@@ -42,12 +42,16 @@ export default function Home() {
 	const maxCharacters = 180; 
   	const [remainingCharacters, setRemainingCharacters] = useState(maxCharacters);
 	const isSubmitDisabled = remainingCharacters < 0;
+
+
+
 	async function fetchData() {
 		try {
 			const res = await fetch("/api/posts", {
 				method: "GET",
 			});
 			const { data } = await res.json();
+			console.log(data)
 			setPosts(data);
 		} catch (error) {
 			console.log(error.message);
@@ -136,7 +140,18 @@ export default function Home() {
 		[postId]: !prevShowDropdown[postId],
 	  }));
 	};
-
+	const handleDelete = (postId) => {
+		// Perform the delete operation here (e.g., calling an API to delete the post)
+		// After deleting the post, update the posts state to remove the deleted post
+		const updatedPosts = posts.filter((post) => post.post_id !== postId);
+		setPosts(updatedPosts);
+	  
+		// Also, update the showDropdown state to hide the dropdown for the deleted post
+		setShowDropdown((prev) => ({
+		  ...prev,
+		  [postId]: false,
+		}));
+	  };
 	const handleReportChange = (event) => {
 		setReportReason(event.target.value);
 	};
@@ -169,16 +184,13 @@ export default function Home() {
 		//var decoded = atob(base64str);
 
 		//console.log("FileSize: " + decoded.length/1024);
-		const sessionOBJ = await getSesh();
-		//const fname = sessionOBJ[0].data.first_name;
-		//console.log(sessionOBJ[0])
 		try {
-			if (postText.length <= 180) {
+			if ((postText.length <= 180 && postText != 0) || (imagePreview )) {
 			const sessionOBJ = await getSesh();
 			const fname = sessionOBJ[0].first_name;
 			const lname = sessionOBJ[0].last_name;
 			const user_id = sessionOBJ[1];
-			const avatar = sessionOBJ[0].data.avatar;
+			const avatar = sessionOBJ[0].avatar;
 			const res = await fetch(`api/posts`, {
 				headers: {
 					"Content-Type": "multipart/form-data",
@@ -194,16 +206,18 @@ export default function Home() {
 			});
 			const data = await res.json();
 			console.log(data)
+			setPosts((prevPosts) => [...prevPosts, data.data]);
+			e.target.reset()
 			}
 			else 
-				throw new Error('MAXIMUM WORD COUNT')
+				throw new Error('Invalid Submission Text')
 		} catch (error) {
 			console.log(error.message);
 		}
 		
 	};
 
-	if (!posts) return <div>Fetching posts...</div>;
+	//if (!posts) return <div>Fetching posts...</div>;
 
 	return (
 		<>
@@ -244,7 +258,7 @@ export default function Home() {
 									<p className="items-center font-semibold text-red-500">   Maximum character count exceeded ({maxCharacters}). </p>
 									) : (
 										<p className="items-center font-semibold text-gray-500">
-										 {remainingCharacters}/{maxCharacters}.
+										 {remainingCharacters}/{maxCharacters}
 										</p>
 									  )}
 								</div>
@@ -312,8 +326,10 @@ export default function Home() {
 					<div></div>
 
 					{/* List of posts */}
+					{ posts  && (
 					<ul className="list-none">
 						{/* Post */}
+						
 						{posts.map((post, index) => (
 							<li
 								key={index}
@@ -342,7 +358,7 @@ export default function Home() {
 														{post.name}
 														<span className="text-sm font-medium leading-5 text-gray-400 transition duration-150 ease-in-out group-hover:text-gray-300">
 															&nbsp;&nbsp; • &nbsp;&nbsp;
-															<Date dateString={post.date_created} />
+															<DDate dateString={post.date_created} />
 														</span>
 													</p>
 												</div>
@@ -362,7 +378,7 @@ export default function Home() {
 											<div className="absolute right-0 w-32 mt-2 bg-white rounded shadow-md z-35">
 												<button
 													onClick={() => {
-														alert("Delete clicked!");
+														handleDelete(post.post_id);
 													}}
 													className="block w-full px-4 py-2 text-left text-gray-800 rounded hover:bg-red-500 hover:text-white"
 												>
@@ -433,6 +449,7 @@ export default function Home() {
 							</li>
 						))}
 					</ul>
+					)}
 				</div>
 				{/* right menu */}
 				<div className="w-fit">
