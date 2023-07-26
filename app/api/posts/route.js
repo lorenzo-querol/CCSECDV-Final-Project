@@ -11,14 +11,24 @@ export async function GET(req) {
 	const logger = getLogger();
 
 	try {
-		const query =
+		const query1 =
 			"SELECT user_id, post_id, date_created, name, description, image, heart_count FROM posts";
-
 		await database.connect();
-		const result = await database.query(query);
+		const result1 = await database.query(query1);
 		await database.end();
+		const userIds = result1.map((row) => row.user_id);
+		
+		const query2 =
+  			"SELECT avatar FROM users WHERE user_id IN (?)";
+		await database.connect();
+		const result2 = await database.query(query2, [userIds]);
+		await database.end();
+		for (let i = 0; i < result1.length; i++) {
+			result1[i] = { ...result1[i], ...result2[i] };
+		  }
 
-		if (result.length === 0)
+
+		if (result1.length === 0 && result2.length === 0)
 			return NextResponse.json({
 				error: "notfound",
 				status: 404,
@@ -30,7 +40,7 @@ export async function GET(req) {
 			error: null,
 			status: 200,
 			ok: true,
-			data: result,
+			data: result1,
 		});
 	} catch (error) {
 		logger.error(error.message);
