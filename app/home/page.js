@@ -98,13 +98,33 @@ export default function Home() {
 	};
 
 	// Function to handle heart icon click
-	const handleLike = () => {
-		setIsLiked((prevIsLiked) => !prevIsLiked);
-	};
-
+	const handleLike = (postId) => {
+		setIsLiked((prevIsLiked) => ({
+		  ...prevIsLiked,
+		  [postId]: !prevIsLiked[postId],
+		}));
+		if (isLiked[postId]) { 
+			console.log("POST id:" + postId + " has -1 heart")
+		  } else {
+			console.log("POST id:" + postId + " has +1 heart")
+		  }
+	  };
 	// Function to show dropdown
-	const toggleDropdown = (param) => {
-		setShowDropdown(!showDropdown);
+	const toggleDropdown = (postId) => {
+		console.log("Selected Post ID: " + postId)
+		Object.keys(showDropdown).forEach((key) => {
+			if (key !== postId) {
+			  setShowDropdown((prevShowDropdown) => ({
+				...prevShowDropdown,
+				[key]: false,
+			  }));
+			}
+	  })
+	  // this segment basically just hides the currently selected dropdown 
+	  setShowDropdown((prevShowDropdown) => ({
+		...prevShowDropdown,
+		[postId]: !prevShowDropdown[postId],
+	  }));
 	};
 
 	const handleReportChange = (event) => {
@@ -142,19 +162,18 @@ export default function Home() {
 			const avatar = sessionOBJ[0].data.avatar;
 			const res = await fetch(`api/posts`, {
 				headers: {
-					"Content-Type": "application/json",
+					"Content-Type": "multipart/form-data",
 				},
 				method: "POST",
 				body: JSON.stringify({
 					description: postText,
 					avatar: avatar,
 					user_id: user_id,
-					name: name,
+					name: fname + ' ' + lname,
+					image : imagePreview
 				}),
 			});
-			console.log("are u here");
 			const data = await res.json();
-			console.log(data);
 		} catch (error) {
 			console.log(error.message);
 		}
@@ -306,10 +325,10 @@ export default function Home() {
 										<div className="flex items-center flex-shrink-0 ml-auto">
 											<BiDotsVerticalRounded
 												size={25}
-												onClick={toggleDropdown}
+												onClick={() => toggleDropdown(post.post_id)}
 											/>
 										</div>
-										{showDropdown && (
+										{showDropdown[post.post_id]  && (
 											<div className="absolute right-0 w-32 mt-2 bg-white rounded shadow-md z-35">
 												<button
 													onClick={() => {
@@ -359,10 +378,10 @@ export default function Home() {
 											<div className="flex items-center">
 												<div className="flex flex-col items-center justify-center flex-1 py-2 m-2 text-center">
 													<button
-														onClick={handleLike}
+														 onClick={() => handleLike(post.post_id)}
 														className="flex items-center w-12 px-3 py-1 mt-1 text-base font-medium leading-6 text-gray-500 rounded-full group hover:bg-indigo-800 hover:text-indigo-300"
 													>
-														{isLiked ? (
+														{isLiked[post.post_id] ? (
 															<AiFillHeart
 																size={25}
 																className="text-red-500"
