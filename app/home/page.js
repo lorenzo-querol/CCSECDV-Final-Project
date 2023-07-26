@@ -37,12 +37,13 @@ export default function Home() {
 	const [reportReason, setReportReason] = useState("");
 	const [posts, setPosts] = useState(null);
 	const [user, setUser] = useState(null);
+	const [user_session_id, setUserSession] = useState(null);
 	const { data: session, status } = useSession();
 	const [text, setText] = useState('');
 	const maxCharacters = 180; 
   	const [remainingCharacters, setRemainingCharacters] = useState(maxCharacters);
 	const isSubmitDisabled = remainingCharacters < 0;
-
+	const [showDelete, setDelete] = useState(false);
 
 
 	async function fetchData() {
@@ -65,18 +66,21 @@ export default function Home() {
 			method: "GET",
 		});
 		const data = await res.json();
+		
 		setUser(data.data.avatar);
 	}
 
 	async function getSessionForCurrentUserData() {
 		// getSession
 		const session = await getSession();
+		setUserSession(session.user.user_id)
 		fetchCurrentUserData(session.user.user_id);
 	}
 	useEffect(() => {
 		fetchData();
 		if (session) {
 			// SESSION IS CALLED RIGHT AFTER LOGGING IN
+			setUserSession(session.user.user_id)
 			fetchCurrentUserData(session.user.user_id);
 		} else {
 			// THIS PART IS CALLED SINCE SESSION BECOMES UNDEFINED ONCE PAGE IS REFRESHED / RELOADED
@@ -376,7 +380,8 @@ export default function Home() {
 										</div>
 										{showDropdown[post.post_id]  && (
 											<div className="absolute right-0 w-32 mt-2 bg-white rounded shadow-md z-35">
-												<button
+												{post.user_id === user_session_id && (
+													<button
 													onClick={() => {
 														handleDelete(post.post_id);
 													}}
@@ -384,6 +389,7 @@ export default function Home() {
 												>
 													Delete
 												</button>
+												)}
 												{/* <button
 													onClick={() => {
 														alert("Edit clicked!");
@@ -392,12 +398,14 @@ export default function Home() {
 												>
 													Edit
 												</button> */}
+												{post.user_id != user_session_id && (
 												<button
 													className="block w-full px-4 py-2 text-left text-gray-800 rounded hover:bg-blue-500 hover:text-white"
 													onClick={() => setShowReportModal(true)}
 												>
 													Report user
 												</button>
+												)}
 											</div>
 										)}
 									</div>
