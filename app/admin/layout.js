@@ -6,7 +6,7 @@ import { getSession, signOut, useSession } from "next-auth/react";
 
 import { BsFillGearFill } from "react-icons/bs";
 import { FaListAlt } from "react-icons/fa";
-import { FaUsers } from "react-icons/fa";
+import { MdReport } from "react-icons/md";
 import Image from "next/image";
 import Link from "next/link";
 import control from "@/public/control.png";
@@ -17,6 +17,9 @@ export default function Sidebar({ children }) {
 	const router = useRouter();
 	const [pathname, setPathname] = useState(""); // Initialize pathname state with an empty string
 	const [user, setUser] = useState(null);
+	const [close, setClose] = useState(false);
+	const [activeMenuItem, setActiveMenuItem] = useState(""); // Set initial active menu item by title
+
 	const { data: session, status } = useSession({
 		required: true,
 		onUnauthenticated() {
@@ -46,16 +49,14 @@ export default function Sidebar({ children }) {
 			fetchUserData(session.user.user_id);
 		} else {
 			// THIS PART IS CALLED SINCE SESSION BECOMES UNDEFINED ONCE PAGE IS REFRESHED / RELOADED
-
 			getSesh();
 		}
 		setPathname(window.location.pathname);
 	}, []);
-	const [close, setClose] = useState(false);
-	const [activeMenuItem, setActiveMenuItem] = useState("Home"); // Set initial active menu item by title
 
 	const Menus = [
 		{ title: "List of Users", icon: <FaListAlt />, path: "/list-of-users" },
+		{ title: "List of Reported Users", icon: <MdReport />, path: "/list-of-reported-users" },
 		{ title: "Settings", icon: <BsFillGearFill />, path: "/settings" },
 	];
 
@@ -130,30 +131,30 @@ export default function Sidebar({ children }) {
 
 				{/* Account */}
 				{user && (
-				<div className="flex flex-shrink-0 mt-auto rounded-full hover:bg-blue-00">
-					<div
-						className="flex-shrink-0 block group"
-					>
-						<div className="flex items-center">
-							<div>
-								<Image
-									className="inline-block w-10 h-10 rounded-full"
-									src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${user.avatar}`}
-									alt=""
-									width={40}
-									height={40}
-								/>
-							</div>
-							{!close && (
-								<div className="ml-3">
-									<p className="text-xl font-medium leading-6 text-white">
-										{user.first_name + ' ' + user.last_name}
-									</p>
+					<div className="flex flex-shrink-0 mt-auto rounded-full hover:bg-blue-00">
+						<div
+							className="flex-shrink-0 block group"
+						>
+							<div className="flex items-center">
+								<div>
+									<Image
+										className="inline-block w-10 h-10 rounded-full"
+										src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${user.avatar}`}
+										alt=""
+										width={40}
+										height={40}
+									/>
 								</div>
-							)}
+								{!close && (
+									<div className="ml-3">
+										<p className="text-xl font-medium leading-6 text-white">
+											{user.first_name + ' ' + user.last_name}
+										</p>
+									</div>
+								)}
+							</div>
 						</div>
 					</div>
-				</div>
 				)}
 			</div>
 			<div className="flex-1">{children}</div>
