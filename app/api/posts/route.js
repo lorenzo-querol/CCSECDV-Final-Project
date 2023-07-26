@@ -33,7 +33,7 @@ export async function GET(req) {
 					
 		  }
 		result1.sort(
-			(objA, objB) => Number(objB.date_created) - Number(objA.date_created)  
+			(objA, objB) => Number(objA.date_created) - Number(objB.date_created) 
 		)
 		if (result1.length === 0 && result2.length === 0)
 			return NextResponse.json({

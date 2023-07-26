@@ -44,7 +44,7 @@ export default function Home() {
   	const [remainingCharacters, setRemainingCharacters] = useState(maxCharacters);
 	const isSubmitDisabled = remainingCharacters < 0;
 	const [showDelete, setDelete] = useState(false);
-
+	const reversedPosts = [...(posts || [])].reverse();
 
 	async function fetchData() {
 		try {
@@ -52,7 +52,6 @@ export default function Home() {
 				method: "GET",
 			});
 			const { data } = await res.json();
-			console.log(data)
 			setPosts(data);
 		} catch (error) {
 			console.log(error.message);
@@ -233,7 +232,6 @@ export default function Home() {
 				}),
 			});
 			const data = await res.json();
-			console.log(data)
 			setPosts((prevPosts) => [...prevPosts, data.data]);
 			e.target.reset()
 			}
@@ -358,7 +356,7 @@ export default function Home() {
 					<ul className="list-none">
 						{/* Post */}
 						
-						{posts.map((post, index) => (
+						{reversedPosts.map((post, index) => (
 							<li
 								key={index}
 								className="border-b-2 border-gray-600 "
