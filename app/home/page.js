@@ -22,7 +22,7 @@ import Image from "next/image";
 import control from "@/public/control.png";
 import sanitize from "sanitize-html";
 import sanitizeHtml from "sanitize-html";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 
@@ -36,6 +36,7 @@ export default function Home() {
 	const [showReportModal, setShowReportModal] = useState(false);
 	const [reportReason, setReportReason] = useState("");
 	const [posts, setPosts] = useState(null);
+	const [user, setUser] = useState(null);
 	const { data: session, status } = useSession();
 
 	async function fetchData() {
@@ -50,9 +51,33 @@ export default function Home() {
 		}
 	}
 
+	async function fetchCurrentUserData(userID) {
+		// Data to display current user name and avatar
+		const url = "api/users/" + userID;
+		const res = await fetch(url, {
+			method: "GET",
+		});
+		const data = await res.json();
+		setUser(data.data.avatar);
+	}
+
+	async function getSessionForCurrentUserData() {
+		// getSession
+		const session = await getSession();
+		fetchCurrentUserData(session.user.user_id);
+	}
 	useEffect(() => {
 		fetchData();
-	}, []);
+		if (session) {
+			// SESSION IS CALLED RIGHT AFTER LOGGING IN
+			fetchCurrentUserData(session.user.user_id);
+		} else {
+			// THIS PART IS CALLED SINCE SESSION BECOMES UNDEFINED ONCE PAGE IS REFRESHED / RELOADED
+
+			getSessionForCurrentUserData();
+		}
+		
+	}, []); 
 
 	// Function to handle image selection
 	const handleImageChange = (e) => {
@@ -91,7 +116,7 @@ export default function Home() {
 		const res = await fetch(url, {
 			method: "GET",
 		});
-		const data = await res.json();
+		const {data} = await res.json();
 		return data;
 	}
 	async function getSesh() {
@@ -111,15 +136,10 @@ export default function Home() {
 		const postText = sanitizeHtml(e.target.elements["post-textarea"].value); // Extract post text from the form
 		try {
 			const sessionOBJ = await getSesh();
-			console.log(sessionOBJ);
-			const name = sessionOBJ[0].data.name;
+			const fname = sessionOBJ[0].data.first_name;
+			const lname = sessionOBJ[0].data.last_name;
 			const user_id = sessionOBJ[1];
-
-			//	name: name,
-			//	description: description,
-			//	image: "posts/post_" + imageName,
-			//};
-
+			const avatar = sessionOBJ[0].data.avatar;
 			const res = await fetch(`api/posts`, {
 				headers: {
 					"Content-Type": "application/json",
@@ -127,7 +147,7 @@ export default function Home() {
 				method: "POST",
 				body: JSON.stringify({
 					description: postText,
-					avatar: imagePreview,
+					avatar: avatar,
 					user_id: user_id,
 					name: name,
 				}),
@@ -157,12 +177,15 @@ export default function Home() {
 					<hr className="border-gray-600" />
 
 					{/* Creat posts */}
+					{user && (
 					<form onSubmit={handleSubmit}>
 						<div className="flex py-2">
 							<div className="w-10 py-1 m-2">
 								<Image
 									className="inline-block w-10 h-10 rounded-full"
-									src={control}
+									src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${user}`}
+									width={40}
+									height={40}
 									alt=""
 								/>
 							</div>
@@ -175,7 +198,7 @@ export default function Home() {
 									placeholder="What's happening?"
 								></textarea>
 								<div className="flex justify-center">
-									<p className="items-center font-semibold text-red-500">Maximum word/character exceeded. Max word/character is N.</p>
+									<p className="items-center font-semibold text-red-500"> Maximum word / character exceeded. Max word/character is N. </p>
 								</div>
 								{/* Image Preview */}
 								{imagePreview && (
@@ -234,6 +257,7 @@ export default function Home() {
 							</div>
 						</div>
 					</form>
+					)}
 
 					<hr className="border-4 border-indigo-800" />
 					<div></div>
@@ -252,11 +276,14 @@ export default function Home() {
 										<div className="flex items-center justify-between ">
 											<div className="flex items-center">
 												{/* Image profile */}
+												<> {} </>
 												<div>
 													<Image
 														className="inline-block w-10 h-10 rounded-full"
-														src={control}
-														alt=""
+														width={40}
+														height={40}
+														src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${post.avatar}`}
+														alt={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${post.avatar}`}
 													/>
 												</div>
 												{/* Details */}
