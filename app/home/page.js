@@ -144,9 +144,38 @@ export default function Home() {
 		[postId]: !prevShowDropdown[postId],
 	  }));
 	};
-	const handleDelete = (postId) => {
+
+	async function callDelete(postId, userId) {
+
+		const obj = {post_id : postId, user_id : userId}
+		console.log(obj)
+		try {
+			const res = await fetch(`/api/users/${userId}/posts/${postId}`, {
+				method: "DELETE",
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+				body: JSON.stringify(obj)
+				
+			});
+			const { data } = await res.json();
+			console.log(data)
+			return true
+		} catch (error) {
+			console.log(error.message);
+			return false
+		}
+
+	}
+	const handleDelete = (postId, userId) => {
 		// Perform the delete operation here (e.g., calling an API to delete the post)
 		// After deleting the post, update the posts state to remove the deleted post
+		console.log("HANDLE")
+		console.log(postId)
+		console.log(userId)
+		if (callDelete(postId, userId)) {
+
+
 		const updatedPosts = posts.filter((post) => post.post_id !== postId);
 		setPosts(updatedPosts);
 	  
@@ -155,6 +184,7 @@ export default function Home() {
 		  ...prev,
 		  [postId]: false,
 		}));
+		}
 	  };
 	const handleReportChange = (event) => {
 		setReportReason(event.target.value);
@@ -383,7 +413,7 @@ export default function Home() {
 												{post.user_id === user_session_id && (
 													<button
 													onClick={() => {
-														handleDelete(post.post_id);
+														handleDelete(post.post_id, post.user_id);
 													}}
 													className="block w-full px-4 py-2 text-left text-gray-800 rounded hover:bg-red-500 hover:text-white"
 												>

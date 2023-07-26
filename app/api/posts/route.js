@@ -5,7 +5,7 @@ import { getLogger } from "@/utils/logger";
 import { nanoid } from "nanoid";
 
 // Matches /api/posts
-// HTTP methods: GET, POST
+// HTTP methods: GET, POST, DELETE
 
 export async function GET(req) {
 	const logger = getLogger();
@@ -115,16 +115,13 @@ const savePost = async (post, image) => {
 	}
 };
 
-// TODO: Under construction
+
 export async function POST(req) {
 	const logger = getLogger();
 	const data = await req.json();
 
 	try {
 		let finalImg = "";
-		console.log("DATA IS CONSOLED")
-		console.log(data);
-		//const postInfo = JSON.parse(data.avatar);
 		if (data.avatar != null) {
 			const image = data.avatar;
 			let imageName = image.split(".");
@@ -175,4 +172,6 @@ export async function POST(req) {
 			data: null,
 		});
 	}
+
+
 }
