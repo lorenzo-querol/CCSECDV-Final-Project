@@ -148,7 +148,6 @@ export default function Home() {
 	async function callDelete(postId, userId) {
 
 		const obj = {post_id : postId, user_id : userId}
-		console.log(obj)
 		try {
 			const res = await fetch(`/api/users/${userId}/posts/${postId}`, {
 				method: "DELETE",
@@ -159,7 +158,6 @@ export default function Home() {
 				
 			});
 			const { data } = await res.json();
-			console.log(data)
 			return true
 		} catch (error) {
 			console.log(error.message);
@@ -170,14 +168,10 @@ export default function Home() {
 	const handleDelete = (postId, userId) => {
 		// Perform the delete operation here (e.g., calling an API to delete the post)
 		// After deleting the post, update the posts state to remove the deleted post
-		console.log("HANDLE")
-		console.log(postId)
-		console.log(userId)
+
 		if (callDelete(postId, userId)) {
-
-
-		const updatedPosts = posts.filter((post) => post.post_id !== postId);
-		setPosts(updatedPosts);
+			const updatedPosts = posts.filter((post) => post.post_id !== postId);
+			setPosts(updatedPosts);
 	  
 		// Also, update the showDropdown state to hide the dropdown for the deleted post
 		setShowDropdown((prev) => ({
