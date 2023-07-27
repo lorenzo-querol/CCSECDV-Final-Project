@@ -15,7 +15,7 @@ import {
 import React, { useState } from "react";
 
 import { BsFillExclamationTriangleFill } from "react-icons/bs"; BiSearch
-import DDate from "@/component/date";
+import CustomDate from "@/component/CustomDate";
 import Image from "next/image";
 import sanitizeHtml from "sanitize-html";
 import { getSession, signIn } from "next-auth/react";
@@ -381,7 +381,7 @@ export default function Home() {
 															{post.name}
 															<span className="text-sm font-medium leading-5 text-gray-400 transition duration-150 ease-in-out group-hover:text-gray-300">
 																&nbsp;&nbsp; • &nbsp;&nbsp;
-																<DDate dateString={post.date_created} />
+																<CustomDate dateString={post.date_created} />
 															</span>
 														</p>
 													</div>
