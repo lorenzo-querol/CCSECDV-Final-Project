@@ -15,7 +15,7 @@ import {
 import React, { useState } from "react";
 
 import { BsFillExclamationTriangleFill } from "react-icons/bs"; BiSearch
-import CustomDate from "@/component/CustomDate";
+import CustomDate from "@/app/components/CustomDate";
 import Image from "next/image";
 import sanitizeHtml from "sanitize-html";
 import { getSession, signIn } from "next-auth/react";
