@@ -30,10 +30,11 @@ export default function Register() {
     const [showDeactivateModal, setDeactivateModal] = useState(false);
     const [isEmailFocused, setEmailFocused] = useState(false);
     const [hasChanged, setHasChanged] = useState(false);
-    const [user, setUser] = useState({});
+    const [user, setUser] = useState(null);
     const [pathname, setPathname] = useState("");
     const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
     const [showPasswordMismatch, setShowPasswordMismatch] = useState(false);
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordMismatch, setPasswordMismatch] = useState(false);
 
     const {
@@ -50,71 +51,15 @@ export default function Register() {
         },
     });
 
-    async function fetchUserData(userID) {
+    const fetchUser = async () => {
         try {
-            const url = "../api/users/" + userID;
-            console.log("Fetching user data from:", url);
-            const res = await fetch(url, {
-                method: "GET",
-            });
-            if (!res.ok) {
-                throw new Error("Failed to fetch user data");
-            }
-            const data = await res.json();
-            return data.data;
+            const res = await fetch(`/api/users/${session.user.user_id}`);
+            const { data } = await res.json();
+            setUser(data);
         } catch (error) {
-            console.error("Error fetching user data:", error);
-            return null;
+            console.log(error.message);
         }
-    }
-
-    async function handleSessionChange() {
-        if (session) {
-            const userData = await fetchUserData(session.user.user_id);
-            if (userData) {
-                setUser(userData);
-                console.log("User data:", userData);
-            }
-        } else {
-            const sessionGET = await getSession();
-            const userGETDATA = await fetchUserData(sessionGET.user.user_id);
-            if (userGETDATA) {
-                setUser(userGETDATA);
-                console.log("User data:", userGETDATA);
-            }
-        }
-        initialFormValuesRef.current = watch();
-        setPathname(window.location.pathname);
-    }
-
-    async function getSesh() {
-        const session = await getSession();
-        fetchUserData(session.user.user_id);
-    }
-
-    useEffect(() => {
-        async function handleSessionChange() {
-            if (session) {
-                // SESSION IS CALLED RIGHT AFTER LOGGING IN
-                const userData = await fetchUserData(session.user.user_id);
-                if (userData) {
-                    setUser(userData);
-                }
-            } else {
-                // THIS PART IS CALLED SINCE SESSION BECOMES UNDEFINED ONCE THE PAGE IS REFRESHED / RELOADED
-                const sessionGET = await getSession();
-                const userGETDATA = await fetchUserData(
-                    sessionGET.user.user_id
-                );
-                if (userGETDATA) {
-                    setUser(userGETDATA);
-                }
-            }
-            initialFormValuesRef.current = watch();
-            setPathname(window.location.pathname);
-        }
-        handleSessionChange();
-    }, [session]);
+    };
 
     const handleInputChange = (e) => {
         const formValues = watch();
@@ -196,6 +141,12 @@ export default function Register() {
         onSubmit();
         setShowSaveConfirmation(false);
     };
+
+    useEffect(() => {
+        if (session) fetchUser();
+    }, [session]);
+
+    if (!user) return null;
 
     return (
         <>
