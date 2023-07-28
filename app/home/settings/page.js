@@ -2,13 +2,14 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
 import sanitizeHtml from "sanitize-html";
 import styles from "@/app/Form.module.css";
-import axios from "axios";
+import { getSession, signOut, useSession } from "next-auth/react";
+import { useRouter } from 'next/router';
 
-// Icons
+
+// Iconsnpm 
 import {
    HiAtSymbol,
    HiFingerPrint,
@@ -24,17 +25,24 @@ import {
    BsFillExclamationTriangleFill
 } from "react-icons/bs";
 
-import control from "@/public/control.png";
-
-
 export default function Register() {
    const inputFileRef = useRef();
+
    const [show, setShow] = useState({
       password: false,
       confirmPassword: false,
    });
-   const [showSaveModal, setSaveModal] = useState(false); // State variable for the save modal visibility
+
+   const initialFormValuesRef = useRef({});
+   const [showSaveModal, setSaveModal] = useState(false);
    const [showDeactivateModal, setDeactivateModal] = useState(false);
+   const [isEmailFocused, setEmailFocused] = useState(false);
+   const [hasChanged, setHasChanged] = useState(false); 
+   const [user, setUser] = useState({}); 
+   const [pathname, setPathname] = useState(""); 
+   const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
+   const [showPasswordMismatch, setShowPasswordMismatch] = useState(false);
+   const [passwordMismatch, setPasswordMismatch] = useState(false);
 
    const {
       register,
@@ -42,12 +50,132 @@ export default function Register() {
       handleSubmit,
       watch,
    } = useForm();
+   
+   const { data: session, status } = useSession({
+      required: true,
+      onUnauthenticated() {
+      router.replace("/login");
+      },
+   });
+
+   async function fetchUserData(userID) {
+      try {
+        const url = "../api/users/" + userID;
+        console.log("Fetching user data from:", url); 
+        const res = await fetch(url, {
+          method: "GET",
+        });
+        if (!res.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        const data = await res.json();
+        return data.data; 
+      } catch (error) {
+        console.error("Error fetching user data:", error); 
+        return null; 
+      }
+   }
+    
+   async function handleSessionChange() {
+      if (session) {
+        const userData = await fetchUserData(session.user.user_id);
+        if (userData) {
+          setUser(userData); 
+          console.log("User data:", userData); 
+        }
+      } else {
+        const sessionGET = await getSession();
+        const userGETDATA = await fetchUserData(sessionGET.user.user_id);
+        if (userGETDATA) {
+          setUser(userGETDATA); 
+          console.log("User data:", userGETDATA); 
+        }
+      }
+      initialFormValuesRef.current = watch();
+      setPathname(window.location.pathname);
+    }
+
+  async function getSesh() {
+      const session = await getSession();
+      fetchUserData(session.user.user_id);
+   }
+
+   useEffect(() => {
+      async function handleSessionChange() {
+         if (session) {
+            // SESSION IS CALLED RIGHT AFTER LOGGING IN
+            const userData = await fetchUserData(session.user.user_id);
+            if (userData) {
+               setUser(userData);
+            }
+         } else {
+            // THIS PART IS CALLED SINCE SESSION BECOMES UNDEFINED ONCE THE PAGE IS REFRESHED / RELOADED
+            const sessionGET = await getSession();
+            const userGETDATA = await fetchUserData(sessionGET.user.user_id);
+            if (userGETDATA) {
+               setUser(userGETDATA);
+            }
+         }
+         initialFormValuesRef.current = watch();
+         setPathname(window.location.pathname);
+      }
+      handleSessionChange();
+   }, [session]);
+
+
+   const handleInputChange = (e) => {
+      const formValues = watch();
+      let isFormChanged = false;
+      let isPasswordMismatch = false;
+    
+      for (const fieldName in formValues) {
+        if (formValues[fieldName] !== user[fieldName]) {
+          isFormChanged = true;
+          break;
+        }
+      }
+      if (e.target.name === "password") {
+        if (e.target.value !== formValues.confirmPassword) {
+          isFormChanged = true;
+          isPasswordMismatch = true;
+        }
+      } else if (e.target.name === "confirmPassword") {
+        if (e.target.value !== formValues.password) {
+          isFormChanged = true;
+          isPasswordMismatch = true;
+        }
+      }
+      setHasChanged(isFormChanged);
+      setPasswordMismatch(isPasswordMismatch);
+    };
+    
 
    const onSubmit = async (data) => {
-      const formData = new FormData();
-      console.log('Submit');
-      setSaveModal(true); // Show the modal when the form is submitted
-   };
+      try {
+        const sessionOBJ = await getSesh();
+        const first_name = sessionOBJ[0].first_name;
+        const last_name = sessionOBJ[0].last_name;
+        const user_id = sessionOBJ[1];
+        const email = sessionOBJ[0].email;
+        const phone_num = sessionOBJ[0].phone_num;
+        const avatar = sessionOBJ[0].avatar;
+    
+        console.log("Changes saved successfully!");
+    
+        setSaveModal(false);
+        initialFormValuesRef.current = watch();
+    
+        setUser({
+          ...user,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          phone_num: data.phoneNumber,
+          email: data.email,
+        });
+      } catch (error) {
+        console.error("Error saving changes:", error);
+      }
+    };
 
    const watchPassword = watch("password");
    const validatePasswordMatch = (value) => {
@@ -57,6 +185,27 @@ export default function Register() {
       return "Password do not match";
    };
 
+   // Account deactivation
+   async function handleDeactivateAccount() {
+      try {
+         password: watchPassword, 
+         console.log("Account deactivated successfully!");
+         setDeactivateModal(false);
+      } catch (error) {
+      console.error("Error deactivating account:", error);
+      }
+   }
+
+   const handleSaveButtonClick = () => {
+      setShowSaveConfirmation(true);
+    };
+
+    const handleSaveConfirmation = () => {
+      onSubmit(); 
+      setShowSaveConfirmation(false);
+    };
+
+   
    return (
       <>
          <div className="flex items-center justify-center h-full ">
@@ -64,19 +213,24 @@ export default function Register() {
                className="relative z-10 mx-auto w-full max-w-[625px] space-y-3 rounded-md bg-white p-8 text-slate-900"
                onSubmit={handleSubmit(onSubmit)}
             >
-               {/* Profile Image */}
                <div className="flex justify-center just">
                   <Image
                      className="overflow-hidden rounded-full"
-                     src={control}
+                     src = {`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${user.avatar}`}
                      alt=""
                      width={95}
                      height={95}
-                  />
-               </div>
+                     id = "profile"
+                     />
+                     </div>
+                 
                {/* Full Name */}
                <div className="w-full my-2 text-center">
-                  <h1 className="text-xl font-semibold">firstname lastname</h1>
+                  <h1 className="text-xl font-semibold"> 
+                
+                  {user.first_name + " " + user.last_name}
+
+                </h1>
                </div>
 
                <h1 className="text-lg">Profile Information</h1>
@@ -96,6 +250,7 @@ export default function Register() {
                            type="text"
                            name="firstName"
                            placeholder="First Name"
+
                            className={styles.input_text}
                            {...register("firstName", {
                               pattern: {
@@ -103,9 +258,12 @@ export default function Register() {
                                  message: "Please enter a valid name",
                               },
                            })}
-                        />
+
+                          defaultValue = {user.first_name}
+                          onChange={handleInputChange}
+                        />                  
                         <span className="flex items-center px-4 ">
-                           <HiOutlineUser size={20} />
+                           <HiOutlineUser size={20} />l
                         </span>
                      </div>
                      {/* Error message */}
@@ -136,7 +294,11 @@ export default function Register() {
                                  message: "Please enter a valid name",
                               },
                            })}
-                        />
+
+                           defaultValue = {user.last_name}
+                           onChange={handleInputChange}
+
+                           />
                         <span className="flex items-center px-4 ">
                            <HiOutlineUser size={20} />
                         </span>
@@ -144,7 +306,7 @@ export default function Register() {
                      {/* Error message */}
                      {errors.lastName && (
                         <p role="alert" className={styles.error_text}>
-                           {errors.lastName?.message}
+                           {errors.lastName.message}
                         </p>
                      )}
                   </div>
@@ -171,6 +333,8 @@ export default function Register() {
                               message: "Please enter a valid name",
                            },
                         })}
+                        defaultValue = {user.phone_num}
+                        onChange={handleInputChange} 
                      />
                      <span className="flex items-center px-4 ">
                         <HiOutlinePhone size={20} />
@@ -184,27 +348,34 @@ export default function Register() {
                   )}
                </div>
                {/* Email */}
+               {/* Displays user email but doesnt allow the user to edit*/}
                <div className="flex flex-col">
                   <div
-                     className={styles.input_group}
+                     className={`${styles.input_group} ${
+                        user.email ? styles.read_only : ''
+                     }`}
                      style={{
-                        border: errors.email
-                           ? "1px solid red"
-                           : "1px solid #ccc",
-                     }}
+                        border: "1px solid #ccc",
+                      }}
                   >
                      <input
+                        value={user.email}
                         type="email"
                         name="email"
                         placeholder="Email"
-                        className={styles.input_text}
+                        className={`${styles.input_text} ${
+                        user.email ? styles.read_only_input : ""
+                        } ${isEmailFocused ? styles.light_gray_text : ""}`}
+                        readOnly
+                        onFocus={() => setEmailFocused(true)}
+                        onBlur={() => {setEmailFocused(false); }}
                         {...register("email", {
-                           pattern: {
-                              value: /^[\w.\-]+[a-zA-Z0-9]*@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/,
-                              message:
-                                 "Please enter a valid email address",
-                           },
+                        pattern: {
+                           value: /^[\w.\-]+[a-zA-Z0-9]*@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/,
+                           message: "Please enter a valid email address",
+                        },
                         })}
+                        style={{color:  "#aaa", }}
                      />
                      <span className="flex items-center px-4 ">
                         <HiAtSymbol size={20} />
@@ -216,87 +387,93 @@ export default function Register() {
                         {errors.email?.message}
                      </p>
                   )}
+                  {isEmailFocused && (
+                     <p className="text-sm text-gray-500 mt-1">
+                        Email cannot be changed after registration.
+                     </p>
+                  )}
                </div>
                {/* Password */}
                <div className="flex flex-col">
-                  <div
-                     className={styles.input_group}
-                     style={{
-                        border: errors.password
-                           ? "1px solid red"
-                           : "1px solid #ccc",
-                     }}
+               <div
+                  className={styles.input_group}
+                  style={{
+                     border: errors.password
+                     ? "1px solid red"
+                     : "1px solid #ccc",
+                  }}
+               >
+                  <input
+                     type={`${show.password ? "text" : "password"}`}
+                     name="password"
+                     placeholder="New Password"
+                     className={styles.input_text}
+                     {...register("password", {
+                     pattern: {
+                        value: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])(?!.*\s).{12,64}$/,
+                        message:
+                           "Password length must be at least 12 characters and 64 characters at most. It must also contain at least 1 upper case character, at least 1 lower case character, at least 1 digit, and at least 1 special character",
+                     },
+                     })}
+                     onChange={handleInputChange}
+                  />
+                  <span
+                     className="flex items-center px-4"
+                     onClick={() =>
+                     setShow({
+                        ...show,
+                        password: !show.password,
+                     })
+                     }
                   >
-                     <input
-                        type={`${show.password ? "text" : "password"}`}
-                        name="password"
-                        placeholder="Password"
-                        className={styles.input_text}
-                        {...register("password", {
-                           pattern: {
-                              value: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])(?!.*\s).{12,64}$/,
-                              message:
-                                 "Password length must be at least 12 characters and 64 characters at most. It must also contain at least 1 upper case character, at least 1 lower case character, at least 1 digit, and at least 1 special character",
-                           },
-                        })}
-                     />
-                     <span
-                        className="flex items-center px-4"
-                        onClick={() =>
-                           setShow({
-                              ...show,
-                              password: !show.password,
-                           })
-                        }
-                     >
-                        <HiFingerPrint size={20} />
-                     </span>
-                  </div>
-                  {/* Error message */}
-                  {errors.password && (
-                     <p role="alert" className={styles.error_text}>
-                        {errors.password?.message}
-                     </p>
-                  )}
+                     <HiFingerPrint size={20} />
+                  </span>
                </div>
-               {/* Confirm Password */}
+               {/* Error message */}
+               {errors.password && (
+                  <p role="alert" className={styles.error_text}>
+                     {errors.password?.message}
+                  </p>
+               )}
+               </div>
+            {/* Confirm Password */}
                <div className="flex flex-col">
-                  <div
-                     className={styles.input_group}
-                     style={{
-                        border: errors.confirmPassword
-                           ? "1px solid red"
-                           : "1px solid #ccc",
-                     }}
+               <div
+                  className={styles.input_group}
+                  style={{
+                     border: (errors.confirmPassword || passwordMismatch)
+                     ? "1px solid red"
+                     : "1px solid #ccc",
+                  }}
+               >
+                  <input
+                     type={`${show.confirmPassword ? "text" : "password"}`}
+                     name="confirmPassword"
+                     placeholder="Confirm New Password"
+                     className={styles.input_text}
+                     onChange={handleInputChange}
+                  />
+                  <span
+                     className="flex items-center px-4 "
+                     onClick={() =>
+                     setShow({
+                        ...show,
+                        confirmPassword: !show.confirmPassword,
+                     })
+                     }
                   >
-                     <input
-                        type={`${show.confirmPassword ? "text" : "password"
-                           }`}
-                        name="confirmPassword"
-                        placeholder="Confirm Password"
-                        className={styles.input_text}
-                     // {...register("confirmPassword", {
-                     //    validate: validatePasswordMatch, // Add the validate function to check password match
-                     // })}
-                     />
-                     <span
-                        className="flex items-center px-4 "
-                        onClick={() =>
-                           setShow({
-                              ...show,
-                              confirmPassword: !show.confirmPassword,
-                           })
-                        }
-                     >
-                        <HiFingerPrint size={20} />
-                     </span>
-                  </div>
-                  {/* Error message */}
-                  {errors.confirmPassword && (
-                     <p role="alert" className={styles.error_text}>
-                        {errors.confirmPassword?.message}
-                     </p>
-                  )}
+                     <HiFingerPrint size={20} />
+                  </span>
+               </div>
+               {/* Error message */}
+               {errors.confirmPassword && (
+                  <p role="alert" className={styles.error_text}>
+                     {errors.confirmPassword?.message}
+                  </p>
+               )}
+               {passwordMismatch && (
+                  <p className="text-red-500">Password does not match.</p>
+               )}
                </div>
                {/* Profile Photo */}
                <div className="flex flex-col">
@@ -306,6 +483,7 @@ export default function Register() {
                      id="profile"
                      {...register("avatar", {
                      })}
+                     defaultValue = {user.avatar}
                   />
                </div>
                {/* Error message */}
@@ -315,7 +493,6 @@ export default function Register() {
                   </p>
                )}
                <div>
-                  {/* Buttons */}
                   <div className="flex justify-between space-x-4">
                      {/* Deactivate button */}
                      <button
@@ -324,124 +501,67 @@ export default function Register() {
                         type="button"
                         onClick={() => setDeactivateModal(true)}
                      >
-                        Deactivate
+                        Deactivate Account
                      </button>
                      {/* Save button */}
                      <button
-                        id="save-changes"
-                        className="w-full px-5 py-3 mt-8 text-white bg-green-600 rounded hover:bg-green-500" type="submit">
-                        Save Changes
-                     </button>
+                     id="save-changes"
+                     className={`w-full px-5 py-3 mt-8 text-white ${
+                        hasChanged ? "bg-green-500" : "bg-gray-400"
+                     } rounded hover:bg-green-500`}
+                     type="button"
+                     onClick={handleSaveButtonClick} 
+                     >
+                     Save Changes
+                     </button>                     
                   </div>
                </div>
             </form>
          </div>
 
          {/* Modals */}
-         {/* Save Changes */}
-         {showSaveModal && (
-            <div
-               className="fixed inset-0 z-10 overflow-y-auto "
-               aria-labelledby="modal-title"
-               role="dialog"
-               aria-modal="true"
-               id="save-modal"
-            >
-               {/* <!-- Background --> */}
-               <div
-                  className="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0"
-               >
-                  {/* <!--  Gray Background --> */}
-                  <div
-                     className="fixed inset-0 transition-opacity bg-gray-600 bg-opacity-80"
-                     aria-hidden="true"
-                  ></div>
-                  {/* <!--  Center the pop-up message--> */}
-                  <span
-                     className="hidden sm:inline-block sm:align-middle sm:h-screen"
-                     aria-hidden="true"
-                  ></span>
-
-                  <div
-                     className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+          {/* Save Changes */}
+            {showSaveConfirmation && (
+            <div className="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center">
+               <div className="absolute inset-0 bg-gray-800 opacity-80"></div>
+               <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-lg sm:w-full">
+                  <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                     Confirm Changes
+                  </h3>
+                  <div className="mt-2">
+                     <p className="text-sm text-gray-500">
+                     Kindly confirm the changes by inputting your current password.</p>
+                     <input
+                        type="password"
+                        name="confirmPassword"
+                        placeholder="Password"
+                        className="mt-2 px-4 py-2 border border-gray-300 rounded-md w-full"
+                        //value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                     />
+                  </div>
+                  </div>
+                  <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button
+                     type="button"
+                     className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
+                     onClick={handleSaveConfirmation}
                   >
-                     <div className="flex flex-row items-center justify-between p-4">
-                        {/* <!--  Top  --> */}
-                        <div className="flex flex-wrap">
-                           <div
-                              className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-green-400 rounded-full sm:mx-0 sm:h-10 sm:w-10"
-                           >
-                              <span className="flex items-center px-4 ">
-                                 <BsFillExclamationTriangleFill size={20} />
-                              </span>
-                           </div>
-                           <h1
-                              className="my-2 ml-4 text-xl font-bold leading-6 text-gray-900 uppercase"
-                           >
-                              Confirm Changes
-                           </h1>
-                        </div>
-                        <button className="focus:outline-none"
-                           onClick={() => setSaveModal(false)}>
-                           <span className="flex items-center px-4 text-gray-500">
-                              <AiOutlineClose size={20} />
-                           </span>
-                        </button>
-                     </div>
-                     {/* <!--  Content --> */}
-                     <div className="flex flex-col mx-10 my-2 text-gray-500">
-                        <p className="mb-2 text-sm text-gray-500 font-raleway">
-                           Kindly confirm the changes by inputting your current password.
-                        </p>
-                        <div className="flex flex-col">
-                           <div
-                              className={styles.input_group}
-                              style={{
-                                 border: errors.password
-                                    ? "1px solid red"
-                                    : "1px solid #ccc",
-                              }}
-                           >
-                              <input
-                                 type={`${show.password ? "text" : "password"}`}
-                                 name="password"
-                                 placeholder="Password"
-                                 className={styles.input_text}
-                              />
-                              <span
-                                 className="flex items-center px-4"
-                                 onClick={() =>
-                                    setShow({
-                                       ...show,
-                                       password: !show.password,
-                                    })
-                                 }
-                              >
-                                 <HiFingerPrint size={20} />
-                              </span>
-                           </div>
-                           {/* Error message */}
-                           {errors.password && (
-                              <p role="alert" className={styles.error_text}>
-                                 {errors.password?.message}
-                              </p>
-                           )}
-                        </div>
-                     </div>
-                     {/* <!--  Bottom --> */}
-                     <div
-                        className="flex flex-row-reverse justify-between p-2 sm:px-6 sm:flex sm:flex-row-reverse"
-                     >
-                        <button
-                           id="save-confirm"
-                           className="px-5 py-3 mt-8 text-white bg-green-600 rounded hover:bg-green-500" type="submit">
-                           Save Changes
-                        </button>
-                     </div>
+                     Confirm
+                  </button>
+                  <button
+                     type="button"
+                     className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                     onClick={() => setShowSaveConfirmation(false)} // Close the confirmation pop-up
+                  >
+                     Cancel
+                  </button>
                   </div>
                </div>
             </div>
-         )}
+            )}
+
 
          {/* Deactivate Account */}
          {showDeactivateModal && (
@@ -496,8 +616,8 @@ export default function Register() {
                      {/* <!--  Content --> */}
                      <div className="flex flex-col mx-10 my-2 text-gray-500">
                         <p className="mb-2 text-sm text-gray-500 font-raleway">
-                           Kindly confirm the changes by inputting your current password.
-                        </p>
+                           Please note that after confirming the deactivation of your account, you will not be allowed to retrieved it. 
+                           Kindly confirm the deactivation by inputting your current password. </p>
                         <div className="flex flex-col">
                            <div
                               className={styles.input_group}
@@ -550,3 +670,4 @@ export default function Register() {
       </>
    );
 }
+
