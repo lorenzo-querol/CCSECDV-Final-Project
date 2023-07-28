@@ -1,4 +1,4 @@
-import { S3 } from "@aws-sdk/client-s3";
+import { S3Client } from "@aws-sdk/client-s3";
 import mysql from "serverless-mysql";
 
 export const database = mysql({
@@ -13,8 +13,12 @@ export const database = mysql({
     },
 });
 
-export const s3 = new S3({
-    accessKeyId: process.env.S3_ACCESS_KEY,
-    secretAccessKey: process.env.S3_SECRET_KEY,
+const credentials = {
     region: process.env.S3_REGION,
-});
+    credentials: {
+        accessKeyId: process.env.S3_ACCESS_KEY,
+        secretAccessKey: process.env.S3_SECRET_KEY,
+    },
+};
+
+export const s3 = new S3Client(credentials);
