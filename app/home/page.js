@@ -15,7 +15,6 @@ import CustomDate from "@/app/components/CustomDate";
 import Image from "next/image";
 import PostList from "@/app/components/PostList";
 import ReportModal from "@/app/components/ReportModal";
-import Search from "./search";
 import sanitizeHtml from "sanitize-html";
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -95,24 +94,10 @@ export default function Home() {
                 </div>
 
                 {/* right menu */}
-                <form className="w-fit" onSubmit={handleSearch}>
-                    <div className="relative w-full p-5 mr-16 text-gray-300">
-                        <button
-                            type="submit"
-                            className="absolute mt-3 ml-4 mr-4"
-                        >
-                            <BiSearch size={20} />
-                        </button>
-                        <input
-                            type="search"
-                            name="search"
-                            placeholder="Search Thoughts"
-                            className="w-full h-10 px-10 pr-5 text-sm text-gray-200 bg-indigo-800 border-0 rounded-full shadow focus:outline-none"
-                            value={searchQuery} // Use the searchQuery value as input value
-                            onChange={(e) => setSearchQuery(e.target.value)} // Update the searchQuery state on input change
-                        />
-                    </div>
-                </form>
+                {/* right menu */}
+                <div className="w-fit">
+                    <div className="relative w-full p-5 mr-16 text-gray-300"></div>
+                </div>
             </div>
 
             {showReportModal && <ReportModal />}
