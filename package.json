@@ -22,6 +22,7 @@
         "date-fns": "^2.30.0",
         "eslint": "8.42.0",
         "eslint-config-next": "13.4.5",
+        "file-type": "^18.5.0",
         "lru-cache": "^10.0.0",
         "nanoid": "^4.0.2",
         "next": "13.4.5",
