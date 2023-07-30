@@ -1,16 +1,19 @@
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
+import { utcToZonedTime } from "date-fns-tz";
 
 export default function CustomDate({ dateString }) {
-    const date = parseISO(dateString) || new Date();
+	const dateToConvert = new Date(dateString);
 
-    if (dateString !== undefined)
-        return (
-            <time dateTime={date}>
-                {format(date, "LLLL d, yyyy - HH:mm a")}
-            </time>
-        );
+	const philippineTimeZone = "Asia/Manila";
+	const convertedDate = utcToZonedTime(dateToConvert, philippineTimeZone);
 
-    return (
-        <time dateTime={date}>{format(date, "LLLL d, yyyy - HH:mm a")}</time>
-    );
+	const formattedDate = format(
+		convertedDate,
+		"eeee, MMMM d, yyyy - hh:mm:ss a",
+		{
+			timeZone: philippineTimeZone,
+		},
+	);
+
+	return <time>{formattedDate}</time>;
 }

@@ -12,7 +12,6 @@ export async function GET(req, { params }) {
 	try {
 		const { user_id } = params;
 
-		await database.connect();
 		const query = `
             SELECT
                 p.user_id,
@@ -26,15 +25,16 @@ export async function GET(req, { params }) {
             FROM 
                 posts p
             JOIN 
-                liked-posts lp ON p.post_id = lp.post_id
+                liked_posts lp ON p.post_id = lp.post_id
             JOIN 
                 users u ON p.user_id = u.user_id
             WHERE 
                 lp.user_id = ?
-             ORDER BY
-                p.date_created DESC
+			ORDER BY
+				p.date_created DESC
         `;
 
+		await database.connect();
 		const result = await database.query(query, [user_id]);
 		await database.end();
 
