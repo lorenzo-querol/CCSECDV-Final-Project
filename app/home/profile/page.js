@@ -1,25 +1,9 @@
 "use client";
 
-import {
-	AiFillCloseCircle,
-	AiFillHeart,
-	AiOutlineHeart,
-	AiOutlineMessage,
-} from "react-icons/ai";
-import {
-	BiDotsVerticalRounded,
-	BiImage,
-	BiSearch,
-	BiVideoPlus,
-} from "react-icons/bi";
 import React, { useEffect, useState } from "react";
 
-import CustomDate from "@/app/components/CustomDate";
 import Image from "next/image";
 import PostList from "@/app/components/PostList";
-import control from "@/public/control.png";
-import sanitize from "sanitize-html";
-import sanitizeHtml from "sanitize-html";
 import { useSession } from "next-auth/react";
 
 export default function Profile() {
