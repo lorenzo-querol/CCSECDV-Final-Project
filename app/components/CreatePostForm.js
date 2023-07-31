@@ -16,7 +16,7 @@ export default function CreatePostForm({
 	handleRemoveImage,
 }) {
 	return (
-		<form onSubmit={handleSubmit}>
+		<form onSubmit={handleSubmit} className="border-b">
 			<div className="flex py-2">
 				<div className="w-10 py-1 m-2">
 					<Image
@@ -33,7 +33,7 @@ export default function CreatePostForm({
 				<div className="flex-1 px-2 pt-2 mt-2">
 					{/* Textarea */}
 					<textarea
-						className="w-full text-lg font-medium text-gray-400 bg-transparent p-2"
+						className="w-full p-2 text-lg font-medium text-gray-400 bg-transparent"
 						rows="2"
 						cols="50"
 						name="post-textarea"
