@@ -1,9 +1,9 @@
 import { database, s3 } from "@/utils/database";
-
+import { Buffer } from 'buffer'
 import { NextResponse } from "next/server";
 import { getLogger } from "@/utils/logger";
 import { nanoid } from "nanoid";
-
+import sanitizeHtml from "sanitize-html";
 // Matches /api/posts
 // HTTP methods: GET, POST, DELETE
 
@@ -65,9 +65,12 @@ export async function GET(req) {
  */
 
 const savePost = async (post, image) => {
+    //console.log(image)
     try {
-        const imageData = image == null ? null : post.image;
-        if (image === null) {
+        const imageData = image == null ? null : image;
+ 
+        
+        if (imageData === undefined || imageData === null) {
             const query =
                 "INSERT INTO posts (post_id, user_id, name, description, image) VALUES (?, ?, ?, ?, ?)";
             await database.connect();
@@ -76,7 +79,7 @@ const savePost = async (post, image) => {
                 post.user_id,
                 post.name,
                 post.description,
-                0,
+                '',
             ]);
 
             await database.end();
@@ -89,18 +92,19 @@ const savePost = async (post, image) => {
                 post.user_id,
                 post.name,
                 post.description,
-                imageData,
+                imageData
             ]);
             await database.end();
-
             const bytes = await image.arrayBuffer();
-            const buffer = image.from(bytes);
+            const buffer = Buffer.from(bytes);
+            const mimeType = await fileTypeFromBuffer(buffer);
             await s3
                 .upload({
                     Bucket: process.env.S3_BUCKET_NAME,
                     Key: post.image,
                     Body: buffer,
-                    ContentType: image.name.split(".").pop(),
+                    ContentType: mimeType.mime,
+                    ACL: "public-read"
                 })
                 .promise();
         }
@@ -112,8 +116,9 @@ const savePost = async (post, image) => {
 export async function POST(req) {
     const logger = getLogger();
     const data = await req.json();
-
     try {
+        if (data.description.length > 180 ) 
+            throw new Error("Text Length Exceeded")
         let finalImg = "";
         if (data.avatar != null) {
             const image = data.avatar;
@@ -129,8 +134,8 @@ export async function POST(req) {
         const post = {
             post_id: nanoid(),
             user_id: user_id,
-            name: name,
-            description: description,
+            name: sanitizeHtml(name),
+            description: sanitizeHtml(description),
             heart_count: 0,
         };
 
@@ -156,6 +161,7 @@ export async function POST(req) {
             ok: true,
             data: final_post,
         });
+    
     } catch (error) {
         logger.error(error.message);
         return NextResponse.json({
