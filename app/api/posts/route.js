@@ -117,7 +117,7 @@ export async function POST(req) {
     const logger = getLogger();
     const data = await req.json();
     try {
-        if (data.description.length > 180 ) 
+        if (data.description.length > 180 ) // TODO: IMAGE VALIDATION
             throw new Error("Text Length Exceeded")
         let finalImg = "";
         if (data.avatar != null) {
