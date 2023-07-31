@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 
 import Image from "next/image";
 import PostList from "@/app/components/PostList";
+import Loading from "@/app/components/Loading";
 import { useSession } from "next-auth/react";
 
 export default function Profile() {
@@ -96,8 +97,8 @@ export default function Profile() {
 		}
 	}, [session]);
 
-	if (status === "loading") return <div>Loading...</div>;
-	if (!posts || !likedPosts) return <div>Fetching posts...</div>;
+	if (status === "loading") return <Loading />;
+	if (!posts || !likedPosts) return <Loading />;
 
 	return (
 		<div className="flex flex-row h-full overflow-y-auto">
@@ -144,17 +145,15 @@ export default function Profile() {
 
 				<div className="flex justify-between w-full h-10">
 					<button
-						className={`w-1/2 text-xl font-bold hover:bg-indigo-700 ${
-							currentTab === "posts" ? "bg-indigo-700" : ""
-						}`}
+						className={`w-1/2 text-xl font-bold hover:bg-indigo-700 ${currentTab === "posts" ? "bg-indigo-700" : ""
+							}`}
 						onClick={() => setCurrentTab("posts")}
 					>
 						Posts
 					</button>
 					<button
-						className={`w-1/2 text-xl font-bold hover:bg-indigo-700 ${
-							currentTab === "likes" ? "bg-indigo-700" : ""
-						}`}
+						className={`w-1/2 text-xl font-bold hover:bg-indigo-700 ${currentTab === "likes" ? "bg-indigo-700" : ""
+							}`}
 						onClick={() => setCurrentTab("likes")}
 					>
 						Likes

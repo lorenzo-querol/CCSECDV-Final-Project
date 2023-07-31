@@ -9,6 +9,7 @@ import { BiSort } from "react-icons/bi";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import UserLogs from "@/app/components/UserLogs";
+import Loading from "@/app/components/Loading";
 
 export default function Users() {
 	const [page, setPage] = useState(1);
@@ -56,7 +57,7 @@ export default function Users() {
 		fetchUsers(page, sortBy, sortOrder);
 	}, [page, sortBy, sortOrder]);
 
-	if (!users) return <div>Fetching users...</div>;
+	if (!users) return <Loading />;
 
 	return (
 		<>

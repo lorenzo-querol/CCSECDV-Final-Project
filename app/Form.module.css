@@ -29,5 +29,13 @@
 }
 
 .error_text {
-  @apply text-sm text-justify text-red-500 ;
+  @apply text-sm text-justify text-red-500;
+}
+
+.error_register {
+  @apply text-sm text-center text-red-500;
+}
+
+.success_register {
+  @apply text-sm text-center text-green-500;
 }

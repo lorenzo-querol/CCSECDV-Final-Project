@@ -10,6 +10,7 @@ import { BiBlock, BiSort } from "react-icons/bi";
 import React, { useEffect, useState } from "react";
 
 import { useRouter } from "next/router";
+import Loading from "@/app/components/Loading";
 
 export default function Users() {
    const [page, setPage] = useState(1);
@@ -68,7 +69,7 @@ export default function Users() {
       fetchUsers(page, sortBy, sortOrder);
    }, [page, sortBy, sortOrder]);
 
-   if (!users) return <div>Fetching reported users...</div>;
+   if (!users) return <Loading />;
 
    return (
       <div div className="w-full h-full overflow-y-auto" >

@@ -54,8 +54,6 @@ export default function Register() {
 
             setErrorMessage("");    // Reset error message
             setIsRegister(true);    // Show success message
-
-            //if (data.error)
         } catch (error) {
             setIsRegister(false);    // Hide success message
             // Error message
@@ -330,13 +328,13 @@ export default function Register() {
                 {/* Render the error message */}
                 <div>
                     {errorMessage && (
-                        <p className="text-sm text-center text-red-500">
+                        <p role="alert" className={styles.error_register}>
                             {errorMessage}
                         </p>
                     )}
 
                     {isRegister && (
-                        <p className="text-sm text-center text-green-500">
+                        <p role="alert" className={styles.success_register}>
                             Your account has been created successfully.
                         </p>
                     )}
