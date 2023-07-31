@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 import CreatePostForm from "@/app/components/CreatePostForm";
+import Loading from "@/app/components/Loading"
 import PostList from "@/app/components/PostList";
 import ReportModal from "@/app/components/ReportModal";
 import sanitizeHtml from "sanitize-html";
@@ -163,8 +164,8 @@ export default function Home() {
 		}
 	}, [session]);
 
-	if (status === "loading") return <div>Loading...</div>;
-	if (!posts || !likedPosts) return <div>Fetching posts...</div>;
+	if (status === "loading") return <Loading />;
+	if (!posts || !likedPosts) return <Loading />;
 
 	return (
 		<>
