@@ -1,19 +1,20 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import sanitizeHtml from "sanitize-html";
-import styles from "@/app/Form.module.css";
-import axios from "axios";
-
-// Icons
 import {
     HiAtSymbol,
     HiFingerPrint,
-    HiOutlineUser,
     HiOutlinePhone,
+    HiOutlineUser,
 } from "react-icons/hi";
+import React, { useEffect, useRef, useState } from "react";
+
+import Link from "next/link";
+import axios from "axios";
+import sanitizeHtml from "sanitize-html";
+import styles from "@/app/Form.module.css";
+import { useForm } from "react-hook-form";
+
+// Icons
 
 export default function Register() {
     const [show, setShow] = useState({
@@ -43,19 +44,19 @@ export default function Register() {
 
         formData.append("avatar", data.avatar[0]);
         formData.append("userInfo", JSON.stringify(cleanedData));
+
         try {
             const { data } = await axios.post("/api/users", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             });
-            if (!data.ok)
-                throw new Error(data.message);
+            if (!data.ok) throw new Error(data.message);
 
-            setErrorMessage("");    // Reset error message
-            setIsRegister(true);    // Show success message
+            setErrorMessage(""); // Reset error message
+            setIsRegister(true); // Show success message
         } catch (error) {
-            setIsRegister(false);    // Hide success message
+            setIsRegister(false); // Hide success message
             // Error message
             if (error.message != null) {
                 // If the error response contains the "error" property
@@ -279,7 +280,9 @@ export default function Register() {
                         }}
                     >
                         <input
-                            type={`${show.confirmPassword ? "text" : "password"}`}
+                            type={`${
+                                show.confirmPassword ? "text" : "password"
+                            }`}
                             name="confirmPassword"
                             placeholder="Confirm Password"
                             className={styles.input_text}
@@ -353,7 +356,7 @@ export default function Register() {
                         <Link href="/login">Sign in</Link>
                     </span>
                 </p>
-            </form >
-        </div >
+            </form>
+        </div>
     );
 }
