@@ -57,7 +57,7 @@ export default function CreatePostForm({
 					</div>
 
 					{/* Image Preview */}
-					{image &&  !imageError && (
+					{image && !imageError && (
 						<div className="relative mt-2">
 							<button
 								onClick={handleRemoveImage}
@@ -73,10 +73,6 @@ export default function CreatePostForm({
 								height={500}
 							/>
 						</div>
-					)}
-					 {/* Display error message if there's an error */}
-					 {imageError && (
-						<div className="mt-2 text-red-500">{imageError}</div>
 					)}
 				</div>
 			</div>
@@ -106,6 +102,10 @@ export default function CreatePostForm({
 								onChange={handleImageChange} // Add onChange event here
 							/>
 						</div>
+						{/* Display error message if there's an error */}
+						{imageError && (
+							<p className="text-sm text-red-500">{imageError}</p>
+						)}
 					</div>
 				</div>
 
