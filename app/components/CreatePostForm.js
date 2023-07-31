@@ -10,6 +10,7 @@ export default function CreatePostForm({
 	handleSubmit,
 	image,
 	user,
+	imageError,
 	handleTextChange,
 	remainingCharacters,
 	handleImageChange,
@@ -56,7 +57,7 @@ export default function CreatePostForm({
 					</div>
 
 					{/* Image Preview */}
-					{image && (
+					{image &&  !imageError && (
 						<div className="relative mt-2">
 							<button
 								onClick={handleRemoveImage}
@@ -72,6 +73,10 @@ export default function CreatePostForm({
 								height={500}
 							/>
 						</div>
+					)}
+					 {/* Display error message if there's an error */}
+					 {imageError && (
+						<div className="mt-2 text-red-500">{imageError}</div>
 					)}
 				</div>
 			</div>

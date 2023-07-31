@@ -8,6 +8,7 @@ import PostList from "@/app/components/PostList";
 import ReportModal from "@/app/components/ReportModal";
 import sanitizeHtml from "sanitize-html";
 import { useSession } from "next-auth/react";
+import { RestoreRequestFilterSensitiveLog } from "@aws-sdk/client-s3";
 
 const MAX_LENGTH = 180;
 
@@ -15,7 +16,7 @@ export default function Home() {
 	const { data: session, status } = useSession();
 	const [posts, setPosts] = useState(null);
 	const [likedPosts, setLikedPosts] = useState(new Set());
-
+    const [imageError, setImageError] = useState("");
 	// Submission states
 	const [text, setText] = useState("");
 	const [image, setImage] = useState(null);
@@ -58,29 +59,48 @@ export default function Home() {
 		setRemainingCharacters(MAX_LENGTH - charCount);
 		setText(inputText);
 	};
-
+    function isFileTypeEncoded(str) {
+        const target = "data:image/"
+        const validImageTypes = ['jpeg', 'jpg', 'png', 'svg'];
+        if (str != null || str != undefined) {
+            for (let imageType of validImageTypes) {
+                if (str.startsWith(target + imageType) || str.startsWith(target + imageType.toUpperCase))  
+                    setImageError("")
+                    return true 
+            }
+        }
+        setImageError("Invalid File Type")
+        return false 
+      }
 	const handleImageChange = (event) => {
 		const file = event.target.files[0];
-		if (!file) return;
-
-		const reader = new FileReader();
-		reader.onloadend = () => setImage(reader.result);
-		reader.readAsDataURL(file);
+		if (!file) {
+            return ;
+        }
+        const validImageTypes = ['jpeg', 'jpg', 'png', 'svg'];
+        for (let imageType of validImageTypes) {
+            if (file.name.endsWith(imageType)) {
+                const reader = new FileReader();
+                reader.onloadend = () => setImage(reader.result);
+                reader.readAsDataURL(file);
+                setImageError("")
+                return ;
+            }  
+        }
+            setImageError("Invalid File Type")
 	};
 
 	const handleRemoveImage = () => setImage(null);
-
+   
 	const handleSubmit = async (event) => {
 		event.preventDefault();
-
+        
 		const description = sanitizeHtml(
 			event.target.elements["post-textarea"].value,
 		);
-
 		try {
-			if (description.length > 180 || image)
-				throw new Error("Invalid Submission Text");
-
+			if ((description.length === 0 && image === null) || (description != "" && description.length > 180) || (image != null && !isFileTypeEncoded(image)))
+				throw new Error("Invalid Submission");
 			const res = await fetch(`/api/posts`, {
 				headers: {
 					"Content-Type": "multipart/form-data",
@@ -188,6 +208,7 @@ export default function Home() {
 						image={image}
 						user={session.user}
 						handleTextChange={handleTextChange}
+                        imageError={imageError}
 						remainingCharacters={remainingCharacters}
 						handleImageChange={handleImageChange}
 						handleRemoveImage={handleRemoveImage}
