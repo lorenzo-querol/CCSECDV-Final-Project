@@ -21,11 +21,10 @@ export default function Home() {
 	const [text, setText] = useState("");
 	const [image, setImage] = useState(null);
 	const [remainingCharacters, setRemainingCharacters] = useState(MAX_LENGTH);
-
+    const [handleButton, setHandleButton] = useState(true)
 	// TODO Report modal states (WIP)
 	const [showReportModal, setShowReportModal] = useState(false);
 	const [reportReason, setReportReason] = useState("");
-
 	const fetchPosts = async () => {
 		try {
 			const res = await fetch(`/api/posts`);
@@ -53,10 +52,17 @@ export default function Home() {
 	};
 
 	const handleTextChange = (event) => {
-		const inputText = event.target.value;
+		const inputText = sanitizeHtml(event.target.value.trim());
 		const charCount = inputText.length;
-
-		setRemainingCharacters(MAX_LENGTH - charCount);
+        if (charCount === 0 || charCount > MAX_LENGTH) {
+            setHandleButton(true)
+            console.log(handleButton)
+        }
+        else {
+        setHandleButton(false)
+        setImageError("")   
+        }
+        setRemainingCharacters(MAX_LENGTH - charCount);
 		setText(inputText);
 	};
     function isFileTypeEncoded(str) {
@@ -83,14 +89,19 @@ export default function Home() {
                 const reader = new FileReader();
                 reader.onloadend = () => setImage(reader.result);
                 reader.readAsDataURL(file);
+                setHandleButton(false)
                 setImageError("")
                 return ;
             }  
         }
             setImageError("Invalid File Type")
+            setImage(null);
+            setHandleButton(true)
 	};
 
-	const handleRemoveImage = () => setImage(null);
+	const handleRemoveImage = (event) => {
+        setImage(null);
+    }
    
 	const handleSubmit = async (event) => {
 		event.preventDefault();
@@ -99,8 +110,11 @@ export default function Home() {
 			event.target.elements["post-textarea"].value,
 		);
 		try {
-			if ((description.length === 0 && image === null) || (description != "" && description.length > 180) || (image != null && !isFileTypeEncoded(image)))
-				throw new Error("Invalid Submission");
+			if ((description.length === 0 && image === null) || (description != "" && description.length > 180) || (image != null && !isFileTypeEncoded(image))) {
+                setImageError("Invalid Post")
+                throw new Error("Invalid Submission");
+            }
+            setImageError(" ")
 			const res = await fetch(`/api/posts`, {
 				headers: {
 					"Content-Type": "multipart/form-data",
@@ -185,7 +199,7 @@ export default function Home() {
 	}, [session]);
 
 	if (status === "loading") return <Loading />;
-	if (!posts || !likedPosts) return <Loading />;
+	//if (!posts || !likedPosts) return <Loading />;
 
 	return (
 		<>
@@ -212,16 +226,17 @@ export default function Home() {
 						remainingCharacters={remainingCharacters}
 						handleImageChange={handleImageChange}
 						handleRemoveImage={handleRemoveImage}
+                        handleButton={handleButton}
 					/>
-					<PostList
+					{posts && <PostList
 						posts={posts}
 						likedPosts={likedPosts}
 						user={session.user}
 						handleLike={handleLike}
 						handleDelete={handleDelete}
-					/>
+					/>}
 				</div>
-
+                    
 				{/* right menu */}
 				<div className="w-fit">
 					<div className="relative w-full p-5 mr-16 text-gray-300"></div>

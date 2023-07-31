@@ -15,6 +15,7 @@ export default function CreatePostForm({
 	remainingCharacters,
 	handleImageChange,
 	handleRemoveImage,
+	handleButton
 }) {
 	return (
 		<form onSubmit={handleSubmit} className="border-b">
@@ -49,6 +50,7 @@ export default function CreatePostForm({
 								{" "}
 								Maximum character count exceeded ({MAX_LENGTH}).{" "}
 							</p>
+							
 						) : (
 							<p className="items-center font-semibold text-gray-500">
 								{remainingCharacters}/{MAX_LENGTH}
@@ -112,6 +114,7 @@ export default function CreatePostForm({
 				{/* Post Button */}
 				<div className="flex-1">
 					<button
+						disabled={handleButton}
 						type="submit" // Set the button type to submit
 						className="float-right px-8 py-2 mt-4 mr-8 font-bold text-white bg-indigo-400 rounded-full hover:bg-indigo-600"
 					>
