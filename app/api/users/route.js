@@ -1,3 +1,4 @@
+import { checkPassword, validateData } from "@/utils/validation.helper";
 import { database, s3 } from "@/utils/database";
 
 import { Buffer } from "buffer";
@@ -8,43 +9,6 @@ import { fileTypeFromBuffer } from "file-type";
 import { getLogger } from "@/utils/logger";
 import { nanoid } from "nanoid";
 import sanitizeHtml from "sanitize-html";
-import { writeFile } from "fs/promises";
-
-/**
- * Check if the password is valid through regex validation
- * @param {*} password The password of the user
- * @param {*} confirmPassword The confirmation password of the user
- * @returns True if the password is valid, false otherwise
- */
-const checkPassword = (password, confirmPassword) => {
-	if (confirmPassword) return password === confirmPassword;
-
-	const passwordRegex =
-		/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])(?!.*\s).{12,64}$/;
-	return passwordRegex.test(password);
-};
-
-/**
- * Validate data through regex validation
- * @param {*} firstName The first name of the user
- * @param {*} lastName The last name of the user
- * @param {*} phoneNumber The phone number of the user
- * @param {*} email The email of the user
- * @returns True if the data is valid, false otherwise
- */
-const validateData = (firstName, lastName, phoneNumber, email) => {
-	const nameRegex = /^[\w\s\u00C0-\u017F]{2,}$/;
-	const phoneRegex = /^\s*09\d{9}\s*$/;
-	const emailRegex =
-		/^[\w.\-]+[a-zA-Z0-9]*@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/;
-
-	return (
-		nameRegex.test(firstName) &&
-		nameRegex.test(lastName) &&
-		phoneRegex.test(phoneNumber) &&
-		emailRegex.test(email)
-	);
-};
 
 /**
  * Save the user to the database and the avatar to the file system
@@ -109,18 +73,22 @@ export async function POST(req) {
 
 		if (!checkPassword(password, confirmPassword)) {
 			logger.error("Passwords do not match");
-			return new Response(
-				{ message: "User creation failed." },
-				{ status: 500 },
-			);
+			return NextResponse.json({
+				error: "invalid",
+				status: 400,
+				ok: true,
+				data: null,
+			});
 		}
 
 		if (!validateData(firstName, lastName, phoneNumber, email)) {
 			logger.error("Invalid data");
-			return new Response(
-				{ message: "User creation failed." },
-				{ status: 500 },
-			);
+			return NextResponse.json({
+				error: "invalid",
+				status: 400,
+				ok: true,
+				data: null,
+			});
 		}
 
 		const hashedPassword = await bcrypt.hash(password, 10);
