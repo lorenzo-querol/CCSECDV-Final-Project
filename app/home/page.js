@@ -56,7 +56,6 @@ export default function Home() {
 		const charCount = inputText.length;
         if (charCount === 0 || charCount > MAX_LENGTH) {
             setHandleButton(true)
-            console.log(handleButton)
         }
         else {
         setHandleButton(false)
