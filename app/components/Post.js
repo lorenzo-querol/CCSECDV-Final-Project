@@ -111,13 +111,15 @@ export default function Post({
 				</p>
 
 				{/* Check if there's an image otherwise, show nothing. */}
-				<div className="relative mt-2">
-					{/* <Image
-                        src="{`data:image/${post.avatar.ext.slice(1)};base64,${post.avatar.data}`	},
+				{/*<div className="relative mt-2">
+					<Image
+                        src={`data:image/${post.avatar.ext.slice(1)};base64,${post.avatar.data}`}	
                         alt="Image Preview"
                         className="w-full max-w-80 max-h-64"
-                    /> */}
-				</div>
+						width="80"
+						height="64"
+                    /> 
+							</div>*/}
 
 				{/* Post: Footer */}
 				<div className="flex">
