@@ -85,7 +85,7 @@ export default function Home() {
         }
         const validImageTypes = ['jpeg', 'jpg', 'png', 'svg'];
         for (let imageType of validImageTypes) {
-            if (file.name.endsWith(imageType)) {
+            if (file.name.toLowerCase().endsWith(imageType)) {
                 const reader = new FileReader();
                 reader.onloadend = () => setImage(reader.result);
                 reader.readAsDataURL(file);
