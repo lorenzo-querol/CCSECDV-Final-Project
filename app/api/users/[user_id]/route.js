@@ -1,48 +1,37 @@
-import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+    handleDeleteUser,
+    handleGetUser,
+    handleUpdateUser,
+} from "@/utils/users.helper";
+import { handleFileDelete, handleFileUpload } from "@/utils/file.helper";
 import { sanitizeObject, validateData } from "@/utils/validation.helper";
 
-import { Buffer } from "buffer";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { database } from "@/utils/database";
-import { fileTypeFromBuffer } from "file-type";
 import { getLogger } from "@/utils/logger";
-import { nanoid } from "nanoid";
-import { s3 } from "@/utils/database";
+
+const logger = getLogger();
 
 // Matches /api/users/[user_id]
-// HTTP methods: GET, PATCH, DELETE
+// HTTP methods: GET, PUT, DELETE
 
 export async function GET(req, { params }) {
-    const logger = getLogger();
     try {
         const { user_id } = params;
 
-        const query =
-            "SELECT email, first_name, last_name, password, phone_num, avatar FROM users WHERE user_id = ?";
-
-        await database.connect();
-        const result = await database.query(query, [user_id]);
-        await database.end();
-
-        if (result.length === 0)
-            return NextResponse.json({
-                error: "notfound",
-                status: 400,
-                ok: false,
-                data: null,
-            });
+        const result = await handleGetUser(user_id);
 
         return NextResponse.json({
             error: null,
             status: 200,
             ok: true,
-            data: result[0],
+            data: result,
         });
     } catch (error) {
         logger.error(error.message);
+
         return NextResponse.json({
-            error: "internal",
+            error: "Something went wrong.",
             status: 500,
             ok: false,
             data: null,
@@ -70,70 +59,26 @@ export async function PUT(req, { params }) {
         )
             throw new Error("invalid");
 
-        await database.connect();
+        const result = await handleGetUser(user_id);
+        const currentInfo = result[0];
 
-        const userQuery = "SELECT * FROM users WHERE user_id = ?";
-        const userResult = await database.query(userQuery, [user_id]);
-        if (userResult.length === 0) throw new Error("notfound");
-
-        const currentInfo = userResult[0];
-
-        // Check if user updated avatar, if so, update the avatar name, else, use the current avatar name
         if (avatar !== "undefined") {
-            let avatarName = avatar.name.split(".");
-            avatarName[0] = nanoid();
-            avatarName = avatarName.join(".");
-            updatedInfo.avatar = "avatar_" + avatarName;
-
-            // Delete current avatar from s3
-            const deleteCommand = new DeleteObjectCommand({
-                Bucket: process.env.S3_BUCKET_NAME,
-                Key: currentInfo.avatar,
-            });
-
-            await s3.send(deleteCommand);
-
-            // Upload new avatar to s3
-            const bytes = await avatar.arrayBuffer();
-            const buffer = Buffer.from(bytes);
-            const mimeType = await fileTypeFromBuffer(buffer);
-
-            const putCommand = new PutObjectCommand({
-                Bucket: process.env.S3_BUCKET_NAME,
-                Key: updatedInfo.avatar,
-                Body: buffer,
-                ContentType: mimeType.mime,
-                ACL: "public-read",
-            });
-
-            await s3.send(putCommand);
+            updatedInfo.avatar = await handleFileUpload(avatar, "avatar");
+            await handleFileDelete(currentInfo.avatar);
         } else {
             updatedInfo.avatar = currentInfo.avatar;
         }
 
-        // Check if user updated password, if so, hash it, else, use the current password
         if (updatedInfo.password !== currentInfo.password) {
-            const hashedPassword = await bcrypt.hash(updatedInfo.password, 10);
-            updatedInfo.password = hashedPassword;
+            updatedInfo.password = await bcrypt.hash(updatedInfo.password, 10);
         } else {
             updatedInfo.password = currentInfo.password;
         }
 
-        const updateQuery =
-            "UPDATE users SET first_name = ?, last_name = ?, phone_num = ?, email = ?, password = ?, avatar = ? WHERE user_id = ?";
-        const updateResult = await database.query(updateQuery, [
-            updatedInfo.firstName,
-            updatedInfo.lastName,
-            updatedInfo.phoneNumber,
-            updatedInfo.email,
-            updatedInfo.password,
-            updatedInfo.avatar,
-            user_id,
-        ]);
+        await handleUpdateUser(user_id, updatedInfo);
 
-        await database.end();
+        logger.info(`User (id: ${user_id}) updated.`);
 
-        logger.info(`User ${updatedInfo.email} (id: ${user_id}) updated.`);
         return NextResponse.json({
             error: null,
             status: 200,
@@ -143,24 +88,8 @@ export async function PUT(req, { params }) {
     } catch (error) {
         logger.error(error.message);
 
-        if (error.message === "notfound")
-            return NextResponse.json({
-                error: "Data not found.",
-                status: 404,
-                ok: false,
-                data: null,
-            });
-
-        if (error.message === "invalid")
-            return NextResponse.json({
-                error: "Invalid data. Please check your input.",
-                status: 400,
-                ok: false,
-                data: null,
-            });
-
         return NextResponse.json({
-            error: "Internal server error. Please try again later.",
+            error: "Something went wrong.",
             status: 500,
             ok: false,
             data: null,
@@ -174,21 +103,10 @@ export async function DELETE(req, { params }) {
     try {
         const { user_id } = params;
 
-        await database.connect();
+        await handleDeleteUser(user_id);
 
-        const userQuery = "DELETE FROM users WHERE user_id = ?";
-        const postQuery = "DELETE FROM posts WHERE user_id = ?";
-        const likedQuery = "DELETE FROM liked_posts WHERE user_id = ?";
-        const reportQuery = "DELETE FROM reports WHERE user_id = ?";
+        logger.info(`User (id: ${user_id}) deleted.`);
 
-        const userResult = await database.query(userQuery, [user_id]);
-        const postResult = await database.query(postQuery, [user_id]);
-        const likedResult = await database.query(likedQuery, [user_id]);
-        const reportResult = await database.query(reportQuery, [user_id]);
-
-        await database.end();
-
-        logger.info(`User ${user_id} deleted.`);
         return NextResponse.json({
             error: null,
             status: 200,
@@ -197,8 +115,9 @@ export async function DELETE(req, { params }) {
         });
     } catch (error) {
         logger.error(error.message);
+
         return NextResponse.json({
-            error: "internal",
+            error: "Something went wrong.",
             status: 500,
             ok: false,
             data: null,
