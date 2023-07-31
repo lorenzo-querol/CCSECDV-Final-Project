@@ -1,9 +1,14 @@
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { database, s3 } from "@/utils/database";
-import { Buffer } from 'buffer'
+
+import { Buffer } from "buffer";
 import { NextResponse } from "next/server";
+import { fileTypeFromBuffer } from "file-type";
 import { getLogger } from "@/utils/logger";
 import { nanoid } from "nanoid";
 import sanitizeHtml from "sanitize-html";
+import { sanitizeObject } from "@/utils/validation.helper";
+
 // Matches /api/posts
 // HTTP methods: GET, POST, DELETE
 
@@ -65,49 +70,32 @@ export async function GET(req) {
  */
 
 const savePost = async (post, image) => {
-    //console.log(image)
     try {
-        const imageData = image == null ? null : image;
- 
-        
-        if (imageData === undefined || imageData === null) {
-            const query =
-                "INSERT INTO posts (post_id, user_id, name, description, image) VALUES (?, ?, ?, ?, ?)";
-            await database.connect();
-            await database.query(query, [
-                post.post_id,
-                post.user_id,
-                post.name,
-                post.description,
-                '',
-            ]);
+        const query =
+            "INSERT INTO posts (post_id, user_id, name, description, image) VALUES (?, ?, ?, ?, ?)";
+        await database.connect();
+        await database.query(query, [
+            post.post_id,
+            post.user_id,
+            post.name,
+            post.description,
+            post.image,
+        ]);
+        await database.end();
 
-            await database.end();
-        } else {
-            const query =
-                "INSERT INTO posts (post_id, user_id, name, description, image) VALUES (?, ?, ?, ?, ?)";
-            await database.connect();
-            await database.query(query, [
-                post.post_id,
-                post.user_id,
-                post.name,
-                post.description,
-                imageData
-            ]);
-            await database.end();
-            const bytes = await image.arrayBuffer();
-            const buffer = Buffer.from(bytes);
-            const mimeType = await fileTypeFromBuffer(buffer);
-            await s3
-                .upload({
-                    Bucket: process.env.S3_BUCKET_NAME,
-                    Key: post.image,
-                    Body: buffer,
-                    ContentType: mimeType.mime,
-                    ACL: "public-read"
-                })
-                .promise();
-        }
+        const bytes = await image.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const mimeType = await fileTypeFromBuffer(buffer);
+
+        const command = new PutObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: post.image,
+            Body: buffer,
+            ContentType: mimeType.mime,
+            ACL: "public-read",
+        });
+
+        await s3.send(command);
     } catch (error) {
         throw new Error(error.message);
     }
@@ -115,27 +103,44 @@ const savePost = async (post, image) => {
 
 export async function POST(req) {
     const logger = getLogger();
-    const data = await req.json();
+
     try {
-        if (data.description.length > 180 ) // TODO: IMAGE VALIDATION
-            throw new Error("Text Length Exceeded")
-        let finalImg = "";
-        if (data.avatar != null) {
-            const image = data.avatar;
-            let imageName = image.split(".");
+        const data = await req.formData();
+        const image = data.get("image");
+        let postInfo = JSON.parse(data.get("postInfo"));
+
+        if (postInfo.description.length > 180)
+            throw new Error("Text Length Exceeded");
+
+        if (image !== "undefined") {
+            let imageName = image.name.split(".");
             imageName[0] = nanoid();
             imageName = imageName.join(".");
-            finalImg = "avatar_" + imageName;
+            postInfo.image = "post_" + imageName;
+
+            const bytes = await image.arrayBuffer();
+            const buffer = Buffer.from(bytes);
+            const mimeType = await fileTypeFromBuffer(buffer);
+
+            const putCommand = new PutObjectCommand({
+                Bucket: process.env.S3_BUCKET_NAME,
+                Key: postInfo.image,
+                Body: buffer,
+                ContentType: mimeType.mime,
+                ACL: "public-read",
+            });
+
+            await s3.send(putCommand);
         } else {
-            finalImg = null;
+            postInfo.image = null;
         }
-        const { user_id, name, description, image } = data;
 
         const post = {
             post_id: nanoid(),
-            user_id: user_id,
-            name: sanitizeHtml(name),
-            description: sanitizeHtml(description),
+            user_id: postInfo.user_id,
+            name: sanitizeHtml(postInfo.name),
+            description: sanitizeHtml(postInfo.description),
+            image: postInfo.image,
             heart_count: 0,
         };
 
@@ -144,24 +149,55 @@ export async function POST(req) {
         logger.info(
             `User ${post.name} (id: ${post.user_id}) created a post with id ${post.post_id}.`
         );
-        const tempdate = new Date();
-        const date_created = tempdate.toISOString();
-        const final_post = {
-            post_id: nanoid(),
-            user_id: user_id,
-            name: name,
-            description: description,
-            heart_count: 0,
-            date_created: date_created,
-            avatar: data.avatar,
-        };
         return NextResponse.json({
             error: null,
             status: 200,
             ok: true,
-            data: final_post,
+            data: null,
         });
-    
+    } catch (error) {
+        logger.error(error.message);
+        return NextResponse.json({
+            error: "internal",
+            status: 500,
+            ok: false,
+            data: null,
+        });
+    }
+}
+
+export async function DELETE(req, { params }) {
+    const logger = getLogger();
+
+    try {
+        const { post_id } = params;
+
+        await database.connect();
+
+        const postQuery = "SELECT image FROM posts WHERE post_id = ?";
+        const deletePostQuery = "DELETE FROM posts WHERE post_id = ?";
+        const likedPostsQuery = "DELETE FROM liked_posts WHERE post_id = ?";
+
+        await database.query(postQuery, [post_id]);
+        await database.query(deletePostQuery, [post_id]);
+        await database.query(likedPostsQuery, [post_id]);
+
+        await database.end();
+
+        const command = new DeleteObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: postQuery[0].image,
+        });
+
+        await s3.send(command);
+
+        logger.info(`Post with id ${post_id} deleted.`);
+        return NextResponse.json({
+            error: null,
+            status: 200,
+            ok: true,
+            data: null,
+        });
     } catch (error) {
         logger.error(error.message);
         return NextResponse.json({
