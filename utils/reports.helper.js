@@ -135,7 +135,13 @@ export const handleGetReport = async (report_id) => {
 	}
 };
 
-export const handleGetReports = async () => {
+export const handleGetReports = async (
+	page,
+	sortBy,
+	sortOrder,
+	limit,
+	offset,
+) => {
 	try {
 		await database.connect();
 		const result = await database.query(

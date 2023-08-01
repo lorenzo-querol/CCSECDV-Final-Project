@@ -17,12 +17,12 @@ const Menus = [
 	{
 		title: "List of Users",
 		icon: <FaListAlt />,
-		path: "/admin/list-of-users",
+		path: "/admin/list-users",
 	},
 	{
 		title: "List of Reported Users",
 		icon: <MdReport />,
-		path: "/admin/list-of-reported-users",
+		path: "/admin/list-reports",
 	},
 	{ title: "Settings", icon: <BsFillGearFill />, path: "/admin/settings" },
 ];
@@ -31,13 +31,7 @@ export default function Sidebar({ children }) {
 	const router = useRouter();
 	const [close, setClose] = useState(false);
 	const [activeMenuItem, setActiveMenuItem] = useState(""); // Set initial active menu item by title
-
-	const { data: session, status } = useSession({
-		required: true,
-		onUnauthenticated() {
-			router.replace("/login");
-		},
-	});
+	const { data: session, status } = useSession();
 
 	const handleMenuItemClick = (title, path) => {
 		setActiveMenuItem(title);
@@ -74,27 +68,29 @@ export default function Sidebar({ children }) {
 					</h1>
 				</div>
 				<ul className="flex-grow pt-6">
-					{Menus.map((Menu, index) => (
-						<Link
-							key={index}
-							href={Menu.path}
-							className="flex items-center space-x-2"
-						>
-							<li
+					{Menus.map((menu, index) => {
+						return (
+							<Link
+								key={index}
+								href={menu.path}
 								className={`flex cursor-pointer items-center gap-x-4 rounded-md p-2 text-xl text-white hover:bg-indigo-700 ${
-									Menu.gap ? "mt-9" : "mt-2"
-								} ${Menu.title === activeMenuItem && "bg-indigo-700"}`} // Add condition to apply active class
-								onClick={() => handleMenuItemClick(Menu.title)} // Pass the title to the click event handler
+									menu.gap ? "mt-9" : "mt-2"
+								} ${menu.title === activeMenuItem && "bg-indigo-700"}`} // Add condition to apply active class
 							>
-								{Menu.icon}
-								<span
-									className={`${close && "hidden"} origin-left duration-200`}
+								<li
+									className="flex items-center space-x-2"
+									onClick={() => handleMenuItemClick(menu.title)} // Pass the title to the click event handler
 								>
-									{Menu.title}
-								</span>
-							</li>
-						</Link>
-					))}
+									{menu.icon}
+									<span
+										className={`${close && "hidden"} origin-left duration-200`}
+									>
+										{menu.title}
+									</span>
+								</li>
+							</Link>
+						);
+					})}
 					<li
 						className={`flex cursor-pointer items-center gap-x-4 rounded-md p-2 text-xl text-white hover:bg-indigo-700 mt-2`}
 						onClick={() =>

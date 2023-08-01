@@ -20,7 +20,7 @@ function redirectLogin(req) {
 
 function redirectAdmin(req) {
 	const url = req.nextUrl.clone();
-	url.pathname = "/admin/list-of-users";
+	url.pathname = "/admin/list-users";
 	return NextResponse.rewrite(url);
 }
 
@@ -35,8 +35,6 @@ export async function middleware(req) {
 	const { isAuthenticated, isAdmin } = await authenticateAndAuthorize(req);
 
 	if (!isAuthenticated) return redirectLogin(req);
-
-	if (isAdmin) return redirectAdmin(req);
 
 	if (requiresAdmin && !isAdmin) {
 		return new NextResponse(

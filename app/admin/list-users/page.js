@@ -1,17 +1,18 @@
 "use client";
 
 import {
+	AiFillEye,
 	AiOutlineArrowLeft,
 	AiOutlineArrowRight,
-	AiFillEye,
 } from "react-icons/ai";
-import { BiSort } from "react-icons/bi";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import UserLogs from "@/app/components/UserLogs";
-import Loading from "@/app/components/Loading";
 
-export default function Users() {
+import { BiSort } from "react-icons/bi";
+import Loading from "@/app/components/Loading";
+import UserLogs from "@/app/components/UserLogs";
+import { useRouter } from "next/router";
+
+export default function ListUsers() {
 	const [page, setPage] = useState(1);
 	const [users, setUsers] = useState();
 	const [limit, setLimit] = useState();
@@ -32,7 +33,7 @@ export default function Users() {
 
 	const showLogsModal = () => {
 		setShowLogs(true);
-	}
+	};
 
 	const fetchUsers = async (page, sortBy, sortOrder) => {
 		try {
@@ -44,6 +45,7 @@ export default function Users() {
 			);
 
 			const { data } = await res.json();
+
 			setUsers(data.users);
 			setLimit(data.limit);
 			setTotalPages(data.totalPages);
@@ -100,9 +102,7 @@ export default function Users() {
 										</div>
 									</th>
 									<th className="w-1/3 px-4 py-2 border-b">
-										<div className="flex items-center justify-center">
-											Logs
-										</div>
+										<div className="flex items-center justify-center">Logs</div>
 									</th>
 								</tr>
 							</thead>
@@ -112,8 +112,14 @@ export default function Users() {
 										<td className="px-4 py-2 border-b">{user.name}</td>
 										<td className="px-4 py-2 border-b">{user.email}</td>
 										<td className="px-4 py-2 border-b">
-											<div className="flex justify-center " onClick={showLogsModal}>
-												<AiFillEye size={20} className="rounded hover:bg-indigo-500" />
+											<div
+												className="flex justify-center "
+												onClick={showLogsModal}
+											>
+												<AiFillEye
+													size={20}
+													className="rounded hover:bg-indigo-500"
+												/>
 											</div>
 										</td>
 									</tr>
@@ -162,7 +168,6 @@ export default function Users() {
 			</div>
 
 			{showLogs && <UserLogs onClose={() => setShowLogs(false)} />}
-
 		</>
 	);
 }
