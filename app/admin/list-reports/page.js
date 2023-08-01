@@ -63,13 +63,22 @@ export default function ReportedUsers() {
         event.preventDefault();
 
         try {
-            if (!validateReportInput(status, duration))
-                throw new Error("Invalid input.");
+            let report = {};
 
-            const report = {
-                status,
-                duration,
-            };
+            if (status === "rejected") {
+                report = {
+                    status: status,
+                    duration: null,
+                };
+            } else {
+                if (!validateReportInput(status, duration))
+                    throw new Error("Invalid input.");
+
+                report = {
+                    status: status,
+                    duration: duration,
+                };
+            }
 
             const res = await fetch(`/api/reports/${reportId}`, {
                 method: "PUT",

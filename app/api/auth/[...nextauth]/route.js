@@ -84,6 +84,7 @@ const authHandler = async (req, res) => {
                         token.email = user.email;
                         token.name = user.name;
                         token.is_admin = user.is_admin;
+                        token.cooldown_until = user.cooldown_until;
                         token.avatar = user.avatar;
                     }
 
@@ -95,6 +96,8 @@ const authHandler = async (req, res) => {
                     session.user.name = token.name;
                     session.user.avatar = token.avatar;
                     if (token.is_admin) session.user.is_admin = token.is_admin;
+                    if (token.cooldown_until)
+                        session.user.cooldown_until = token.cooldown_until;
 
                     return session;
                 },
