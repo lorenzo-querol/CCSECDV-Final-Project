@@ -12,6 +12,7 @@ export default function Post({
     isOwnPost,
     handleLike,
     handleDelete,
+    handleReport,
 }) {
     const {
         name,

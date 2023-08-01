@@ -26,8 +26,8 @@ export default function Home() {
     const [handleButton, setHandleButton] = useState(true);
 
     // TODO Report modal states (WIP)
-    const [showReportModal, setShowReportModal] = useState(false);
     const [reportReason, setReportReason] = useState("");
+    const [showReportModal, setShowReportModal] = useState(false);
 
     const fetchPosts = async () => {
         try {
@@ -55,6 +55,12 @@ export default function Home() {
         } catch (error) {
             console.log(error.message);
         }
+    };
+
+    const handleReport = (event, user_id) => {
+        event.preventDefault();
+
+        setShowReportModal(true);
     };
 
     const handleTextChange = (event) => {

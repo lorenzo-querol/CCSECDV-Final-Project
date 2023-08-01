@@ -3,10 +3,11 @@ import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsFillExclamationTriangleFill } from "react-icons/bs";
 
-export default function ReportModal() {
-    const [reportReason, setReportReason] = useState("");
-    const [showReportModal, setShowReportModal] = useState(false);
-
+export default function ReportModal({
+    reportReason,
+    showReportModal,
+    handleShowReport,
+}) {
     return (
         <div
             className="fixed inset-0 z-50 overflow-y-auto "
