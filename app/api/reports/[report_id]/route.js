@@ -1,31 +1,23 @@
+import {
+	handleDeleteReport,
+	handleGetReport,
+	handleUpdateReport,
+	parseDuration,
+} from "@/utils/reports.helper";
+
 import { NextResponse } from "next/server";
-import { database } from "@/utils/database";
 import { getLogger } from "@/utils/logger";
-import { parseDuration } from "@/utils/report.helper";
+
+const logger = getLogger();
 
 // Matches /api/reports/[report_id]
 // HTTP methods: GET, DELETE, PATCH
 
 export async function GET(req, { params }) {
-	const logger = getLogger();
-
 	try {
 		const { report_id } = params;
 
-		const query =
-			"SELECT report_id, date_created, name, description, status, duration, cooldown_until FROM reports where report_id = ?";
-
-		await database.connect();
-		const result = await database.query(query, [report_id]);
-		await database.end();
-
-		if (result.length === 0)
-			return NextResponse.json({
-				error: "notfound",
-				status: 404,
-				ok: false,
-				data: null,
-			});
+		await handleGetReport(report_id);
 
 		return NextResponse.json({
 			error: null,
@@ -35,8 +27,9 @@ export async function GET(req, { params }) {
 		});
 	} catch (error) {
 		logger.error(error.message);
+
 		return NextResponse.json({
-			error: "internal",
+			error: "Something went wrong.",
 			status: 500,
 			ok: false,
 			data: null,
@@ -45,23 +38,10 @@ export async function GET(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
-	const logger = getLogger();
-
 	try {
 		const { report_id } = params;
-		const query = "DELETE FROM reports WHERE report_id = ?";
 
-		await database.connect();
-		const result = await database.query(query, [report_id]);
-		await database.end();
-
-		if (result.affectedRows === 0)
-			return NextResponse.json({
-				error: "notfound",
-				status: 404,
-				ok: false,
-				data: null,
-			});
+		await handleDeleteReport(report_id);
 
 		return NextResponse.json({
 			error: null,
@@ -71,8 +51,9 @@ export async function DELETE(req, { params }) {
 		});
 	} catch (error) {
 		logger.error(error.message);
+
 		return NextResponse.json({
-			error: "internal",
+			error: "Something went wrong.",
 			status: 500,
 			ok: false,
 			data: null,
@@ -80,31 +61,13 @@ export async function DELETE(req, { params }) {
 	}
 }
 
-export async function PATCH(req, { params }) {
-	const logger = getLogger();
-
+export async function PUT(req, { params }) {
 	try {
 		const { report_id } = params;
 		const { status, duration } = await req.json();
+		const cooldownUntil = parseDuration(duration);
 
-		const coolDown = parseDuration(duration);
-
-		const userQuery = "SELECT user_id FROM reports WHERE report_id = ?";
-		const reportUpdateQuery =
-			"UPDATE reports SET status = ?, duration = ?, cooldown_until = ? WHERE report_id = ?";
-		const updateUserQuery =
-			"UPDATE users SET cooldown_until = ? WHERE user_id = ?";
-
-		await database.connect();
-		await database.query(reportUpdateQuery, [
-			status,
-			duration,
-			coolDown,
-			report_id,
-		]);
-		const userResult = await database.query(userQuery, [report_id]);
-		await database.query(updateUserQuery, [coolDown, userResult[0].user_id]);
-		await database.end();
+		await handleUpdateReport(report_id, status, duration, cooldownUntil);
 
 		return NextResponse.json({
 			error: null,
@@ -115,7 +78,7 @@ export async function PATCH(req, { params }) {
 	} catch (error) {
 		logger.error(error.message);
 		return NextResponse.json({
-			error: "internal",
+			error: "Something went wrong.",
 			status: 500,
 			ok: false,
 			data: null,
