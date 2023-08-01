@@ -8,69 +8,78 @@ import { nanoid } from "nanoid";
 // HTTP methods: GET, POST
 
 export async function POST(req) {
-	const logger = getLogger();
+    const logger = getLogger();
 
-	try {
-		const { user_id, name, description, status } = await req.json();
+    try {
+        const { user_id, name, description, status } = await req.json();
 
-		const report = {
-			report_id: nanoid(),
-			user_id: user_id,
-			name: name,
-			description: description,
-			status: status,
-		};
+        const report = {
+            report_id: nanoid(),
+            user_id: user_id,
+            name: name,
+            description: description,
+            status: status,
+            date_created: new Date(),
+        };
 
-		await handleInsertReport(report);
+        await handleInsertReport(report);
 
-		logger.info(
-			`[${new Date().toLocaleString()}] Report created: ${report.report_id}`,
-		);
+        logger.info(
+            `[${new Date().toLocaleString()}] Report created: ${
+                report.report_id
+            }`
+        );
 
-		return NextResponse.json({
-			error: null,
-			status: 200,
-			ok: true,
-			data: null,
-		});
-	} catch (error) {
-		logger.error(error.message);
+        return NextResponse.json({
+            error: null,
+            status: 200,
+            ok: true,
+            data: null,
+        });
+    } catch (error) {
+        logger.error(error.message);
 
-		return NextResponse.json({
-			error: "Something went wrong.",
-			status: 500,
-			ok: false,
-			data: null,
-		});
-	}
+        return NextResponse.json({
+            error: "Something went wrong.",
+            status: 500,
+            ok: false,
+            data: null,
+        });
+    }
 }
 
 export async function GET(req) {
-	const logger = getLogger();
+    const logger = getLogger();
 
-	try {
-		const page = parseInt(req.nextUrl.searchParams.get("page"), 10) || 1; // default to page 1
-		const limit = 5;
-		const offset = (page - 1) * limit;
-		const sortBy = req.nextUrl.searchParams.get("sortby") || "name";
-		const sortOrder = req.nextUrl.searchParams.get("order") || "ASC";
+    try {
+        const page = parseInt(req.nextUrl.searchParams.get("page"), 10) || 1; // default to page 1
+        const limit = 5;
+        const offset = (page - 1) * limit;
+        const sortBy = req.nextUrl.searchParams.get("sortby") || "name";
+        const sortOrder = req.nextUrl.searchParams.get("order") || "ASC";
 
-		const data = await handleGetReports(page, sortBy, sortOrder, limit, offset);
+        const data = await handleGetReports(
+            page,
+            sortBy,
+            sortOrder,
+            limit,
+            offset
+        );
 
-		return NextResponse.json({
-			error: null,
-			status: 200,
-			ok: true,
-			data: data,
-		});
-	} catch (error) {
-		logger.error(error.message);
+        return NextResponse.json({
+            error: null,
+            status: 200,
+            ok: true,
+            data: data,
+        });
+    } catch (error) {
+        logger.error(error.message);
 
-		return NextResponse.json({
-			error: "Something went wrong.",
-			status: 500,
-			ok: false,
-			data: null,
-		});
-	}
+        return NextResponse.json({
+            error: "Something went wrong.",
+            status: 500,
+            ok: false,
+            data: null,
+        });
+    }
 }

@@ -1,176 +1,185 @@
 import { database } from "@/utils/database";
 
 export const parseDuration = (duration) => {
-	const [value, unit] = duration.split("_");
-	const now = new Date();
-	let offset = 0;
+    const [value, unit] = duration.split("_");
+    const now = new Date();
+    let offset = 0;
 
-	switch (unit) {
-		case "d":
-			offset = value * 24 * 60 * 60 * 1000;
-			break;
-		case "h":
-			offset = value * 60 * 60 * 1000;
-			break;
-		case "m":
-			offset = value * 60 * 1000;
-			break;
-	}
+    switch (unit) {
+        case "d":
+            offset = value * 24 * 60 * 60 * 1000;
+            break;
+        case "h":
+            offset = value * 60 * 60 * 1000;
+            break;
+        case "m":
+            offset = value * 60 * 1000;
+            break;
+    }
 
-	return new Date(now.getTime() + offset);
+    return new Date(now.getTime() + offset);
 };
 
 export const handleInsertReport = async (report) => {
-	try {
-		await database.connect();
-		await database.query(
-			`
-			INSERT INTO reports (report_id, user_id, name, description, status) 
-			VALUES (?, ?, ?, ?, ?)
+    try {
+        await database.connect();
+        await database.query(
+            `
+			INSERT INTO reports (report_id, user_id, name, description, status, date_created) 
+			VALUES (?, ?, ?, ?, ?, ?)
 			`,
-			[
-				report.report_id,
-				report.user_id,
-				report.name,
-				report.description,
-				report.status,
-			],
-		);
-		await database.end();
-	} catch (error) {
-		throw new Error(
-			`[${new Date().toLocaleString()}] handleInsertReport: ${error.message}`,
-		);
-	}
+            [
+                report.report_id,
+                report.user_id,
+                report.name,
+                report.description,
+                report.status,
+                report.date_created,
+            ]
+        );
+        await database.end();
+    } catch (error) {
+        throw new Error(
+            `[${new Date().toLocaleString()}] handleInsertReport: ${
+                error.message
+            }`
+        );
+    }
 };
 
 export const handleUpdateReport = async (
-	report_id,
-	status,
-	duration,
-	cooldownUntil,
+    report_id,
+    status,
+    duration,
+    cooldownUntil
 ) => {
-	try {
-		await database.connect();
-		await database.query(
-			`
+    try {
+        await database.connect();
+        await database.query(
+            `
 			UPDATE reports SET status = ?, duration = ?, cooldown_until = ? 
 			WHERE report_id = ?
 			`,
-			[status, duration, cooldownUntil, report_id],
-		);
+            [status, duration, cooldownUntil, report_id]
+        );
 
-		const result = await database.query(
-			`
+        const result = await database.query(
+            `
 			SELECT user_id FROM reports 
 			WHERE report_id = ?
 			`,
-			[report_id],
-		);
+            [report_id]
+        );
 
-		await database.query(
-			`
+        await database.query(
+            `
 			UPDATE users SET cooldown_until = ? 
 			WHERE user_id = ?
 			`,
-			[cooldownUntil, result[0].user_id],
-		);
-		await database.end();
-	} catch (error) {
-		throw new Error(
-			`[${new Date().toLocaleString()}] handleUpdateReport: ${error.message}`,
-		);
-	}
+            [cooldownUntil, result[0].user_id]
+        );
+        await database.end();
+    } catch (error) {
+        throw new Error(
+            `[${new Date().toLocaleString()}] handleUpdateReport: ${
+                error.message
+            }`
+        );
+    }
 };
 
 export const handleDeleteReport = async (report_id) => {
-	try {
-		await database.connect();
-		await database.query("DELETE FROM reports WHERE report_id = ?", [
-			report_id,
-		]);
+    try {
+        await database.connect();
+        await database.query("DELETE FROM reports WHERE report_id = ?", [
+            report_id,
+        ]);
 
-		const result = await database.query(
-			`
+        const result = await database.query(
+            `
 			SELECT user_id FROM reports
 			WHERE report_id = ?
 			`,
-			[report_id],
-		);
+            [report_id]
+        );
 
-		await database.query(
-			`
+        await database.query(
+            `
 			UPDATE users SET cooldown_until = NULL
 			WHERE user_id = ?
 			`,
-			[result[0].user_id],
-		);
+            [result[0].user_id]
+        );
 
-		await database.end();
-	} catch (error) {
-		throw new Error(
-			`[${new Date().toLocaleString()}] handleDeleteReport: ${error.message}`,
-		);
-	}
+        await database.end();
+    } catch (error) {
+        throw new Error(
+            `[${new Date().toLocaleString()}] handleDeleteReport: ${
+                error.message
+            }`
+        );
+    }
 };
 
 export const handleGetReport = async (report_id) => {
-	try {
-		await database.connect();
-		const result = await database.query(
-			`
+    try {
+        await database.connect();
+        const result = await database.query(
+            `
 			SELECT report_id, date_created, name, description, status, duration, cooldown_until 
 			FROM reports 
 			WHERE report_id = ?
 			`,
-			[report_id],
-		);
-		await database.end();
+            [report_id]
+        );
+        await database.end();
 
-		return result;
-	} catch (error) {
-		throw new Error(
-			`[${new Date().toLocaleString()}] handleGetReport: ${error.message}`,
-		);
-	}
+        return result;
+    } catch (error) {
+        throw new Error(
+            `[${new Date().toLocaleString()}] handleGetReport: ${error.message}`
+        );
+    }
 };
 
 export const handleGetReports = async (
-	page,
-	sortBy,
-	sortOrder,
-	limit,
-	offset,
+    page,
+    sortBy,
+    sortOrder,
+    limit,
+    offset
 ) => {
-	try {
-		await database.connect();
-		const result = await database.query(
-			`
+    try {
+        await database.connect();
+        const result = await database.query(
+            `
 			SELECT report_id, date_created, name, description, status, duration, cooldown_until 
 			FROM reports 
 			ORDER BY ${sortBy} ${sortOrder} 
 			LIMIT ? OFFSET ?
 			`,
-			[limit, offset],
-		);
+            [limit, offset]
+        );
 
-		const totalReports = await database.query(
-			`SELECT COUNT(*) AS count FROM reports`,
-		);
-		await database.end();
+        const totalReports = await database.query(
+            `SELECT COUNT(*) AS count FROM reports`
+        );
+        await database.end();
 
-		const totalPages = Math.ceil(totalReports[0].count / limit);
+        const totalPages = Math.ceil(totalReports[0].count / limit);
 
-		return {
-			page,
-			totalPages,
-			totalReports: totalReports[0].count,
-			limit,
-			reports: result,
-		};
-	} catch (error) {
-		throw new Error(
-			`[${new Date().toLocaleString()}] handleGetReports: ${error.message}`,
-		);
-	}
+        return {
+            page,
+            totalPages,
+            totalReports: totalReports[0].count,
+            limit,
+            reports: result,
+        };
+    } catch (error) {
+        throw new Error(
+            `[${new Date().toLocaleString()}] handleGetReports: ${
+                error.message
+            }`
+        );
+    }
 };

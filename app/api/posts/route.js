@@ -61,6 +61,7 @@ export async function POST(req) {
             name: sanitizeHtml(postInfo.name),
             description: sanitizeHtml(postInfo.description),
             image: postInfo.image,
+            date_created: new Date(),
         };
 
         await handleInsertPost(post);
