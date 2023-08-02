@@ -30,7 +30,7 @@ export default function Home() {
     const [reportReason, setReportReason] = useState("");
     const [reportInfo, setReportInfo] = useState(null);
     const [showReportModal, setShowReportModal] = useState(false);
-
+	const [isCooldown, setCooldown] = useState(false);
     const fetchPosts = async () => {
         try {
             const res = await fetch(`/api/posts`);
@@ -47,7 +47,11 @@ export default function Home() {
             );
             const { data } = await res.json();
             
-            //console.log(Object.keys(data.reports).length)
+            if (Object.keys(data.reports).length)
+            setCooldown(true)
+        else
+            setCooldown(false)
+       
             return Object.keys(data.reports).length
         } catch (error) {
             console.log(error.message);
@@ -252,7 +256,7 @@ export default function Home() {
 
     if (status === "loading") return <Loading />;
     //if (!posts || !likedPosts) return <Loading />;
-    else if (isCurrentlyCooldown > 0) return <TimeOut/>
+    else if (isCooldown) return <TimeOut/>
     else
     return (
         <>

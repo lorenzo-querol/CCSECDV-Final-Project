@@ -13,7 +13,7 @@ export default function Profile() {
 	const [currentTab, setCurrentTab] = useState("posts");
 	const [posts, setPosts] = useState(null);
 	const [likedPosts, setLikedPosts] = useState(new Set());
-
+	const [isCooldown, setCooldown] = useState(false);
 	// TODO Report modal states (WIP)
 	const [showReportModal, setShowReportModal] = useState(false);
 	const [reportReason, setReportReason] = useState("");
@@ -35,7 +35,11 @@ export default function Profile() {
             const { data } = await res.json();
             
             //console.log(Object.keys(data.reports).length)
-            return Object.keys(data.reports).length
+			if (Object.keys(data.reports).length)
+				setCooldown(true)
+			else
+				setCooldown(false)
+           
         } catch (error) {
             console.log(error.message);
         }
@@ -105,14 +109,15 @@ export default function Profile() {
 
 	useEffect(() => {
 		if (session) {
+			isCurrentlyCooldown()
 			fetchPosts();
 			getLikedPosts();
 		}
 	}, [session]);
 
 	if (status === "loading") return <Loading />;
-	if (!posts || !likedPosts) return <Loading />;
-	if (isCurrentlyCooldown > 0) return <TimeOut/>
+	else if (isCooldown) return <TimeOut/>
+	else if (!posts || !likedPosts) return <Loading />;
 	else 
 	return (
 		<div className="flex flex-row h-full overflow-y-auto">
