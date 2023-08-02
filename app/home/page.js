@@ -45,15 +45,11 @@ export default function Home() {
             const res = await fetch(
                 `/api/users/${session.user.user_id}`
             );
-            const { data } = await res.json();  
-            if (data.reports != null || data.reports != undefined && data.status == 'approved') {
-                if (Object.keys(data.reports).length && data.status == 'approved') 
+            const { data } = await res.json();
+                if (data.status == 'approved') 
                     setCooldown(true)
                 else 
                     setCooldown(false)
-                }
-            else 
-                setCooldown(false)
         } catch (error) {
             console.log(error.message);
         }
@@ -133,7 +129,6 @@ export default function Home() {
                     image: image,
                 })
             );
-
             const res = await fetch(`/api/posts`, {
                 method: "POST",
                 body: formData,

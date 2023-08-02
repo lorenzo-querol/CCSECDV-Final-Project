@@ -41,25 +41,19 @@ export const handleGetUser = async (user_id) => {
         );
         const result2 = await database.query(
             `
-            SELECT report_id
-            FROM reports WHERE user_id = ?
-            `,
-            [user_id]
-        );
-        const result3 = await database.query(
-            `
             SELECT  status
             FROM reports WHERE user_id = ?
             `,
             [user_id]
         );
-
-        if(result2 != undefined && result3.status != undefined) {
-            result[0].reports = result2[0]
-            result[0].status = result3[0].status
-        }
-        
         await database.end();
+        result[0].status = 'approved'
+        for (let i = 0; i < result2.length; i++) {
+            if (result2[i].status =="approved") {
+                return result[0]
+            }
+        }
+        result[0].status = 'completed'
 
         return result[0];
     } catch (error) {
