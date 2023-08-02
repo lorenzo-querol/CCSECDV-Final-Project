@@ -117,7 +117,7 @@ export default function Home() {
 
         try {
             //Check if submissiion is valid
-            if (description.length === 0 || description.length > MAX_LENGTH)
+            if ((description.length === 0 && image === null) || (description != "" && description.length > MAX_LENGTH) || (image != null && !isFileTypeEncoded(image)))
                 throw new Error("Invalid submission.");
 
             const formData = new FormData();
