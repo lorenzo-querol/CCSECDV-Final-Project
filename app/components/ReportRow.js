@@ -18,6 +18,10 @@ const getStatus = (status) => {
             return (
                 <div className="px-2 py-1 bg-red-500 rounded-lg">Rejected</div>
             );
+        case "completed":
+            return (
+                <div className="px-2 py-1 bg-indigo-500 rounded-lg">Completed</div>
+            );
     }
 };
 
@@ -36,8 +40,7 @@ export default function ReportRow({ report, handleNameClick, handleSubmit }) {
         <tr>
             <td
                 className="px-4 py-2 border-b cursor-pointer"
-                
-                onClick={() => {handleNameClick(report.post_id)}}
+                onClick={() => { handleNameClick(report.post_id) }}
             >
                 {report.name}
             </td>

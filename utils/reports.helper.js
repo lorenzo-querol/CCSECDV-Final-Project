@@ -42,8 +42,7 @@ export const handleInsertReport = async (report) => {
         await database.end();
     } catch (error) {
         throw new Error(
-            `[${new Date().toLocaleString()}] handleInsertReport: ${
-                error.message
+            `[${new Date().toLocaleString()}] handleInsertReport: ${error.message
             }`
         );
     }
@@ -83,8 +82,7 @@ export const handleUpdateReport = async (
         await database.end();
     } catch (error) {
         throw new Error(
-            `[${new Date().toLocaleString()}] handleUpdateReport: ${
-                error.message
+            `[${new Date().toLocaleString()}] handleUpdateReport: ${error.message
             }`
         );
     }
@@ -116,8 +114,7 @@ export const handleDeleteReport = async (report_id) => {
         await database.end();
     } catch (error) {
         throw new Error(
-            `[${new Date().toLocaleString()}] handleDeleteReport: ${
-                error.message
+            `[${new Date().toLocaleString()}] handleDeleteReport: ${error.message
             }`
         );
     }
@@ -153,6 +150,18 @@ export const handleGetReports = async (
 ) => {
     try {
         await database.connect();
+
+        // Update the status of reports whose cooldown_until has passed and status is "approved"
+        const currentTime = new Date();
+        const updateResult = await database.query(
+            `
+            UPDATE reports
+            SET status = 'completed'
+            WHERE cooldown_until < ? AND status = 'approved'
+            `,
+            [currentTime]
+        );
+
         const result = await database.query(
             `
 			SELECT report_id, post_id, date_created, name, description, status, duration, cooldown_until 
@@ -179,8 +188,7 @@ export const handleGetReports = async (
         };
     } catch (error) {
         throw new Error(
-            `[${new Date().toLocaleString()}] handleGetReports: ${
-                error.message
+            `[${new Date().toLocaleString()}] handleGetReports: ${error.message
             }`
         );
     }
