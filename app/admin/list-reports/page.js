@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import Loading from "@/app/components/Loading";
 import Paginator from "@/app/components/Paginator";
 import ReportsTable from "@/app/components/ReportsTable";
+import ReportProfile from "@/app/components/ReportProfile";
 
 const STATUS = ["pending", "approved", "rejected"];
 
@@ -24,6 +25,7 @@ export default function ReportedUsers() {
     const [limit, setLimit] = useState();
     const [totalPages, setTotalPages] = useState();
     const [totalReports, setTotalReports] = useState();
+    const [showUser, setShowUser] = useState(false);
 
     const [sortBy, setSortBy] = useState("name"); // Default sort by is 'name'
     const [sortOrder, setSortOrder] = useState("ASC"); // Default sort order is 'ASC'
@@ -37,7 +39,7 @@ export default function ReportedUsers() {
     };
 
     const handleNameClick = () => {
-        alert("Go to userProfile");
+        setShowUser(true);
     };
 
     const fetchReports = async (page, sortBy, sortOrder) => {
@@ -100,34 +102,37 @@ export default function ReportedUsers() {
     if (!reports) return <Loading />;
 
     return (
-        <div className="w-full h-full overflow-y-auto">
-            <div className="h-1/2">
-                <div className="flex">
-                    <div className="flex-1 m-2">
-                        <h2 className="px-4 py-2 text-2xl font-bold text-white">
-                            List of Reported Users
-                        </h2>
+        <>
+            <div className="w-full h-full overflow-y-auto">
+                <div className="h-1/2">
+                    <div className="flex">
+                        <div className="flex-1 m-2">
+                            <h2 className="px-4 py-2 text-2xl font-bold text-white">
+                                List of Reported Users
+                            </h2>
+                        </div>
                     </div>
+
+                    <hr className="border-indigo-600" />
+
+                    <ReportsTable
+                        reports={reports}
+                        handleSort={handleSort}
+                        handleNameClick={handleNameClick}
+                        handleSubmit={handleSubmit}
+                    />
+
+                    <Paginator
+                        page={page}
+                        totalPages={totalPages}
+                        handleNext={handleNext}
+                        handlePrev={handlePrev}
+                        totalReports={totalReports}
+                        limit={limit}
+                    />
                 </div>
-
-                <hr className="border-indigo-600" />
-
-                <ReportsTable
-                    reports={reports}
-                    handleSort={handleSort}
-                    handleNameClick={handleNameClick}
-                    handleSubmit={handleSubmit}
-                />
-
-                <Paginator
-                    page={page}
-                    totalPages={totalPages}
-                    handleNext={handleNext}
-                    handlePrev={handlePrev}
-                    totalReports={totalReports}
-                    limit={limit}
-                />
             </div>
-        </div>
+            {showUser && <ReportProfile onClose={() => setShowUser(false)} />}
+        </>
     );
 }
