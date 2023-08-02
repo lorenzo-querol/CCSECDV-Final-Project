@@ -112,7 +112,7 @@ export default function Profile() {
 
 	if (status === "loading") return <Loading />;
 	if (!posts || !likedPosts) return <Loading />;
-	if (isCurrentlyCooldown) return <TimeOut/>
+	if (isCurrentlyCooldown > 0) return <TimeOut/>
 	else 
 	return (
 		<div className="flex flex-row h-full overflow-y-auto">

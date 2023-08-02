@@ -252,7 +252,7 @@ export default function Home() {
 
     if (status === "loading") return <Loading />;
     //if (!posts || !likedPosts) return <Loading />;
-    else if (isCurrentlyCooldown) return <TimeOut/>
+    else if (isCurrentlyCooldown > 0) return <TimeOut/>
     else
     return (
         <>
