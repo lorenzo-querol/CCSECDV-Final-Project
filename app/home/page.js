@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import CreatePostForm from "@/app/components/CreatePostForm";
 import Loading from "@/app/components/Loading";
 import PostList from "@/app/components/PostList";
+import TimeOut from "@/app/components/Timeout";
 import ReportModal from "@/app/components/ReportModal";
 import sanitizeHtml from "sanitize-html";
 import { useSession } from "next-auth/react";
@@ -39,7 +40,19 @@ export default function Home() {
             console.log(error.message);
         }
     };
-
+    const isCurrentlyCooldown = async () => {
+        try {
+            const res = await fetch(
+                `/api/users/${session.user.user_id}`
+            );
+            const { data } = await res.json();
+            
+            //console.log(Object.keys(data.reports).length)
+            return Object.keys(data.reports).length
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
     const getLikedPosts = async () => {
         try {
             const res = await fetch(
@@ -229,7 +242,9 @@ export default function Home() {
     };
 
     useEffect(() => {
+        
         if (session) {
+            isCurrentlyCooldown();
             fetchPosts();
             getLikedPosts();
         }
@@ -237,7 +252,8 @@ export default function Home() {
 
     if (status === "loading") return <Loading />;
     //if (!posts || !likedPosts) return <Loading />;
-
+    else if (isCurrentlyCooldown) return <TimeOut/>
+    else
     return (
         <>
             <div className="flex flex-row h-full overflow-y-auto">

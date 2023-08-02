@@ -39,6 +39,15 @@ export const handleGetUser = async (user_id) => {
             `,
             [user_id]
         );
+        const result2 = await database.query(
+            `
+            SELECT report_id 
+            FROM reports WHERE user_id = ?
+            `,
+            [user_id]
+        );
+        result[0].reports = result2[0]
+
         await database.end();
 
         return result[0];
