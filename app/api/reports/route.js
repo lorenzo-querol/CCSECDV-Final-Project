@@ -11,11 +11,12 @@ export async function POST(req) {
     const logger = getLogger();
 
     try {
-        const { user_id, name, description, status } = await req.json();
+        const { user_id, name, post_id, description, status } = await req.json();
 
         const report = {
             report_id: nanoid(),
             user_id: user_id,
+            post_id: post_id,
             name: name,
             description: description,
             status: status,

@@ -3,10 +3,12 @@ import CustomDate from "./CustomDate";
 
 import { AiOutlineClose, AiOutlineUser } from "react-icons/ai";
 import { BiSort } from "react-icons/bi";
+import Loading from "@/app/components/Loading";
 
-export default function ReportProfile({ onClose }) {
+
+export default function ReportProfile({profile, onClose }) {
    const [showUser, setShowUser] = useState(true);
-
+   if (profile)
    return (
       <div
          className="fixed inset-0 z-50 overflow-y-auto "
@@ -37,7 +39,7 @@ export default function ReportProfile({ onClose }) {
                         </span>
                      </div>
                      <h1 className="my-2 ml-4 text-xl font-bold leading-6 text-gray-900 uppercase">
-                        Name
+                        {profile.name}
                      </h1>
                   </div>
                   <button
@@ -57,16 +59,16 @@ export default function ReportProfile({ onClose }) {
                         {/* Details */}
                         <li className="ml-3">
                            <span className="text-sm font-medium leading-5 text-gray-800 transition duration-150 ease-in-out group-hover:text-gray-300">
-                              &nbsp;&nbsp; Date
+                              &nbsp;&nbsp; <CustomDate dateString={profile.date_created} />
                            </span>
                            <p className="flex-shrink w-auto text-base font-medium text-black">
-                              description
+                              {profile.description}
                            </p>
                            <div className="relative flex mt-2">
-                              image
+                              
                               {/* {image && (
             <Image
-              src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${image}`}
+              src={`${profile.image}`}
               alt="Image Preview"
               className="max-w-40 max-h-64"
               width="1920"
@@ -86,4 +88,6 @@ export default function ReportProfile({ onClose }) {
          </div>
       </div >
    )
+   else
+      return <Loading />;
 }

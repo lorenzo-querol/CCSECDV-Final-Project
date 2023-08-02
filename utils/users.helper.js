@@ -54,7 +54,7 @@ export const handleGetUser = async (user_id) => {
             [user_id]
         );
 
-        if(result2 != undefined && result3 != undefined) {
+        if(result2 != undefined && result3.status != undefined) {
             result[0].reports = result2[0]
             result[0].status = result3[0].status
         }

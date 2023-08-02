@@ -35,6 +35,7 @@ export default function Home() {
         try {
             const res = await fetch(`/api/posts`);
             const { data } = await res.json();
+            console.log(data)
             setPosts(data);
         } catch (error) {
             console.log(error.message);
@@ -45,7 +46,7 @@ export default function Home() {
             const res = await fetch(
                 `/api/users/${session.user.user_id}`
             );
-            const { data } = await res.json();
+            const { data } = await res.json();  
             if (data.reports != null || data.reports != undefined && data.status == 'approved') {
                 if (Object.keys(data.reports).length && data.status == 'approved') 
                     setCooldown(true)
@@ -218,6 +219,7 @@ export default function Home() {
 
         setReportInfo({
             user_id: post.user_id,
+            post_id: post.post_id,
             name: post.name,
         });
     };

@@ -26,7 +26,7 @@ export default function ReportedUsers() {
     const [totalPages, setTotalPages] = useState();
     const [totalReports, setTotalReports] = useState();
     const [showUser, setShowUser] = useState(false);
-
+    const [profile, setProfile] = useState();
     const [sortBy, setSortBy] = useState("name"); // Default sort by is 'name'
     const [sortOrder, setSortOrder] = useState("ASC"); // Default sort order is 'ASC'
 
@@ -38,8 +38,9 @@ export default function ReportedUsers() {
         setSortOrder((prevOrder) => (prevOrder === "ASC" ? "DESC" : "ASC"));
     };
 
-    const handleNameClick = () => {
+    const handleNameClick = async (post_id) => {
         setShowUser(true);
+        fetchReportProfile(post_id)
     };
 
     const fetchReports = async (page, sortBy, sortOrder) => {
@@ -56,11 +57,24 @@ export default function ReportedUsers() {
             setLimit(data.limit);
             setTotalPages(data.totalPages);
             setTotalReports(data.totalReports);
+
         } catch (error) {
             console.log("Something went wrong:", error.message);
         }
     };
+    const fetchReportProfile = async (post_id) => {
+        try {
+            const res = await fetch(
+                `/api/posts/${post_id}`,
+            );
+            
+            const { data } = await res.json();
+            setProfile(data[0])
 
+        } catch (error) {
+            console.log("Something went wrong:", error.message);
+        }
+    };
     const handleSubmit = async (event, status, duration, reportId) => {
         event.preventDefault();
 
@@ -132,7 +146,7 @@ export default function ReportedUsers() {
                     />
                 </div>
             </div>
-            {showUser && <ReportProfile onClose={() => setShowUser(false)} />}
+            {showUser && <ReportProfile profile={profile}onClose={() => setShowUser(false)} />}
         </>
     );
 }

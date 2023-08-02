@@ -32,12 +32,12 @@ export default function ReportRow({ report, handleNameClick, handleSubmit }) {
     const handleTimeUnitChange = (value) => {
         setTimeUnit(value);
     };
-
     return (
         <tr>
             <td
                 className="px-4 py-2 border-b cursor-pointer"
-                onClick={handleNameClick}
+                
+                onClick={() => {handleNameClick(report.post_id)}}
             >
                 {report.name}
             </td>

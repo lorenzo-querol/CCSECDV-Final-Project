@@ -12,6 +12,28 @@ var assert = require("assert");
 
 const logger = getLogger();
 
+export async function GET(req, {params}) {
+    try {
+        const { post_id } = params;
+        const result = await handleGetPost(post_id);
+
+        return NextResponse.json({
+            error: null,
+            status: 200,
+            ok: true,
+            data: result,
+        });
+    } catch (error) {
+        logger.error(error.message);
+
+        return NextResponse.json({
+            error: "Something went wrong.",
+            status: 500,
+            ok: false,
+            data: null,
+        });
+    }
+}
 export async function PUT(req, { params }) {
     try {
         const { post_id } = params;

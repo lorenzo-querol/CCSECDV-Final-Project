@@ -22,15 +22,17 @@ export const parseDuration = (duration) => {
 
 export const handleInsertReport = async (report) => {
     try {
+        console.log(report)
         await database.connect();
         await database.query(
             `
-			INSERT INTO reports (report_id, user_id, name, description, status, date_created) 
-			VALUES (?, ?, ?, ?, ?, ?)
+			INSERT INTO reports (report_id, user_id, post_id, name, description, status, date_created) 
+			VALUES (?, ?, ?, ?, ?, ?, ?)
 			`,
             [
                 report.report_id,
                 report.user_id,
+                report.post_id,
                 report.name,
                 report.description,
                 report.status,
@@ -126,7 +128,7 @@ export const handleGetReport = async (report_id) => {
         await database.connect();
         const result = await database.query(
             `
-			SELECT report_id, date_created, name, description, status, duration, cooldown_until 
+			SELECT report_id, post_id, date_created, name, description, status, duration, cooldown_until 
 			FROM reports 
 			WHERE report_id = ?
 			`,
@@ -153,7 +155,7 @@ export const handleGetReports = async (
         await database.connect();
         const result = await database.query(
             `
-			SELECT report_id, date_created, name, description, status, duration, cooldown_until 
+			SELECT report_id, post_id, date_created, name, description, status, duration, cooldown_until 
 			FROM reports 
 			ORDER BY ${sortBy} ${sortOrder} 
 			LIMIT ? OFFSET ?
