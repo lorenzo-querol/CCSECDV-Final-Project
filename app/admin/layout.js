@@ -11,7 +11,7 @@ import Link from "next/link";
 import { MdReport } from "react-icons/md";
 import control from "@/public/control.png";
 import sidebar from "../layout";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const Menus = [
     {
@@ -29,9 +29,16 @@ const Menus = [
 
 export default function Sidebar({ children }) {
     const router = useRouter();
+    const pathname = usePathname();
+
     const [close, setClose] = useState(false);
     const [activeMenuItem, setActiveMenuItem] = useState(""); // Set initial active menu item by title
     const { data: session, status } = useSession();
+
+    useEffect(() => {
+        const menu = Menus.find((menu) => menu.path === pathname);
+        if (menu) setActiveMenuItem(menu.title);
+    }, [pathname]);
 
     const handleMenuItemClick = (title, path) => {
         setActiveMenuItem(title);
@@ -44,25 +51,22 @@ export default function Sidebar({ children }) {
     return (
         <div className="fixed left-0 flex w-full h-screen">
             <div
-                className={`${
-                    close ? "w-20" : "w-72"
-                } relative h-screen bg-indigo-900 p-5 pt-8 duration-300 flex flex-col justify-start`}
+                className={`${close ? "w-20" : "w-72"
+                    } relative h-screen bg-indigo-900 p-5 pt-8 duration-300 flex flex-col justify-start`}
             >
                 <Image
                     src={control}
                     alt="Control Icon"
-                    className={`absolute -right-3 top-9 w-7 cursor-pointer rounded-full border-2 border-indigo-900  ${
-                        !close && "rotate-180"
-                    }`}
+                    className={`absolute -right-3 top-9 w-7 cursor-pointer rounded-full border-2 border-indigo-900  ${!close && "rotate-180"
+                        }`}
                     onClick={() => setClose(!close)}
                     width={24}
                     height={24}
                 />
                 <div className="flex items-center gap-x-4">
                     <h1
-                        className={`origin-left text-3xl font-medium text-white duration-200 ${
-                            close && "scale-0"
-                        }`}
+                        className={`origin-left text-3xl font-medium text-white duration-200 ${close && "scale-0"
+                            }`}
                     >
                         THOUGHTS.
                     </h1>
@@ -73,20 +77,17 @@ export default function Sidebar({ children }) {
                             <Link
                                 key={index}
                                 href={menu.path}
-                                className={`flex cursor-pointer items-center gap-x-4 rounded-md p-2 text-xl text-white hover:bg-indigo-700 ${
-                                    menu.gap ? "mt-9" : "mt-2"
-                                } ${
-                                    menu.title === activeMenuItem &&
+                                className={`flex cursor-pointer items-center gap-x-4 rounded-md p-2 text-xl text-white hover:bg-indigo-700 ${menu.gap ? "mt-9" : "mt-2"
+                                    } ${menu.title === activeMenuItem &&
                                     "bg-indigo-700"
-                                }`} // Add condition to apply active class
+                                    }`} // Add condition to apply active class
                                 onClick={() => handleMenuItemClick(menu.title)} // Pass the title to the click event handler
                             >
                                 <li className="flex items-center space-x-2">
                                     {menu.icon}
                                     <span
-                                        className={`${
-                                            close && "hidden"
-                                        } origin-left duration-200`}
+                                        className={`${close && "hidden"
+                                            } origin-left duration-200`}
                                     >
                                         {menu.title}
                                     </span>
@@ -105,9 +106,8 @@ export default function Sidebar({ children }) {
                         <div className="flex items-center space-x-2">
                             <AiOutlineLogout />
                             <span
-                                className={`${
-                                    close && "hidden"
-                                } origin-left duration-200`}
+                                className={`${close && "hidden"
+                                    } origin-left duration-200`}
                             >
                                 Log Out
                             </span>
