@@ -50,7 +50,7 @@ export default function CreatePostForm({
 								{" "}
 								Maximum character count exceeded ({MAX_LENGTH}).{" "}
 							</p>
-							
+
 						) : (
 							<p className="items-center font-semibold text-gray-500">
 								{remainingCharacters}/{MAX_LENGTH}
@@ -70,9 +70,10 @@ export default function CreatePostForm({
 							<Image
 								src={image}
 								alt="Image Preview"
-								className="w-full max-h-64"
-								width={500}
-								height={500}
+								className="max-w-40 max-h-64"
+								width="1920"
+								height="1080"
+								style={{ objectFit: 'contain' }}
 							/>
 						</div>
 					)}
