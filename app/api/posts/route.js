@@ -48,11 +48,10 @@ export async function POST(req) {
                 `[${new Date().toLocaleString()}] Invalid submission: description is too long.`
             );
         }
-
-        if (image !== "undefined") {
-            postInfo.image = await handleFileUpload(image, "post");
-        } else {
+        if (image !== undefined || image !== null) {
             postInfo.image = null;
+        } else {
+            postInfo.image = await handleFileUpload(image, "post");
         }
 
         const post = {

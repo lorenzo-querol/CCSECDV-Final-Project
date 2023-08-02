@@ -2,6 +2,8 @@ import { database } from "./database.js";
 
 export const handleInsertPost = async (post) => {
     try {
+        if (post.image === null)
+          post.image = ''
         await database.connect();
         await database.query(
             `
