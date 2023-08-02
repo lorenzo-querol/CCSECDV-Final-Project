@@ -56,7 +56,7 @@ export const handleGetUser = async (user_id) => {
 
         if(result2 != undefined && result3 != undefined) {
             result[0].reports = result2[0]
-            result[0].status = result3[0]
+            result[0].status = result3[0].status
         }
         
         await database.end();
