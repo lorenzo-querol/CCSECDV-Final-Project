@@ -41,7 +41,7 @@ export const handleGetUser = async (user_id) => {
         );
         const result2 = await database.query(
             `
-            SELECT report_id 
+            SELECT report_id, status
             FROM reports WHERE user_id = ?
             `,
             [user_id]

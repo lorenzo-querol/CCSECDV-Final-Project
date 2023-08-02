@@ -46,14 +46,11 @@ export default function Home() {
                 `/api/users/${session.user.user_id}`
             );
             const { data } = await res.json();
-            if (data.reports != null || data.reports != undefined) {
-                if (Object.keys(data.reports).length) {
+            if (data.reports != null || data.reports != undefined && data.status == 'approved') {
+                if (Object.keys(data.reports).length && data.status == 'approved') 
                     setCooldown(true)
-                } 
-                else {
+                else 
                     setCooldown(false)
-                
-                    }
                 }
             else 
                 setCooldown(false)

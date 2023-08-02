@@ -34,9 +34,12 @@ export default function Profile() {
             );
             const { data } = await res.json();
             
-            //console.log(Object.keys(data.reports).length)
-			if (Object.keys(data.reports).length)
-				setCooldown(true)
+			if (data.reports != null || data.reports != undefined && data.status == 'approved') {
+				if (Object.keys(data.reports).length && data.status == 'approved')
+					setCooldown(true)
+				else
+					setCooldown(false)
+			}
 			else
 				setCooldown(false)
            
