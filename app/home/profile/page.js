@@ -6,6 +6,7 @@ import Image from "next/image";
 import PostList from "@/app/components/PostList";
 import Loading from "@/app/components/Loading";
 import { useSession } from "next-auth/react";
+import TimeOut from "@/app/components/Timeout";
 
 export default function Profile() {
 	const { data: session, status } = useSession();
@@ -26,7 +27,19 @@ export default function Profile() {
 			console.log(error.message);
 		}
 	};
-
+    const isCurrentlyCooldown = async () => {
+        try {
+            const res = await fetch(
+                `/api/users/${session.user.user_id}`
+            );
+            const { data } = await res.json();
+            
+            //console.log(Object.keys(data.reports).length)
+            return Object.keys(data.reports).length
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
 	const getLikedPosts = async () => {
 		try {
 			const res = await fetch(`/api/users/${session.user.user_id}/liked-posts`);
@@ -99,7 +112,8 @@ export default function Profile() {
 
 	if (status === "loading") return <Loading />;
 	if (!posts || !likedPosts) return <Loading />;
-
+	if (isCurrentlyCooldown) return <TimeOut/>
+	else 
 	return (
 		<div className="flex flex-row h-full overflow-y-auto">
 			{/* Middle */}
