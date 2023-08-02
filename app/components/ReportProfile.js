@@ -4,7 +4,7 @@ import CustomDate from "./CustomDate";
 import { AiOutlineClose, AiOutlineUser } from "react-icons/ai";
 import { BiSort } from "react-icons/bi";
 import Loading from "@/app/components/Loading";
-
+import Image from 'next/image';
 
 export default function ReportProfile({profile, onClose }) {
    const [showUser, setShowUser] = useState(true);
@@ -66,16 +66,16 @@ export default function ReportProfile({profile, onClose }) {
                            </p>
                            <div className="relative flex mt-2">
                               
-                              {/* {image && (
+                               {profile.image && (
             <Image
-              src={`${profile.image}`}
+            src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${profile.image}`}
               alt="Image Preview"
               className="max-w-40 max-h-64"
               width="1920"
               height="1080"
               style={{ objectFit: 'contain' }}
             />
-          )} */}
+          )} 
                            </div>
                         </li>
                      </div>

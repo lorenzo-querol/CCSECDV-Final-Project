@@ -35,7 +35,6 @@ export default function Home() {
         try {
             const res = await fetch(`/api/posts`);
             const { data } = await res.json();
-            console.log(data)
             setPosts(data);
         } catch (error) {
             console.log(error.message);
