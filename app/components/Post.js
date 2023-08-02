@@ -124,14 +124,15 @@ export default function Post({
 				</p>
 
 				{/* Check if there's an image otherwise, show nothing. */}
-				<div className="relative mt-2">
+				<div className="relative mt-2 flex">
 					{image && (
 						<Image
 							src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${image}`}
 							alt="Image Preview"
-							className="w-full max-w-80 max-h-64"
-							width="80"
-							height="64"
+							className="max-w-40 max-h-64"
+							width="1920"
+							height="1080"
+							style={{ objectFit: 'contain' }}
 						/>
 					)}
 				</div>
