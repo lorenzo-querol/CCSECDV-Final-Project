@@ -7,10 +7,10 @@ import Paginator from "@/app/components/Paginator";
 import ReportsTable from "@/app/components/ReportsTable";
 import ReportProfile from "@/app/components/ReportProfile";
 
-const STATUS = ["pending", "approved", "rejected"];
+const STATUS = ["pending", "approved", "rejected", "competed"];
 
 const validateReportInput = (status, duration) => {
-    // Status must be one of the following: pending, approved, rejected
+    // Status must be one of the following: pending, approved, rejected, completed
     if (!STATUS.includes(status)) return false;
 
     // Must be in the format of: NUMBER_{d|m|h}
@@ -67,7 +67,7 @@ export default function ReportedUsers() {
             const res = await fetch(
                 `/api/posts/${post_id}`,
             );
-            
+
             const { data } = await res.json();
             setProfile(data[0])
 
@@ -146,7 +146,7 @@ export default function ReportedUsers() {
                     />
                 </div>
             </div>
-            {showUser && <ReportProfile profile={profile}onClose={() => setShowUser(false)} />}
+            {showUser && <ReportProfile profile={profile} onClose={() => setShowUser(false)} />}
         </>
     );
 }
