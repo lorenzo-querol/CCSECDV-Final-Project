@@ -18,7 +18,6 @@ export const handleInsertUser = async (user) => {
                 user.avatar,
             ]
         );
-
         await database.end();
     } catch (error) {
         throw new Error(
@@ -30,32 +29,43 @@ export const handleInsertUser = async (user) => {
 };
 
 export const handleGetUser = async (user_id) => {
+    let user, statusResults;
+
     try {
         await database.connect();
-        const result = await database.query(
-            `
-            SELECT email, first_name, last_name, password, phone_num, avatar
-            FROM users WHERE user_id = ?
-            `,
-            [user_id]
-        );
-        const result2 = await database.query(
-            `
-            SELECT  status
-            FROM reports WHERE user_id = ?
-            `,
-            [user_id]
-        );
-        await database.end();
-        result[0].status = 'approved'
-        for (let i = 0; i < result2.length; i++) {
-            if (result2[i].status =="approved") {
-                return result[0]
-            }
-        }
-        result[0].status = 'completed'
 
-        return result[0];
+        await database
+            .transaction()
+            .query(
+                `
+                SELECT email, first_name, last_name, password, phone_num, avatar
+                FROM users WHERE user_id = ?
+                `,
+                [user_id]
+            )
+            .query((result) => {
+                user = result[0];
+                return [
+                    `SELECT status FROM reports WHERE user_id = ?`,
+                    [user_id],
+                ];
+            })
+            .query((result) => {
+                statusResults = result;
+            })
+            .rollback((error) => {
+                throw new Error(error);
+            })
+            .commit();
+
+        await database.end();
+
+        user.status = "approved";
+        for (const item of statusResults)
+            if (item.status === "approved") return user[0];
+        user.status = "completed";
+
+        return user;
     } catch (error) {
         throw new Error(
             `[${new Date().toLocaleString()}] handleGetUser: ${error.message}`
@@ -70,25 +80,37 @@ export const handleGetUsers = async (
     limit,
     offset
 ) => {
+    let users, totalUsers;
+
     try {
         await database.connect();
-        const result = await database.query(
-            `
-            SELECT user_id, email, CONCAT(first_name,' ',last_name) AS name
-            FROM users
-            ORDER BY ${sortBy} ${sortOrder} 
-            LIMIT ? OFFSET ?
-            `,
-            [limit, offset]
-        );
-        const totalUsers = await database.query(
-            "SELECT COUNT(*) AS count FROM users"
-        );
+        await database
+            .transaction()
+            .query(
+                `
+                SELECT user_id, email, CONCAT(first_name,' ',last_name) AS name
+                FROM users
+                ORDER BY ${sortBy} ${sortOrder} 
+                LIMIT ? OFFSET ?
+                `,
+                [limit, offset]
+            )
+            .query((result) => {
+                users = result;
+                return [`SELECT COUNT(*) AS count FROM users`];
+            })
+            .query((result) => {
+                totalUsers = result[0];
+            })
+            .rollback((error) => {
+                throw new Error(error);
+            })
+            .commit();
         await database.end();
 
-        const totalPages = Math.ceil(totalUsers[0].count / limit);
+        const totalPages = Math.ceil(totalUsers.count / limit);
 
-        const users = result.map((user) => ({
+        users = users.map((user) => ({
             id: user.user_id,
             email: user.email,
             name: user.name,
@@ -97,7 +119,7 @@ export const handleGetUsers = async (
         return {
             page,
             totalPages,
-            totalUsers: totalUsers[0].count,
+            totalUsers: totalUsers.count,
             limit,
             users: users,
         };
@@ -111,16 +133,16 @@ export const handleGetUsers = async (
 export const handleDeleteUser = async (user_id) => {
     try {
         await database.connect();
-
-        await database.query("DELETE FROM users WHERE user_id = ?", [user_id]);
-        await database.query("DELETE FROM posts WHERE user_id = ?", [user_id]);
-        await database.query("DELETE FROM liked_posts WHERE user_id = ?", [
-            user_id,
-        ]);
-        await database.query("DELETE FROM reports WHERE user_id = ?", [
-            user_id,
-        ]);
-
+        await database
+            .transaction()
+            .query(`DELETE FROM users WHERE user_id = ?`, [user_id])
+            .query(`DELETE FROM posts WHERE user_id = ?`, [user_id])
+            .query(`DELETE FROM liked_posts WHERE user_id = ?`, [user_id])
+            .query(`DELETE FROM reports WHERE user_id = ?`, [user_id])
+            .rollback((error) => {
+                throw new Error(error);
+            })
+            .commit();
         await database.end();
     } catch (error) {
         throw new Error(
@@ -187,7 +209,6 @@ export const handleGetLikedPosts = async (user_id) => {
             `,
             [user_id]
         );
-
         await database.end();
 
         return result;

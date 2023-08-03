@@ -22,7 +22,6 @@ export const parseDuration = (duration) => {
 
 export const handleInsertReport = async (report) => {
     try {
-        console.log(report)
         await database.connect();
         await database.query(
             `
@@ -42,7 +41,8 @@ export const handleInsertReport = async (report) => {
         await database.end();
     } catch (error) {
         throw new Error(
-            `[${new Date().toLocaleString()}] handleInsertReport: ${error.message
+            `[${new Date().toLocaleString()}] handleInsertReport: ${
+                error.message
             }`
         );
     }
@@ -56,33 +56,42 @@ export const handleUpdateReport = async (
 ) => {
     try {
         await database.connect();
-        await database.query(
-            `
-			UPDATE reports SET status = ?, duration = ?, cooldown_until = ? 
-			WHERE report_id = ?
-			`,
-            [status, duration, cooldownUntil, report_id]
-        );
 
-        const result = await database.query(
-            `
-			SELECT user_id FROM reports 
-			WHERE report_id = ?
-			`,
-            [report_id]
-        );
+        await database
+            .transaction()
+            .query(
+                `
+                UPDATE reports SET status = ?, duration = ?, cooldown_until = ? 
+                WHERE report_id = ?
+                `,
+                [status, duration, cooldownUntil, report_id]
+            )
+            .query(
+                `
+                SELECT user_id FROM reports 
+                WHERE report_id = ?
+                `,
+                [report_id]
+            )
+            .query((result) => {
+                return [
+                    `
+                    UPDATE users SET cooldown_until = ? 
+                    WHERE user_id = ?
+                    `,
+                    [cooldownUntil, result[0].user_id],
+                ];
+            })
+            .rollback((error) => {
+                throw new Error(error);
+            })
+            .commit();
 
-        await database.query(
-            `
-			UPDATE users SET cooldown_until = ? 
-			WHERE user_id = ?
-			`,
-            [cooldownUntil, result[0].user_id]
-        );
         await database.end();
     } catch (error) {
         throw new Error(
-            `[${new Date().toLocaleString()}] handleUpdateReport: ${error.message
+            `[${new Date().toLocaleString()}] handleUpdateReport: ${
+                error.message
             }`
         );
     }
@@ -91,30 +100,34 @@ export const handleUpdateReport = async (
 export const handleDeleteReport = async (report_id) => {
     try {
         await database.connect();
-        await database.query("DELETE FROM reports WHERE report_id = ?", [
-            report_id,
-        ]);
-
-        const result = await database.query(
-            `
-			SELECT user_id FROM reports
-			WHERE report_id = ?
-			`,
-            [report_id]
-        );
-
-        await database.query(
-            `
-			UPDATE users SET cooldown_until = NULL
-			WHERE user_id = ?
-			`,
-            [result[0].user_id]
-        );
-
+        await database
+            .transaction()
+            .query("DELETE FROM reports WHERE report_id = ?", [report_id])
+            .query(
+                `
+                SELECT user_id FROM reports
+                WHERE report_id = ?
+                `,
+                [report_id]
+            )
+            .query((result) => {
+                return [
+                    `
+                    UPDATE users SET cooldown_until = NULL
+                    WHERE user_id = ?
+                    `,
+                    [result[0].user_id],
+                ];
+            })
+            .rollback((error) => {
+                throw new Error(error);
+            })
+            .commit();
         await database.end();
     } catch (error) {
         throw new Error(
-            `[${new Date().toLocaleString()}] handleDeleteReport: ${error.message
+            `[${new Date().toLocaleString()}] handleDeleteReport: ${
+                error.message
             }`
         );
     }
@@ -126,8 +139,7 @@ export const handleGetReport = async (report_id) => {
         const result = await database.query(
             `
 			SELECT report_id, post_id, date_created, name, description, status, duration, cooldown_until 
-			FROM reports 
-			WHERE report_id = ?
+			FROM reports WHERE report_id = ?
 			`,
             [report_id]
         );
@@ -148,47 +160,56 @@ export const handleGetReports = async (
     limit,
     offset
 ) => {
+    let reports, totalReports;
+    const currentTime = new Date();
+
     try {
         await database.connect();
-
-        // Update the status of reports whose cooldown_until has passed and status is "approved"
-        const currentTime = new Date();
-        const updateResult = await database.query(
-            `
-            UPDATE reports
-            SET status = 'completed'
-            WHERE cooldown_until < ? AND status = 'approved'
-            `,
-            [currentTime]
-        );
-
-        const result = await database.query(
-            `
-			SELECT report_id, post_id, date_created, name, description, status, duration, cooldown_until 
-			FROM reports 
-			ORDER BY ${sortBy} ${sortOrder} 
-			LIMIT ? OFFSET ?
-			`,
-            [limit, offset]
-        );
-
-        const totalReports = await database.query(
-            `SELECT COUNT(*) AS count FROM reports`
-        );
+        await database
+            .transaction()
+            .query(
+                ` 
+                UPDATE reports  
+                SET status = 'completed'
+                WHERE cooldown_until < ? AND status = 'approved'
+                `,
+                [currentTime] // Update the status of reports whose cooldown_until has passed and status is "approved"
+            )
+            .query(
+                `
+                SELECT report_id, post_id, date_created, name, description, status, duration, cooldown_until 
+                FROM reports 
+                ORDER BY ${sortBy} ${sortOrder} 
+                LIMIT ? OFFSET ?
+                `,
+                [limit, offset]
+            )
+            .query((result) => {
+                reports = result;
+                return [`SELECT COUNT(*) AS count FROM reports`];
+            })
+            .query((result) => {
+                totalReports = result[0];
+            })
+            .rollback((error) => {
+                throw new Error(error);
+            })
+            .commit();
         await database.end();
 
-        const totalPages = Math.ceil(totalReports[0].count / limit);
+        const totalPages = Math.ceil(totalReports.count / limit);
 
         return {
             page,
             totalPages,
-            totalReports: totalReports[0].count,
+            totalReports: totalReports.count,
             limit,
-            reports: result,
+            reports: reports,
         };
     } catch (error) {
         throw new Error(
-            `[${new Date().toLocaleString()}] handleGetReports: ${error.message
+            `[${new Date().toLocaleString()}] handleGetReports: ${
+                error.message
             }`
         );
     }

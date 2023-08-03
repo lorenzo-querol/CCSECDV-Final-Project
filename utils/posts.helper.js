@@ -2,8 +2,8 @@ import { database } from "./database.js";
 
 export const handleInsertPost = async (post) => {
     try {
-        if (post.image === null)
-          post.image = ''
+        if (post.image === null) post.image = "";
+
         await database.connect();
         await database.query(
             `
@@ -51,10 +51,14 @@ export const handleUpdatePost = async (post_id, heart_count) => {
 export const handlePostDelete = async (post_id) => {
     try {
         await database.connect();
-        await database.query("DELETE FROM posts WHERE post_id = ?", [post_id]);
-        await database.query(`DELETE FROM liked_posts WHERE post_id = ?`, [
-            post_id,
-        ]);
+        await database
+            .transaction()
+            .query("DELETE FROM posts WHERE post_id = ?", [post_id])
+            .query(`DELETE FROM liked_posts WHERE post_id = ?`, [post_id])
+            .rollback((error) => {
+                throw new Error(error);
+            })
+            .commit();
         await database.end();
     } catch (error) {
         throw new Error(
