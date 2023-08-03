@@ -57,14 +57,19 @@ export const handleGetUser = async (user_id) => {
                 throw new Error(error);
             })
             .commit();
-
         await database.end();
-
         user.status = "approved";
-        for (const item of statusResults)
-            if (item.status === "approved") return user[0];
+        
+        for (const item of statusResults) {
+            if (item.status === "approved") {
+                user.status = item.status
+                return user;     
+            }
+            i++;
+       
+        }   
+            
         user.status = "completed";
-
         return user;
     } catch (error) {
         throw new Error(
