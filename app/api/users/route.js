@@ -16,7 +16,14 @@ export async function POST(req) {
         let userInfo = JSON.parse(data.get("userInfo"));
         const avatar = data.get("avatar");
 
-        if (!validateData(firstName, lastName, phoneNumber, email))
+        if (
+            !validateData(
+                userInfo.firstName,
+                userInfo.lastName,
+                userInfo.phoneNumber,
+                userInfo.email
+            )
+        )
             throw new Error("Invalid data provided.");
 
         if (!checkPassword(userInfo.password, userInfo.confirmPassword)) {
