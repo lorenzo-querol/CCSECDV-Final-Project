@@ -2,36 +2,61 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 const ADMIN_ROUTES = [
-    { method: "GET", pathname: "/api/users" },
-    { method: "GET", pathname: "/api/reports" },
+	{ method: ["GET"], pathname: "/api/users" },
+	{ method: ["GET", "POST", "PUT", "DELETE"], pathname: "/api/reports" },
 ];
 
-export const verifyToken = async (req) => {
-    try {
-        const token = await getToken({ req });
+const checkTokenExists = (token) => {
+	return token !== null;
+};
 
-        if (!token) {
-            return {
-                verified: false,
-                response: NextResponse.json({
-                    error: "Unauthorized access",
-                    status: 403,
-                    ok: false,
-                    data: null,
-                }),
-            };
-        }
+const verifyAdminRoute = (token, req) => {
+	const isAdminApiRoute = ADMIN_ROUTES.some((route) => {
+		const isMethodMatch = route.method.includes(req.method);
+		const isPathnameMatch = route.pathname === req.nextUrl.pathname;
 
-        // check if token has is_admin property
-        // if (!token.is_admin)
-        //     // check if the route is admin-only
-        //     if (req.nextUrl.pathname.includes("admin")) {
+		return isMethodMatch && isPathnameMatch;
+	});
 
-        return {
-            verified: true,
-            response: null,
-        };
-    } catch (error) {
-        throw new Error(`verifyToken - ${error.message}`);
-    }
+	return !(isAdminApiRoute && !token.is_admin);
+};
+
+const verifyUserId = (token, user_id) => {
+	return token.user_id === user_id;
+};
+
+const verifyAdmin = (token) => {
+	return token.is_admin;
+};
+
+const unauthorizedResponse = () => {
+	return {
+		verified: false,
+		response: NextResponse.json({
+			error: "Unauthorized access",
+			status: 403,
+			ok: false,
+			data: null,
+		}),
+	};
+};
+
+export const verifyToken = async (req, user_id = "") => {
+	try {
+		const token = await getToken({ req });
+
+		if (!checkTokenExists(token)) return unauthorizedResponse();
+		if (!verifyAdminRoute(token, req)) return unauthorizedResponse();
+
+		// This bypasses the user_id check if the user is an admin
+		if (!verifyAdmin(token))
+			if (!verifyUserId(token, user_id)) return unauthorizedResponse();
+
+		return {
+			verified: true,
+			response: null,
+		};
+	} catch (error) {
+		throw new Error(`verifyToken - ${error.message}`);
+	}
 };

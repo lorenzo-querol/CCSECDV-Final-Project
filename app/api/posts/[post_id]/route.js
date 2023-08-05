@@ -7,7 +7,6 @@ import {
 import { NextResponse } from "next/server";
 import assert from "assert";
 import { getLogger } from "@/utils/logger";
-import { getToken } from "next-auth/jwt";
 import { handleFileDelete } from "@/utils/file.helper";
 import { verifyToken } from "@/utils/auth.helper";
 
@@ -15,10 +14,11 @@ const logger = getLogger();
 
 // Matches /api/posts/[post_id]
 // HTTP methods: GET, PUT, DELETE
+// All public routes
 
 export async function GET(req, { params }) {
 	try {
-		const { verified, response } = await verifyToken(req);
+		const { verified, response } = await verifyToken(req, user_id);
 		if (!verified) return response;
 
 		const { post_id } = params;
@@ -44,7 +44,7 @@ export async function GET(req, { params }) {
 
 export async function PUT(req, { params }) {
 	try {
-		const { verified, response } = await verifyToken(req);
+		const { verified, response } = await verifyToken(req, user_id);
 		if (!verified) return response;
 
 		const { post_id } = params;
@@ -81,7 +81,7 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
 	try {
-		const { verified, response } = await verifyToken(req);
+		const { verified, response } = await verifyToken(req, user_id);
 		if (!verified) return response;
 
 		const { post_id } = params;

@@ -11,10 +11,11 @@ const logger = getLogger();
 
 // Matches /api/posts
 // HTTP methods: GET, POST
+// All public routes
 
 export async function GET(req) {
 	try {
-		const { verified, response } = await verifyToken(req);
+		const { verified, response } = await verifyToken(req, user_id);
 		if (!verified) return response;
 
 		const result = await handleGetPosts();
@@ -39,7 +40,7 @@ export async function GET(req) {
 
 export async function POST(req) {
 	try {
-		const { verified, response } = await verifyToken(req);
+		const { verified, response } = await verifyToken(req, user_id);
 		if (!verified) return response;
 
 		const data = await req.formData();

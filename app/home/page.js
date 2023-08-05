@@ -5,8 +5,8 @@ import React, { useEffect, useState } from "react";
 import CreatePostForm from "@/app/components/CreatePostForm";
 import Loading from "@/app/components/Loading";
 import PostList from "@/app/components/PostList";
-import TimeOut from "@/app/components/Timeout";
 import ReportModal from "@/app/components/ReportModal";
+import TimeOut from "@/app/components/Timeout";
 import sanitizeHtml from "sanitize-html";
 import { useSession } from "next-auth/react";
 
@@ -14,305 +14,297 @@ const MAX_LENGTH = 180;
 const SUPPORTED_MIME_TYPES = ["image/jpeg", "image/png", "image/jpg"];
 
 export default function Home() {
-    const { data: session, status } = useSession();
-    const [posts, setPosts] = useState(null);
-    const [likedPosts, setLikedPosts] = useState(new Set());
-    const [imageError, setImageError] = useState("");
+	const { data: session, status } = useSession();
+	const [posts, setPosts] = useState(null);
+	const [likedPosts, setLikedPosts] = useState(new Set());
+	const [imageError, setImageError] = useState("");
 
-    // Submission states
-    const [text, setText] = useState("");
-    const [image, setImage] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null);
-    const [remainingCharacters, setRemainingCharacters] = useState(MAX_LENGTH);
-    const [handleButton, setHandleButton] = useState(true);
+	// Submission states
+	const [text, setText] = useState("");
+	const [image, setImage] = useState(null);
+	const [imagePreview, setImagePreview] = useState(null);
+	const [remainingCharacters, setRemainingCharacters] = useState(MAX_LENGTH);
+	const [handleButton, setHandleButton] = useState(true);
 
-    // TODO Report modal states (WIP)
-    const [reportReason, setReportReason] = useState("");
-    const [reportInfo, setReportInfo] = useState(null);
-    const [showReportModal, setShowReportModal] = useState(false);
+	// Report states
+	const [reportReason, setReportReason] = useState("");
+	const [reportInfo, setReportInfo] = useState(null);
+	const [showReportModal, setShowReportModal] = useState(false);
 	const [isCooldown, setCooldown] = useState(false);
-    const fetchPosts = async () => {
-        try {
-            const res = await fetch(`/api/posts`);
-            const { data } = await res.json();
-            setPosts(data);
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
-    const isCurrentlyCooldown = async () => {
-        try {
-            const res = await fetch(
-                `/api/users/${session.user.user_id}`
-            );
-            const { data } = await res.json();
-                if (data.status == 'approved') 
-                    setCooldown(true)
-                else 
-                    setCooldown(false)
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
-    const getLikedPosts = async () => {
-        try {
-            const res = await fetch(
-                `/api/users/${session.user.user_id}/liked-posts`
-            );
-            const { data } = await res.json();
-            if (!data) {
-                setLikedPosts(new Set());
-                return;
-            }
 
-            const likedPosts = new Set(data.map((post) => post.post_id));
-            setLikedPosts(likedPosts);
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
+	const fetchPosts = async () => {
+		try {
+			const res = await fetch(`/api/posts`);
+			const { data } = await res.json();
+			setPosts(data);
+		} catch (error) {
+			console.log(error.message);
+		}
+	};
 
-    const handleTextChange = (event) => {
-        const inputText = sanitizeHtml(event.target.value.trim());
-        const charCount = inputText.length;
-        if (charCount === 0 || charCount > MAX_LENGTH) {
-            setHandleButton(true);
-        } else {
-            setHandleButton(false);
-            setImageError("");
-        }
-        setRemainingCharacters(MAX_LENGTH - charCount);
-        setText(inputText);
-    };
+	const isCurrentlyCooldown = async () => {
+		try {
+			const res = await fetch(`/api/users/${session.user.user_id}`);
+			const { data } = await res.json();
+			if (data.status == "approved") setCooldown(true);
+			else setCooldown(false);
+		} catch (error) {
+			console.log(error.message);
+		}
+	};
 
-    const handleImageChange = (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
+	const getLikedPosts = async () => {
+		try {
+			const res = await fetch(`/api/users/${session.user.user_id}/liked-posts`);
+			const { data } = await res.json();
+			if (!data) {
+				setLikedPosts(new Set());
+				return;
+			}
 
-        if (!SUPPORTED_MIME_TYPES.includes(file.type)) {
-            setImageError("Invalid File Type");
-            setImage(null);
-            setHandleButton(true);
-            return;
-        }
+			const likedPosts = new Set(data.map((post) => post.post_id));
+			setLikedPosts(likedPosts);
+		} catch (error) {
+			console.log(error.message);
+		}
+	};
 
-        setImage(file);
-        setImagePreview(URL.createObjectURL(file));
-    };
+	const handleTextChange = (event) => {
+		const inputText = sanitizeHtml(event.target.value.trim());
+		const charCount = inputText.length;
+		if (charCount === 0 || charCount > MAX_LENGTH) {
+			setHandleButton(true);
+		} else {
+			setHandleButton(false);
+			setImageError("");
+		}
+		setRemainingCharacters(MAX_LENGTH - charCount);
+		setText(inputText);
+	};
 
-    const handleRemoveImage = (event) => {
-        setImage(null);
-        setImagePreview(null);
-    };
+	const handleImageChange = (event) => {
+		const file = event.target.files[0];
+		if (!file) return;
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+		if (!SUPPORTED_MIME_TYPES.includes(file.type)) {
+			setImageError("Invalid File Type");
+			setImage(null);
+			setHandleButton(true);
+			return;
+		}
 
-        const description = sanitizeHtml(
-            event.target.elements["post-textarea"].value
-        );
+		setImage(file);
+		setImagePreview(URL.createObjectURL(file));
+	};
 
-        try {
-            //Check if submissiion is valid
-            if (description.length === 0 || description.length > MAX_LENGTH)
-                throw new Error("Invalid submission.");
+	const handleRemoveImage = (event) => {
+		setImage(null);
+		setImagePreview(null);
+	};
 
-            const formData = new FormData();
-            formData.append("image", image);
-            formData.append(
-                "postInfo",
-                JSON.stringify({
-                    description: description,
-                    avatar: session.user.avatar,
-                    user_id: session.user.user_id,
-                    name: session.user.name,
-                    image: image,
-                })
-            );
-            const res = await fetch(`/api/posts`, {
-                method: "POST",
-                body: formData,
-            });
+	const handleSubmit = async (event) => {
+		event.preventDefault();
 
-            const { ok } = await res.json();
-            if (!ok) throw new Error("Error creating post.");
+		const description = sanitizeHtml(
+			event.target.elements["post-textarea"].value,
+		);
 
-            // Reset state of submission box
-            event.target.reset();
-            setImage(null);
-            setImagePreview(null);
-            setRemainingCharacters(MAX_LENGTH);
+		try {
+			//Check if submissiion is valid
+			if (description.length === 0 || description.length > MAX_LENGTH)
+				throw new Error("Invalid submission.");
 
-            await fetchPosts();
-            await getLikedPosts();
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
+			const formData = new FormData();
+			formData.append("image", image);
+			formData.append(
+				"postInfo",
+				JSON.stringify({
+					description: description,
+					avatar: session.user.avatar,
+					user_id: session.user.user_id,
+					name: session.user.name,
+					image: image,
+				}),
+			);
+			const res = await fetch(`/api/posts`, {
+				method: "POST",
+				body: formData,
+			});
 
-    const handleLike = async (event, postId) => {
-        event.preventDefault();
+			const { ok } = await res.json();
+			if (!ok) throw new Error("Error creating post");
 
-        const newLikedPosts = new Set(likedPosts);
-        if (likedPosts.has(postId)) newLikedPosts.delete(postId);
-        else newLikedPosts.add(postId);
-        setLikedPosts(newLikedPosts);
+			// Reset state of submission box
+			event.target.reset();
+			setImage(null);
+			setImagePreview(null);
+			setRemainingCharacters(MAX_LENGTH);
 
-        const heartCount = likedPosts.has(postId) ? -1 : 1;
+			await fetchPosts();
+			await getLikedPosts();
+		} catch (error) {
+			console.log(error.message);
+		}
+	};
 
-        try {
-            const postPromise = fetch(`/api/posts/${postId}`, {
-                method: "PUT",
-                body: JSON.stringify({ heart_count: heartCount }),
-            });
+	const handleLike = async (event, postId) => {
+		event.preventDefault();
 
-            const userPromise = fetch(
-                `/api/users/${session.user.user_id}/liked-posts/${postId}`,
-                {
-                    method: heartCount === 1 ? "POST" : "DELETE",
-                }
-            );
+		const newLikedPosts = new Set(likedPosts);
+		if (likedPosts.has(postId)) newLikedPosts.delete(postId);
+		else newLikedPosts.add(postId);
+		setLikedPosts(newLikedPosts);
 
-            const [post, user] = await Promise.all([postPromise, userPromise]);
-            const { ok: postOk } = await post.json();
-            const { ok: userOk } = await user.json();
-            if (!postOk && !userOk) throw new Error("Error liking post");
+		const heartCount = likedPosts.has(postId) ? -1 : 1;
 
-            await fetchPosts();
-            await getLikedPosts();
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
+		try {
+			const postPromise = fetch(`/api/posts/${postId}`, {
+				method: "PUT",
+				body: JSON.stringify({ heart_count: heartCount }),
+			});
 
-    const handleDelete = async (postId) => {
-        try {
-            const res = await fetch(`/api/posts/${postId}`, {
-                method: "DELETE",
-            });
-            const { ok } = await res.json();
-            if (!ok) throw new Error("Error deleting post.");
+			const userPromise = fetch(
+				`/api/users/${session.user.user_id}/liked-posts/${postId}`,
+				{
+					method: heartCount === 1 ? "POST" : "DELETE",
+				},
+			);
 
-            await fetchPosts();
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
+			const [post, user] = await Promise.all([postPromise, userPromise]);
+			const { ok: postOk } = await post.json();
+			const { ok: userOk } = await user.json();
+			if (!postOk && !userOk) throw new Error("Error liking post");
 
-    const handleShowReportModal = (event) => {
-        event.preventDefault();
-        setShowReportModal(!showReportModal);
-    };
+			await fetchPosts();
+			await getLikedPosts();
+		} catch (error) {
+			console.log(error.message);
+		}
+	};
 
-    const handleReportReasonChange = (event) => {
-        setReportReason(event.target.value);
-    };
+	const handleDelete = async (postId) => {
+		try {
+			const res = await fetch(`/api/posts/${postId}`, {
+				method: "DELETE",
+			});
+			const { ok } = await res.json();
+			if (!ok) throw new Error("Error deleting post.");
 
-    const handlePostClicked = (event, post) => {
-        event.preventDefault();
+			await fetchPosts();
+		} catch (error) {
+			console.log(error.message);
+		}
+	};
 
-        setReportInfo({
-            user_id: post.user_id,
-            post_id: post.post_id,
-            name: post.name,
-        });
-    };
+	const handleShowReportModal = (event) => {
+		event.preventDefault();
+		setShowReportModal(!showReportModal);
+	};
 
-    const handleSubmitReport = async (event) => {
-        event.preventDefault();
+	const handleReportReasonChange = (event) => {
+		setReportReason(event.target.value);
+	};
 
-        try {
-            const report = {
-                ...reportInfo,
-                description: reportReason,
-                status: "pending",
-            };
+	const handlePostClicked = (event, post) => {
+		event.preventDefault();
 
-            const res = await fetch(`/api/reports`, {
-                method: "POST",
-                body: JSON.stringify(report),
-            });
-            const { ok } = await res.json();
-            if (!ok) throw new Error("Error reporting post.");
+		setReportInfo({
+			user_id: post.user_id,
+			post_id: post.post_id,
+			name: post.name,
+		});
+	};
 
-            setShowReportModal(false);
-            setReportReason("");
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
+	const handleSubmitReport = async (event) => {
+		event.preventDefault();
 
-    useEffect(() => {
-        
-        if (session) {
-           isCurrentlyCooldown() 
-           fetchPosts();
-           getLikedPosts();
-            
-            
-        }
-    }, [session]);
+		try {
+			const report = {
+				...reportInfo,
+				description: reportReason,
+				status: "pending",
+			};
 
-    if (status === "loading") return <Loading />;
-    //if (!posts || !likedPosts) return <Loading />;
-    else if (isCooldown) return <TimeOut/>
-    else
-    return (
-        <>
-            <div className="flex flex-row h-full overflow-y-auto">
-                {/* Middle */}
-                <div className="w-4/6 h-full border-t-0 border-gray-600 border-x-2">
-                    <div className="flex">
-                        <div className="flex-1 m-2">
-                            <h2 className="px-4 py-2 text-2xl font-bold text-white">
-                                Home
-                            </h2>
-                        </div>
-                    </div>
-                    <hr className="border-gray-600" />
+			const res = await fetch(`/api/reports`, {
+				method: "POST",
+				body: JSON.stringify(report),
+			});
+			const { ok } = await res.json();
+			if (!ok) throw new Error("Error reporting post.");
 
-                    {/* Create posts */}
-                    <hr className="border-4 border-indigo-800" />
-                    <div></div>
+			setShowReportModal(false);
+			setReportReason("");
+		} catch (error) {
+			console.log(error.message);
+		}
+	};
 
-                    <CreatePostForm
-                        handleSubmit={handleSubmit}
-                        image={imagePreview}
-                        user={session.user}
-                        handleTextChange={handleTextChange}
-                        imageError={imageError}
-                        remainingCharacters={remainingCharacters}
-                        handleImageChange={handleImageChange}
-                        handleRemoveImage={handleRemoveImage}
-                        handleButton={handleButton}
-                    />
-                    {posts && (
-                        <PostList
-                            posts={posts}
-                            likedPosts={likedPosts}
-                            user={session.user}
-                            handleLike={handleLike}
-                            handleDelete={handleDelete}
-                            handleShowReportModal={handleShowReportModal}
-                            handlePostClicked={handlePostClicked}
-                        />
-                    )}
-                </div>
+	useEffect(() => {
+		if (session) {
+			isCurrentlyCooldown();
+			fetchPosts();
+			getLikedPosts();
+		}
+	}, []);
 
-                {/* right menu */}
-                <div className="w-fit">
-                    <div className="relative w-full p-5 mr-16 text-gray-300"></div>
-                </div>
-            </div>
+	if (status === "loading") return <Loading />;
 
-            {showReportModal && (
-                <ReportModal
-                    reportReason={reportReason}
-                    handleShowReportModal={handleShowReportModal}
-                    handleReportReasonChange={handleReportReasonChange}
-                    handleSubmitReport={handleSubmitReport}
-                />
-            )}
-        </>
-    );
+	if (isCooldown) return <TimeOut />;
+
+	return (
+		<>
+			<div className="flex flex-row h-full overflow-y-auto">
+				{/* Middle */}
+				<div className="w-4/6 h-full border-t-0 border-gray-600 border-x-2">
+					<div className="flex">
+						<div className="flex-1 m-2">
+							<h2 className="px-4 py-2 text-2xl font-bold text-white">Home</h2>
+						</div>
+					</div>
+					<hr className="border-gray-600" />
+
+					{/* Create posts */}
+					<hr className="border-4 border-indigo-800" />
+					<div></div>
+
+					<CreatePostForm
+						handleSubmit={handleSubmit}
+						image={imagePreview}
+						user={session.user}
+						handleTextChange={handleTextChange}
+						imageError={imageError}
+						remainingCharacters={remainingCharacters}
+						handleImageChange={handleImageChange}
+						handleRemoveImage={handleRemoveImage}
+						handleButton={handleButton}
+					/>
+					{posts && (
+						<PostList
+							posts={posts}
+							likedPosts={likedPosts}
+							user={session.user}
+							handleLike={handleLike}
+							handleDelete={handleDelete}
+							handleShowReportModal={handleShowReportModal}
+							handlePostClicked={handlePostClicked}
+						/>
+					)}
+				</div>
+
+				{/* right menu */}
+				<div className="w-fit">
+					<div className="relative w-full p-5 mr-16 text-gray-300"></div>
+				</div>
+			</div>
+
+			{showReportModal && (
+				<ReportModal
+					reportReason={reportReason}
+					handleShowReportModal={handleShowReportModal}
+					handleReportReasonChange={handleReportReasonChange}
+					handleSubmitReport={handleSubmitReport}
+				/>
+			)}
+		</>
+	);
 }

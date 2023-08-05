@@ -1,7 +1,7 @@
 import {
-    handleDeleteUser,
-    handleGetUser,
-    handleUpdateUser,
+	handleDeleteUser,
+	handleGetUser,
+	handleUpdateUser,
 } from "@/utils/users.helper";
 import { handleFileDelete, handleFileUpload } from "@/utils/file.helper";
 import { sanitizeObject, validateData } from "@/utils/validation.helper";
@@ -17,116 +17,117 @@ const logger = getLogger();
 // HTTP methods: GET, PUT, DELETE
 
 export async function GET(req, { params }) {
-    try {
-        const { verified, response } = await verifyToken(req);
-        if (!verified) return response;
+	try {
+		const { user_id } = params;
 
-        const { user_id } = params;
+		const { verified, response } = await verifyToken(req, user_id);
+		if (!verified) return response;
 
-        const result = await handleGetUser(user_id);
+		const result = await handleGetUser(user_id);
 
-        return NextResponse.json({
-            error: null,
-            status: 200,
-            ok: true,
-            data: result,
-        });
-    } catch (error) {
-        logger.error(error.message);
+		return NextResponse.json({
+			error: null,
+			status: 200,
+			ok: true,
+			data: result,
+		});
+	} catch (error) {
+		logger.error(error.message);
 
-        return NextResponse.json({
-            error: "Something went wrong",
-            status: 500,
-            ok: false,
-            data: null,
-        });
-    }
+		return NextResponse.json({
+			error: "Something went wrong",
+			status: 500,
+			ok: false,
+			data: null,
+		});
+	}
 }
 
 export async function PUT(req, { params }) {
-    try {
-        const { verified, response } = await verifyToken(req);
-        if (!verified) return response;
+	try {
+		const { user_id } = params;
 
-        const { user_id } = params;
-        const data = await req.formData();
-        const avatar = data.get("avatar");
-        let updatedInfo = JSON.parse(data.get("updatedInfo"));
-        updatedInfo = sanitizeObject(updatedInfo);
+		const { verified, response } = await verifyToken(req, user_id);
+		if (!verified) return response;
 
-        if (
-            !validateData(
-                updatedInfo.firstName,
-                updatedInfo.lastName,
-                updatedInfo.phoneNumber,
-                updatedInfo.email
-            )
-        )
-            throw new Error("Invalid data! Please try again");
+		const data = await req.formData();
+		const avatar = data.get("avatar");
+		let updatedInfo = JSON.parse(data.get("updatedInfo"));
+		updatedInfo = sanitizeObject(updatedInfo);
 
-        const result = await handleGetUser(user_id);
-        const currentInfo = result[0];
+		if (
+			!validateData(
+				updatedInfo.firstName,
+				updatedInfo.lastName,
+				updatedInfo.phoneNumber,
+				updatedInfo.email,
+			)
+		)
+			throw new Error("Invalid data! Please try again");
 
-        if (avatar !== "undefined") {
-            updatedInfo.avatar = await handleFileUpload(avatar, "avatar");
-            await handleFileDelete(currentInfo.avatar);
-        } else {
-            updatedInfo.avatar = currentInfo.avatar;
-        }
+		const result = await handleGetUser(user_id);
+		const currentInfo = result[0];
 
-        if (updatedInfo.password !== currentInfo.password) {
-            updatedInfo.password = await bcrypt.hash(updatedInfo.password, 10);
-        } else {
-            updatedInfo.password = currentInfo.password;
-        }
+		if (avatar !== "undefined") {
+			updatedInfo.avatar = await handleFileUpload(avatar, "avatar");
+			await handleFileDelete(currentInfo.avatar);
+		} else {
+			updatedInfo.avatar = currentInfo.avatar;
+		}
 
-        await handleUpdateUser(user_id, updatedInfo);
+		if (updatedInfo.password !== currentInfo.password) {
+			updatedInfo.password = await bcrypt.hash(updatedInfo.password, 10);
+		} else {
+			updatedInfo.password = currentInfo.password;
+		}
 
-        logger.info(`User (id: ${user_id}) updated`);
+		await handleUpdateUser(user_id, updatedInfo);
 
-        return NextResponse.json({
-            error: null,
-            status: 200,
-            ok: true,
-            data: null,
-        });
-    } catch (error) {
-        logger.error(error.message);
+		logger.info(`User (id: ${user_id}) updated`);
 
-        return NextResponse.json({
-            error: "Something went wrong",
-            status: 500,
-            ok: false,
-            data: null,
-        });
-    }
+		return NextResponse.json({
+			error: null,
+			status: 200,
+			ok: true,
+			data: null,
+		});
+	} catch (error) {
+		logger.error(error.message);
+
+		return NextResponse.json({
+			error: "Something went wrong",
+			status: 500,
+			ok: false,
+			data: null,
+		});
+	}
 }
 
 export async function DELETE(req, { params }) {
-    try {
-        const { verified, response } = await verifyToken(req);
-        if (!verified) return response;
+	try {
+		const { user_id } = params;
 
-        const { user_id } = params;
+		const { verified, response } = await verifyToken(req, user_id);
+		if (!verified) return response;
 
-        await handleDeleteUser(user_id);
+		await handleDeleteUser(user_id);
 
-        logger.info(`User (id: ${user_id}) deleted`);
+		logger.info(`User (id: ${user_id}) deleted`);
 
-        return NextResponse.json({
-            error: null,
-            status: 200,
-            ok: true,
-            data: null,
-        });
-    } catch (error) {
-        logger.error(error.message);
+		return NextResponse.json({
+			error: null,
+			status: 200,
+			ok: true,
+			data: null,
+		});
+	} catch (error) {
+		logger.error(error.message);
 
-        return NextResponse.json({
-            error: "Something went wrong",
-            status: 500,
-            ok: false,
-            data: null,
-        });
-    }
+		return NextResponse.json({
+			error: "Something went wrong",
+			status: 500,
+			ok: false,
+			data: null,
+		});
+	}
 }
