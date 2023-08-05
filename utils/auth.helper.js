@@ -34,7 +34,7 @@ const unauthorizedResponse = () => {
 		verified: false,
 		response: NextResponse.json({
 			error: "Unauthorized access",
-			status: 403,
+			status: 401,
 			ok: false,
 			data: null,
 		}),
