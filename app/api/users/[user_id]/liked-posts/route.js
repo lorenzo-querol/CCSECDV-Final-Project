@@ -9,28 +9,28 @@ const logger = getLogger();
 // HTTP methods: GET
 
 export async function GET(req, { params }) {
-	try {
-		const { user_id } = params;
+    try {
+        const { user_id } = params;
 
-		const { verified, response } = await verifyToken(req, user_id);
-		if (!verified) return response;
+        const { verified, response } = await verifyToken(req, user_id);
+        if (!verified) return response;
 
-		const result = await handleGetLikedPosts(user_id);
+        const result = await handleGetLikedPosts(user_id);
 
-		return NextResponse.json({
-			error: null,
-			status: 200,
-			ok: true,
-			data: result,
-		});
-	} catch (error) {
-		logger.error(error.message);
+        return NextResponse.json({
+            error: null,
+            status: 200,
+            ok: true,
+            data: result,
+        });
+    } catch (error) {
+        logger.error(`GET /api/users/[user_id]/liked-posts - ${error.message}`);
 
-		return NextResponse.json({
-			error: "Something went wrong",
-			status: 500,
-			ok: false,
-			data: null,
-		});
-	}
+        return NextResponse.json({
+            error: "Something went wrong",
+            status: 500,
+            ok: false,
+            data: null,
+        });
+    }
 }
