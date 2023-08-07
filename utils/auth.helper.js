@@ -1,20 +1,20 @@
-import { NextResponse } from "next/server";
-import { getLogger } from "@/utils/logger";
-import { getToken } from "next-auth/jwt";
+import { NextResponse } from 'next/server';
+import { getLogger } from '@/utils/logger';
+import { getToken } from 'next-auth/jwt';
 
 const logger = getLogger();
 
 const ADMIN_ROUTES = [
-    { method: ["GET"], pathname: "/api/users" },
-    { method: ["GET", "POST", "PUT", "DELETE"], pathname: "/api/reports" },
+    { method: ['GET'], pathname: '/api/users' },
+    { method: ['GET', 'POST', 'PUT', 'DELETE'], pathname: '/api/reports' },
 ];
 
-const checkTokenExists = (token) => {
+const checkTokenExists = token => {
     return token !== null;
 };
 
 const verifyAdminRoute = (token, req) => {
-    const isAdminApiRoute = ADMIN_ROUTES.some((route) => {
+    const isAdminApiRoute = ADMIN_ROUTES.some(route => {
         const isMethodMatch = route.method.includes(req.method);
         const isPathnameMatch = route.pathname === req.nextUrl.pathname;
 
@@ -28,7 +28,7 @@ const verifyUserId = (token, user_id) => {
     return token.user_id === user_id;
 };
 
-const verifyAdmin = (token) => {
+const verifyAdmin = token => {
     return token.is_admin;
 };
 
@@ -37,7 +37,7 @@ const unauthorizedResponse = () => {
         token: null,
         verified: false,
         response: NextResponse.json({
-            error: "Unauthorized access",
+            error: 'Unauthorized access',
             status: 401,
             ok: false,
             data: null,
@@ -50,14 +50,12 @@ export const verifyToken = async (req, user_id = null) => {
         const token = await getToken({ req });
 
         if (!checkTokenExists(token)) {
-            logger.warn(
-                `Unauthorized access to ${req.method} ${req.nextUrl.pathname}`
-            );
+            logger.warn(`Unauthorized access to ${req.method} ${req.nextUrl.pathname}`);
             return unauthorizedResponse();
         }
         if (!verifyAdminRoute(token, req)) {
             logger.warn(
-                `Unauthorized access by ${token.name} (id: ${token.user_id}) to ${req.method} ${req.nextUrl.pathname}`
+                `Unauthorized access by ${token.name} (id: ${token.user_id}) to ${req.method} ${req.nextUrl.pathname}`,
             );
             return unauthorizedResponse();
         }
@@ -65,7 +63,7 @@ export const verifyToken = async (req, user_id = null) => {
         if (!verifyAdmin(token) && user_id) {
             if (!verifyUserId(token, user_id)) {
                 logger.warn(
-                    `Unauthorized access by ${token.name} (id: ${token.user_id}) to ${req.method} ${req.nextUrl.pathname}`
+                    `Unauthorized access by ${token.name} (id: ${token.user_id}) to ${req.method} ${req.nextUrl.pathname}`,
                 );
                 return unauthorizedResponse();
             }

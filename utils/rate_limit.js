@@ -1,4 +1,4 @@
-const { LRUCache } = require("lru-cache");
+const { LRUCache } = require('lru-cache');
 
 export default function rateLimit(options) {
     const tokenCache = new LRUCache({
@@ -17,11 +17,8 @@ export default function rateLimit(options) {
 
                 const currentUsage = tokenCount[0];
                 const isRateLimited = currentUsage >= limit;
-                res.headers.set("X-RateLimit-Limit", limit);
-                res.headers.set(
-                    "X-RateLimit-Remaining",
-                    isRateLimited ? 0 : limit - currentUsage
-                );
+                res.headers.set('X-RateLimit-Limit', limit);
+                res.headers.set('X-RateLimit-Remaining', isRateLimited ? 0 : limit - currentUsage);
 
                 const rateLimitStatus = {
                     rateLimited: isRateLimited,

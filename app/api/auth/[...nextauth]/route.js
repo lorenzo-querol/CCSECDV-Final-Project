@@ -1,10 +1,10 @@
-import CredentialsProvider from "next-auth/providers/credentials";
-import NextAuth from "next-auth";
-import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
-import { database } from "@/utils/database";
-import { getLogger } from "@/utils/logger";
-import rateLimit from "@/utils/rate_limit";
+import CredentialsProvider from 'next-auth/providers/credentials';
+import NextAuth from 'next-auth';
+import { NextResponse } from 'next/server';
+import bcrypt from 'bcrypt';
+import { database } from '@/utils/database';
+import { getLogger } from '@/utils/logger';
+import rateLimit from '@/utils/rate_limit';
 
 const logger = getLogger();
 
@@ -18,13 +18,13 @@ const authHandler = async (req, res) => {
         return await NextAuth(req, res, {
             providers: [
                 CredentialsProvider({
-                    name: "Credentials",
+                    name: 'Credentials',
                     credentials: {
-                        email: { label: "Email", type: "text" },
-                        password: { label: "Password", type: "password" },
+                        email: { label: 'Email', type: 'text' },
+                        password: { label: 'Password', type: 'password' },
                     },
 
-                    authorize: async (credentials) => {
+                    authorize: async credentials => {
                         // Copy headers to response because NextAuth modifies them
                         const requestHeaders = new Headers(req.headers);
                         res = NextResponse.next({
@@ -34,17 +34,10 @@ const authHandler = async (req, res) => {
                         });
 
                         // Check if too many requests are being made
-                        const { rateLimited, remaining } = await limiter.check(
-                            res,
-                            10,
-                            "CACHE_TOKEN"
-                        );
+                        const { rateLimited, remaining } = await limiter.check(res, 10, 'CACHE_TOKEN');
 
                         // Throw an error if limit is reached
-                        if (rateLimited)
-                            throw new Error(
-                                "Too many requests, please try again later."
-                            );
+                        if (rateLimited) throw new Error('Too many requests, please try again later.');
 
                         // Check if the user exists
                         await database.connect();
@@ -53,19 +46,27 @@ const authHandler = async (req, res) => {
                                 SELECT *
                                 FROM users WHERE email = ?
                             `,
-                            [credentials.email]
+                            [credentials.email],
                         );
-                        const user = result[0];
                         await database.end();
 
-                        // If the user exists, check if the password matches
-                        const samePassword = await bcrypt.compare(
-                            credentials.password,
-                            user.password
-                        );
+                        // Check if the user exists
+                        if (result.length === 0) {
+                            logger.warn(`User (email: ${credentials.email}) cannot be found`);
+                            return null;
+                        }
 
-                        // If the password matches
-                        if (!user && !samePassword) return null;
+                        const user = result[0];
+
+                        // Check if the password doesn't match
+                        if (!(await bcrypt.compare(credentials.password, user.password))) {
+                            logger.warn(`User (email: ${credentials.email}) failed to login`);
+                            return null;
+                        }
+
+                        logger.info(
+                            `User ${user.first_name} ${user.last_name} (id: ${user.user_id}) logged in successfully`,
+                        );
 
                         return {
                             user_id: user.user_id,
@@ -99,8 +100,7 @@ const authHandler = async (req, res) => {
                         token.name = user.name;
                         token.avatar = user.avatar;
                         if (user.is_admin) token.is_admin = user.is_admin;
-                        if (user.cooldown_until)
-                            token.cooldown_until = user.cooldown_until;
+                        if (user.cooldown_until) token.cooldown_until = user.cooldown_until;
                     }
 
                     return token;
@@ -111,21 +111,20 @@ const authHandler = async (req, res) => {
                     session.user.name = token.name;
                     session.user.avatar = token.avatar;
                     if (token.is_admin) session.user.is_admin = token.is_admin;
-                    if (token.cooldown_until)
-                        session.user.cooldown_until = token.cooldown_until;
+                    if (token.cooldown_until) session.user.cooldown_until = token.cooldown_until;
 
                     return session;
                 },
             },
             pages: {
-                signIn: "/login",
+                signIn: '/login',
             },
         });
     } catch (error) {
         logger.error(`POST /api/auth/[...nextauth] - ${error.message}`);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,

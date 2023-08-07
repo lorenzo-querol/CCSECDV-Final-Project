@@ -11,7 +11,8 @@ https://github.com/lorenzo-querol/CCSECDV-Final-Project.git
 ```
 
 2. Navigate to the 2021T2-G05 folder and install all the required dependencies using `yarn install`
-3. Make sure to have `mkcert` installed. If you haven't follow this [set-up](https://github.com/FiloSottile/mkcert/releases)
+3. Make sure to have `mkcert` installed. If you haven't follow this
+   [set-up](https://github.com/FiloSottile/mkcert/releases)
 4. Once installed, install the local CA and generate locally-trusted SSL certificates
 
 ```

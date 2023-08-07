@@ -1,15 +1,11 @@
-import {
-    handleDeleteUser,
-    handleGetUser,
-    handleUpdateUser,
-} from "@/utils/users.helper";
-import { handleFileDelete, handleFileUpload } from "@/utils/file.helper";
-import { sanitizeObject, validateData } from "@/utils/validation.helper";
+import { handleDeleteUser, handleGetUser, handleUpdateUser } from '@/utils/users.helper';
+import { handleFileDelete, handleFileUpload } from '@/utils/file.helper';
+import { sanitizeObject, validateData } from '@/utils/validation.helper';
 
-import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
-import { getLogger } from "@/utils/logger";
-import { verifyToken } from "@/utils/auth.helper";
+import { NextResponse } from 'next/server';
+import bcrypt from 'bcrypt';
+import { getLogger } from '@/utils/logger';
+import { verifyToken } from '@/utils/auth.helper';
 
 const logger = getLogger();
 
@@ -35,7 +31,7 @@ export async function GET(req, { params }) {
         logger.error(error.message);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,
@@ -51,30 +47,18 @@ export async function PUT(req, { params }) {
         if (!verified) return response;
 
         const data = await req.formData();
-        const avatar = data.get("avatar");
-        let updatedInfo = JSON.parse(data.get("updatedInfo"));
+        const avatar = data.get('avatar');
+        let updatedInfo = JSON.parse(data.get('updatedInfo'));
         updatedInfo = sanitizeObject(updatedInfo);
 
-        if (
-            !validateData(
-                updatedInfo.firstName,
-                updatedInfo.lastName,
-                updatedInfo.phoneNumber,
-                updatedInfo.email
-            )
-        )
+        if (!validateData(updatedInfo.firstName, updatedInfo.lastName, updatedInfo.phoneNumber, updatedInfo.email))
             throw new Error(`Invalid data! Please try again`);
 
         const result = await handleGetUser(user_id);
         const currentInfo = result[0];
 
-        if (avatar !== "undefined" || avatar !== "null") {
-            updatedInfo.avatar = await handleFileUpload(
-                token.name,
-                token.user_id,
-                avatar,
-                "avatar"
-            );
+        if (avatar !== 'undefined' || avatar !== 'null') {
+            updatedInfo.avatar = await handleFileUpload(token.name, token.user_id, avatar, 'avatar');
             await handleFileDelete(currentInfo.avatar);
         } else {
             updatedInfo.avatar = currentInfo.avatar;
@@ -88,9 +72,7 @@ export async function PUT(req, { params }) {
 
         await handleUpdateUser(user_id, updatedInfo);
 
-        logger.info(
-            `User (id: ${user_id}) updated  by ${token.name} (id: ${token.user_id})`
-        );
+        logger.info(`User (id: ${user_id}) updated  by ${token.name} (id: ${token.user_id})`);
 
         return NextResponse.json({
             error: null,
@@ -102,7 +84,7 @@ export async function PUT(req, { params }) {
         logger.error(`PUT /api/users/[user_id] - ${error.message}`);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,
@@ -131,7 +113,7 @@ export async function DELETE(req, { params }) {
         logger.error(`DELETE /api/users/[user_id] - ${error.message}`);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,

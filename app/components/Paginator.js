@@ -1,30 +1,19 @@
-import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'react-icons/ai';
 
-export default function Paginator({
-    handleNext,
-    handlePrev,
-    page,
-    totalPages,
-    totalReports,
-    limit,
-}) {
+export default function Paginator({ handleNext, handlePrev, page, totalPages, totalReports, limit }) {
     return (
         <div className="flex flex-col items-center">
             {/* Help text */}
             <span className="text-sm text-indigo-700 dark:text-indigo-400">
-                Showing{" "}
+                Showing{' '}
                 <span className="font-semibold text-indigo-900 dark:text-white">
                     {Math.min((page - 1) * limit + 1, totalReports)}
-                </span>{" "}
-                to{" "}
+                </span>{' '}
+                to{' '}
                 <span className="font-semibold text-indigo-900 dark:text-white">
                     {Math.min(page * limit, totalReports)}
-                </span>{" "}
-                of{" "}
-                <span className="font-semibold text-indigo-900 dark:text-white">
-                    {totalReports}
-                </span>{" "}
-                Reported Users
+                </span>{' '}
+                of <span className="font-semibold text-indigo-900 dark:text-white">{totalReports}</span> Reported Users
             </span>
             <div className="inline-flex mt-2 xs:mt-0">
                 <button

@@ -1,13 +1,13 @@
-import { checkPassword, validateData } from "@/utils/validation.helper";
-import { handleGetUsers, handleInsertUser } from "@/utils/users.helper";
+import { checkPassword, validateData } from '@/utils/validation.helper';
+import { handleGetUsers, handleInsertUser } from '@/utils/users.helper';
 
-import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
-import { getLogger } from "@/utils/logger";
-import { handleFileUpload } from "@/utils/file.helper";
-import { nanoid } from "nanoid";
-import sanitizeHtml from "sanitize-html";
-import { verifyToken } from "@/utils/auth.helper";
+import { NextResponse } from 'next/server';
+import bcrypt from 'bcrypt';
+import { getLogger } from '@/utils/logger';
+import { handleFileUpload } from '@/utils/file.helper';
+import { nanoid } from 'nanoid';
+import sanitizeHtml from 'sanitize-html';
+import { verifyToken } from '@/utils/auth.helper';
 
 const logger = getLogger();
 
@@ -17,29 +17,17 @@ const logger = getLogger();
 export async function POST(req) {
     try {
         const data = await req.formData();
-        let userInfo = JSON.parse(data.get("userInfo"));
-        const avatar = data.get("avatar");
+        let userInfo = JSON.parse(data.get('userInfo'));
+        const avatar = data.get('avatar');
 
-        if (
-            !validateData(
-                userInfo.firstName,
-                userInfo.lastName,
-                userInfo.phoneNumber,
-                userInfo.email
-            )
-        )
+        if (!validateData(userInfo.firstName, userInfo.lastName, userInfo.phoneNumber, userInfo.email))
             throw new Error(`Invalid data! Please try again`);
 
         if (!checkPassword(userInfo.password, userInfo.confirmPassword)) {
             throw new Error(`Passwords do not match! Please try again`);
         }
 
-        userInfo.avatar = await handleFileUpload(
-            `${userInfo.firstName} ${userInfo.lastName}}`,
-            null,
-            avatar,
-            "avatar"
-        );
+        userInfo.avatar = await handleFileUpload(`${userInfo.firstName} ${userInfo.lastName}}`, null, avatar, 'avatar');
         userInfo.hashedPassword = await bcrypt.hash(userInfo.password, 10);
         delete userInfo.confirmPassword;
 
@@ -66,18 +54,18 @@ export async function POST(req) {
     } catch (error) {
         logger.error(`POST /api/users - ${error.message}`);
 
-        if (error.message.includes("ER_DUP_ENTRY")) {
+        if (error.message.includes('ER_DUP_ENTRY')) {
             return NextResponse.json({
-                error: "Email already exists! Please try again",
+                error: 'Email already exists! Please try again',
                 status: 400,
                 ok: false,
                 data: null,
             });
         }
 
-        if (error.message.includes("ER_DATA_TOO_LONG")) {
+        if (error.message.includes('ER_DATA_TOO_LONG')) {
             return NextResponse.json({
-                error: "Data too long! Please try again",
+                error: 'Data too long! Please try again',
                 status: 400,
                 ok: false,
                 data: null,
@@ -85,7 +73,7 @@ export async function POST(req) {
         }
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,
@@ -98,19 +86,13 @@ export async function GET(req) {
         const { verified, response } = await verifyToken(req);
         if (!verified) return response;
 
-        const page = parseInt(req.nextUrl.searchParams.get("page"), 10) || 1;
-        const sortBy = req.nextUrl.searchParams.get("sortby") || "name";
-        const sortOrder = req.nextUrl.searchParams.get("order") || "ASC";
+        const page = parseInt(req.nextUrl.searchParams.get('page'), 10) || 1;
+        const sortBy = req.nextUrl.searchParams.get('sortby') || 'name';
+        const sortOrder = req.nextUrl.searchParams.get('order') || 'ASC';
         const limit = 5;
         const offset = (page - 1) * limit;
 
-        const data = await handleGetUsers(
-            page,
-            sortBy,
-            sortOrder,
-            limit,
-            offset
-        );
+        const data = await handleGetUsers(page, sortBy, sortOrder, limit, offset);
 
         return NextResponse.json({
             error: null,
@@ -122,7 +104,7 @@ export async function GET(req) {
         logger.error(error.message);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,

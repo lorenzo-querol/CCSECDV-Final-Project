@@ -1,11 +1,8 @@
-import {
-    handleDeleteLikedPost,
-    handleInsertLikedPost,
-} from "@/utils/users.helper";
+import { handleDeleteLikedPost, handleInsertLikedPost } from '@/utils/users.helper';
 
-import { NextResponse } from "next/server";
-import { getLogger } from "@/utils/logger";
-import { verifyToken } from "@/utils/auth.helper";
+import { NextResponse } from 'next/server';
+import { getLogger } from '@/utils/logger';
+import { verifyToken } from '@/utils/auth.helper';
 
 const logger = getLogger();
 
@@ -21,9 +18,7 @@ export async function POST(req, { params }) {
 
         await handleInsertLikedPost(post_id, user_id);
 
-        logger.info(
-            `Post (id: ${post_id}) liked by ${token.name} (id: ${token.user_id})`
-        );
+        logger.info(`Post (id: ${post_id}) liked by ${token.name} (id: ${token.user_id})`);
 
         return NextResponse.json({
             error: null,
@@ -32,12 +27,10 @@ export async function POST(req, { params }) {
             data: null,
         });
     } catch (error) {
-        logger.error(
-            `POST /api/users/[user_id]/liked-posts - ${error.message}`
-        );
+        logger.error(`POST /api/users/[user_id]/liked-posts - ${error.message}`);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,
@@ -54,9 +47,7 @@ export async function DELETE(req, { params }) {
 
         await handleDeleteLikedPost(post_id, user_id);
 
-        logger.info(
-            `Post (id: ${post_id}) unliked by ${token.name} (id: ${token.user_id})`
-        );
+        logger.info(`Post (id: ${post_id}) unliked by ${token.name} (id: ${token.user_id})`);
 
         return NextResponse.json({
             error: null,
@@ -65,12 +56,10 @@ export async function DELETE(req, { params }) {
             data: null,
         });
     } catch (error) {
-        logger.error(
-            `DELETE /api/users/[user_id]/liked-posts/[post_id] - ${error.message}`
-        );
+        logger.error(`DELETE /api/users/[user_id]/liked-posts/[post_id] - ${error.message}`);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,

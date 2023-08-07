@@ -1,30 +1,30 @@
-"use client";
+'use client';
 
-import { AiFillHome, AiFillMessage, AiOutlineLogout } from "react-icons/ai";
-import React, { useEffect, useMemo, useState } from "react";
-import { getSession, signOut, useSession } from "next-auth/react";
+import { AiFillHome, AiFillMessage, AiOutlineLogout } from 'react-icons/ai';
+import React, { useEffect, useMemo, useState } from 'react';
+import { getSession, signOut, useSession } from 'next-auth/react';
 
-import { BsFillGearFill } from "react-icons/bs";
-import { FaListAlt } from "react-icons/fa";
-import Image from "next/image";
-import Link from "next/link";
-import { MdReport } from "react-icons/md";
-import control from "@/public/control.png";
-import sidebar from "../layout";
-import { useRouter, usePathname } from "next/navigation";
+import { BsFillGearFill } from 'react-icons/bs';
+import { FaListAlt } from 'react-icons/fa';
+import Image from 'next/image';
+import Link from 'next/link';
+import { MdReport } from 'react-icons/md';
+import control from '@/public/control.png';
+import sidebar from '../layout';
+import { useRouter, usePathname } from 'next/navigation';
 
 const Menus = [
     {
-        title: "List of Users",
+        title: 'List of Users',
         icon: <FaListAlt />,
-        path: "/admin/list-users",
+        path: '/admin/list-users',
     },
     {
-        title: "List of Reported Users",
+        title: 'List of Reported Users',
         icon: <MdReport />,
-        path: "/admin/list-reports",
+        path: '/admin/list-reports',
     },
-    { title: "Settings", icon: <BsFillGearFill />, path: "/admin/profile" },
+    { title: 'Settings', icon: <BsFillGearFill />, path: '/admin/profile' },
 ];
 
 export default function Sidebar({ children }) {
@@ -32,11 +32,11 @@ export default function Sidebar({ children }) {
     const pathname = usePathname();
 
     const [close, setClose] = useState(false);
-    const [activeMenuItem, setActiveMenuItem] = useState(""); // Set initial active menu item by title
+    const [activeMenuItem, setActiveMenuItem] = useState(''); // Set initial active menu item by title
     const { data: session, status } = useSession();
 
     useEffect(() => {
-        const menu = Menus.find((menu) => menu.path === pathname);
+        const menu = Menus.find(menu => menu.path === pathname);
         if (menu) setActiveMenuItem(menu.title);
     }, [pathname]);
 
@@ -44,30 +44,29 @@ export default function Sidebar({ children }) {
         setActiveMenuItem(title);
     };
 
-    if (status === "loading") {
+    if (status === 'loading') {
         return <div>Loading...</div>;
     }
 
     return (
         <div className="fixed left-0 flex w-full h-screen">
             <div
-                className={`${close ? "w-20" : "w-72"
-                    } relative h-screen bg-indigo-900 p-5 pt-8 duration-300 flex flex-col justify-start`}
+                className={`${
+                    close ? 'w-20' : 'w-72'
+                } relative h-screen bg-indigo-900 p-5 pt-8 duration-300 flex flex-col justify-start`}
             >
                 <Image
                     src={control}
                     alt="Control Icon"
-                    className={`absolute -right-3 top-9 w-7 cursor-pointer rounded-full border-2 border-indigo-900  ${!close && "rotate-180"
-                        }`}
+                    className={`absolute -right-3 top-9 w-7 cursor-pointer rounded-full border-2 border-indigo-900  ${
+                        !close && 'rotate-180'
+                    }`}
                     onClick={() => setClose(!close)}
                     width={24}
                     height={24}
                 />
                 <div className="flex items-center gap-x-4">
-                    <h1
-                        className={`origin-left text-3xl font-medium text-white duration-200 ${close && "scale-0"
-                            }`}
-                    >
+                    <h1 className={`origin-left text-3xl font-medium text-white duration-200 ${close && 'scale-0'}`}>
                         THOUGHTS.
                     </h1>
                 </div>
@@ -77,18 +76,14 @@ export default function Sidebar({ children }) {
                             <Link
                                 key={index}
                                 href={menu.path}
-                                className={`flex cursor-pointer items-center gap-x-4 rounded-md p-2 text-xl text-white hover:bg-indigo-700 ${menu.gap ? "mt-9" : "mt-2"
-                                    } ${menu.title === activeMenuItem &&
-                                    "bg-indigo-700"
-                                    }`} // Add condition to apply active class
+                                className={`flex cursor-pointer items-center gap-x-4 rounded-md p-2 text-xl text-white hover:bg-indigo-700 ${
+                                    menu.gap ? 'mt-9' : 'mt-2'
+                                } ${menu.title === activeMenuItem && 'bg-indigo-700'}`} // Add condition to apply active class
                                 onClick={() => handleMenuItemClick(menu.title)} // Pass the title to the click event handler
                             >
                                 <li className="flex items-center space-x-2">
                                     {menu.icon}
-                                    <span
-                                        className={`${close && "hidden"
-                                            } origin-left duration-200`}
-                                    >
+                                    <span className={`${close && 'hidden'} origin-left duration-200`}>
                                         {menu.title}
                                     </span>
                                 </li>
@@ -99,18 +94,13 @@ export default function Sidebar({ children }) {
                         className={`flex cursor-pointer items-center gap-x-4 rounded-md p-2 text-xl text-white hover:bg-indigo-700 mt-2`}
                         onClick={() =>
                             signOut({
-                                callbackUrl: "/login",
+                                callbackUrl: '/login',
                             })
                         }
                     >
                         <div className="flex items-center space-x-2">
                             <AiOutlineLogout />
-                            <span
-                                className={`${close && "hidden"
-                                    } origin-left duration-200`}
-                            >
-                                Log Out
-                            </span>
+                            <span className={`${close && 'hidden'} origin-left duration-200`}>Log Out</span>
                         </div>
                     </li>
                 </ul>
@@ -130,9 +120,7 @@ export default function Sidebar({ children }) {
                             </div>
                             {!close && (
                                 <div className="ml-3">
-                                    <p className="text-xl font-medium leading-6 text-white">
-                                        {session.user.name}
-                                    </p>
+                                    <p className="text-xl font-medium leading-6 text-white">{session.user.name}</p>
                                 </div>
                             )}
                         </div>

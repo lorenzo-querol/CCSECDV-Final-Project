@@ -1,11 +1,11 @@
-import { handleGetPosts, handleInsertPost } from "@/utils/posts.helper";
+import { handleGetPosts, handleInsertPost } from '@/utils/posts.helper';
 
-import { NextResponse } from "next/server";
-import { getLogger } from "@/utils/logger";
-import { handleFileUpload } from "@/utils/file.helper";
-import { nanoid } from "nanoid";
-import sanitizeHtml from "sanitize-html";
-import { verifyToken } from "@/utils/auth.helper";
+import { NextResponse } from 'next/server';
+import { getLogger } from '@/utils/logger';
+import { handleFileUpload } from '@/utils/file.helper';
+import { nanoid } from 'nanoid';
+import sanitizeHtml from 'sanitize-html';
+import { verifyToken } from '@/utils/auth.helper';
 
 const logger = getLogger();
 
@@ -30,7 +30,7 @@ export async function GET(req) {
         logger.error(`GET /api/posts - ${error.message}`);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,
@@ -44,23 +44,17 @@ export async function POST(req) {
         if (!verified) return response;
 
         const data = await req.formData();
-        const image = data.get("image");
-        let postInfo = JSON.parse(data.get("postInfo"));
+        const image = data.get('image');
+        let postInfo = JSON.parse(data.get('postInfo'));
 
         if (postInfo.description.length > 180) {
             throw new Error(
-                `${token.name} (id: ${token.user_id}) tried to create a post with a description that is too long}`
+                `${token.name} (id: ${token.user_id}) tried to create a post with a description that is too long}`,
             );
         }
 
-        if (image === "undefined" || image === "null") postInfo.image = null;
-        else
-            postInfo.image = await handleFileUpload(
-                token.name,
-                token.user_id,
-                image,
-                "post"
-            );
+        if (image === 'undefined' || image === 'null') postInfo.image = null;
+        else postInfo.image = await handleFileUpload(token.name, token.user_id, image, 'post');
 
         const post = {
             post_id: nanoid(),
@@ -73,9 +67,7 @@ export async function POST(req) {
 
         await handleInsertPost(post);
 
-        logger.info(
-            `Post (id: ${post.post_id}) created by ${token.name} (id: ${token.user_id})`
-        );
+        logger.info(`Post (id: ${post.post_id}) created by ${token.name} (id: ${token.user_id})`);
 
         return NextResponse.json({
             error: null,
@@ -87,7 +79,7 @@ export async function POST(req) {
         logger.error(`POST /api/posts - ${error.message}`);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,

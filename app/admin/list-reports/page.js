@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
-import Loading from "@/app/components/Loading";
-import Paginator from "@/app/components/Paginator";
-import ReportProfile from "@/app/components/ReportProfile";
-import ReportsTable from "@/app/components/ReportsTable";
+import Loading from '@/app/components/Loading';
+import Paginator from '@/app/components/Paginator';
+import ReportProfile from '@/app/components/ReportProfile';
+import ReportsTable from '@/app/components/ReportsTable';
 
-const STATUS = ["pending", "approved", "rejected", "competed"];
+const STATUS = ['pending', 'approved', 'rejected', 'competed'];
 
 const validateReportInput = (status, duration) => {
     // Status must be one of the following: pending, approved, rejected, completed
@@ -27,30 +27,27 @@ export default function ReportedUsers() {
     const [totalReports, setTotalReports] = useState();
     const [showUser, setShowUser] = useState(false);
     const [profile, setProfile] = useState();
-    const [sortBy, setSortBy] = useState("name"); // Default sort by is 'name'
-    const [sortOrder, setSortOrder] = useState("ASC"); // Default sort order is 'ASC'
+    const [sortBy, setSortBy] = useState('name'); // Default sort by is 'name'
+    const [sortOrder, setSortOrder] = useState('ASC'); // Default sort order is 'ASC'
 
-    const handleNext = () => setPage((prevPage) => prevPage + 1);
-    const handlePrev = () => setPage((prevPage) => prevPage - 1);
+    const handleNext = () => setPage(prevPage => prevPage + 1);
+    const handlePrev = () => setPage(prevPage => prevPage - 1);
 
-    const handleSort = (field) => {
+    const handleSort = field => {
         setSortBy(field);
-        setSortOrder((prevOrder) => (prevOrder === "ASC" ? "DESC" : "ASC"));
+        setSortOrder(prevOrder => (prevOrder === 'ASC' ? 'DESC' : 'ASC'));
     };
 
-    const handleNameClick = async (post_id) => {
+    const handleNameClick = async post_id => {
         setShowUser(true);
         fetchReportProfile(post_id);
     };
 
     const fetchReports = async (page, sortBy, sortOrder) => {
         try {
-            const res = await fetch(
-                `/api/reports?page=${page}&sortby=${sortBy}&order=${sortOrder}`,
-                {
-                    cache: "no-store",
-                }
-            );
+            const res = await fetch(`/api/reports?page=${page}&sortby=${sortBy}&order=${sortOrder}`, {
+                cache: 'no-store',
+            });
             const { data } = await res.json();
 
             setReports(data.reports);
@@ -58,17 +55,17 @@ export default function ReportedUsers() {
             setTotalPages(data.totalPages);
             setTotalReports(data.totalReports);
         } catch (error) {
-            console.log("Something went wrong:", error.message);
+            console.log('Something went wrong:', error.message);
         }
     };
-    const fetchReportProfile = async (post_id) => {
+    const fetchReportProfile = async post_id => {
         try {
             const res = await fetch(`/api/posts/${post_id}`);
 
             const { data } = await res.json();
             setProfile(data[0]);
         } catch (error) {
-            console.log("Something went wrong:", error.message);
+            console.log('Something went wrong:', error.message);
         }
     };
     const handleSubmit = async (event, status, duration, reportId) => {
@@ -77,14 +74,13 @@ export default function ReportedUsers() {
         try {
             let report = {};
 
-            if (status === "rejected") {
+            if (status === 'rejected') {
                 report = {
                     status: status,
                     duration: null,
                 };
             } else {
-                if (!validateReportInput(status, duration))
-                    throw new Error("Invalid input.");
+                if (!validateReportInput(status, duration)) throw new Error('Invalid input.');
 
                 report = {
                     status: status,
@@ -93,15 +89,15 @@ export default function ReportedUsers() {
             }
 
             const res = await fetch(`/api/reports/${reportId}`, {
-                method: "PUT",
+                method: 'PUT',
                 body: JSON.stringify(report),
             });
             const { ok } = await res.json();
-            if (!ok) throw new Error("Something went wrong");
+            if (!ok) throw new Error('Something went wrong');
 
             await fetchReports(page, sortBy, sortOrder);
         } catch (error) {
-            console.log("Something went wrong:", error.message);
+            console.log('Something went wrong:', error.message);
         }
     };
 
@@ -117,9 +113,7 @@ export default function ReportedUsers() {
                 <div className="h-1/2">
                     <div className="flex">
                         <div className="flex-1 m-2">
-                            <h2 className="px-4 py-2 text-2xl font-bold text-white">
-                                List of Reported Users
-                            </h2>
+                            <h2 className="px-4 py-2 text-2xl font-bold text-white">List of Reported Users</h2>
                         </div>
                     </div>
 
@@ -142,12 +136,7 @@ export default function ReportedUsers() {
                     />
                 </div>
             </div>
-            {showUser && (
-                <ReportProfile
-                    profile={profile}
-                    onClose={() => setShowUser(false)}
-                />
-            )}
+            {showUser && <ReportProfile profile={profile} onClose={() => setShowUser(false)} />}
         </>
     );
 }

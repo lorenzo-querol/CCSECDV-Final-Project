@@ -1,20 +1,15 @@
-"use client";
+'use client';
 
-import {
-    HiAtSymbol,
-    HiFingerPrint,
-    HiOutlinePhone,
-    HiOutlineUser,
-} from "react-icons/hi";
-import React, { useEffect, useRef, useState } from "react";
+import { HiAtSymbol, HiFingerPrint, HiOutlinePhone, HiOutlineUser } from 'react-icons/hi';
+import React, { useEffect, useRef, useState } from 'react';
 
-import { AiOutlineClose } from "react-icons/ai";
-import { BsFillExclamationTriangleFill } from "react-icons/bs";
-import Image from "next/image";
-import sanitizeHtml from "sanitize-html";
-import styles from "@/app/Form.module.css";
-import { useForm } from "react-hook-form";
-import { useSession } from "next-auth/react";
+import { AiOutlineClose } from 'react-icons/ai';
+import { BsFillExclamationTriangleFill } from 'react-icons/bs';
+import Image from 'next/image';
+import sanitizeHtml from 'sanitize-html';
+import styles from '@/app/Form.module.css';
+import { useForm } from 'react-hook-form';
+import { useSession } from 'next-auth/react';
 
 export default function Settings() {
     const { data: session, status } = useSession();
@@ -29,10 +24,10 @@ export default function Settings() {
     const [isEmailFocused, setEmailFocused] = useState(false);
     const [hasChanged, setHasChanged] = useState(false);
     const [user, setUser] = useState(null);
-    const [pathname, setPathname] = useState("");
+    const [pathname, setPathname] = useState('');
     const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
     const [showPasswordMismatch, setShowPasswordMismatch] = useState(false);
-    const [confirmPassword, setConfirmPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordMismatch, setPasswordMismatch] = useState(false);
 
     const {
@@ -50,16 +45,16 @@ export default function Settings() {
             if (!ok) throw new Error(error);
 
             setUser(data);
-            setValue("email", user.email);
-            setValue("firstName", user.first_name);
-            setValue("lastName", user.last_name);
-            setValue("phoneNumber", user.phone_num);
+            setValue('email', user.email);
+            setValue('firstName', user.first_name);
+            setValue('lastName', user.last_name);
+            setValue('phoneNumber', user.phone_num);
         } catch (error) {
             console.log(error.message);
         }
     };
 
-    const handleInputChange = (e) => {
+    const handleInputChange = e => {
         const formValues = watch();
         let isFormChanged = false;
         let isPasswordMismatch = false;
@@ -70,12 +65,12 @@ export default function Settings() {
                 break;
             }
         }
-        if (e.target.name === "password") {
+        if (e.target.name === 'password') {
             if (e.target.value !== formValues.confirmPassword) {
                 isFormChanged = true;
                 isPasswordMismatch = true;
             }
-        } else if (e.target.name === "confirmPassword") {
+        } else if (e.target.name === 'confirmPassword') {
             if (e.target.value !== formValues.password) {
                 isFormChanged = true;
                 isPasswordMismatch = true;
@@ -86,27 +81,23 @@ export default function Settings() {
         setPasswordMismatch(isPasswordMismatch);
     };
 
-    const onSubmit = async (data) => {
+    const onSubmit = async data => {
         const formData = new FormData();
 
         const cleanedData = {
             firstName: sanitizeHtml(data.firstName.trim()),
-            password: sanitizeHtml(
-                data.password.length !== 0
-                    ? data.password.trim()
-                    : user.password
-            ),
+            password: sanitizeHtml(data.password.length !== 0 ? data.password.trim() : user.password),
             lastName: sanitizeHtml(data.lastName.trim()),
             phoneNumber: sanitizeHtml(data.phoneNumber.trim()),
             email: sanitizeHtml(data.email.trim()),
         };
 
-        formData.append("avatar", data.avatar[0]);
-        formData.append("updatedInfo", JSON.stringify(cleanedData));
+        formData.append('avatar', data.avatar[0]);
+        formData.append('updatedInfo', JSON.stringify(cleanedData));
 
         try {
             const res = await fetch(`/api/users/${session.user.user_id}`, {
-                method: "PUT",
+                method: 'PUT',
                 body: formData,
             });
             const { data, ok, error } = await res.json();
@@ -116,12 +107,12 @@ export default function Settings() {
         }
     };
 
-    const watchPassword = watch("password");
-    const validatePasswordMatch = (value) => {
+    const watchPassword = watch('password');
+    const validatePasswordMatch = value => {
         if (value === watchPassword) {
             return true;
         }
-        return "Password do not match";
+        return 'Password do not match';
     };
 
     // Account deactivation
@@ -165,9 +156,7 @@ export default function Settings() {
 
                     {/* Full Name */}
                     <div className="w-full my-2 text-center">
-                        <h1 className="text-xl font-semibold">
-                            {user.first_name + " " + user.last_name}
-                        </h1>
+                        <h1 className="text-xl font-semibold">{user.first_name + ' ' + user.last_name}</h1>
                     </div>
 
                     <h1 className="text-lg">Profile Information</h1>
@@ -178,9 +167,7 @@ export default function Settings() {
                             <div
                                 className={styles.input_group}
                                 style={{
-                                    border: errors.firstName
-                                        ? "1px solid red"
-                                        : "1px solid #ccc",
+                                    border: errors.firstName ? '1px solid red' : '1px solid #ccc',
                                 }}
                             >
                                 <input
@@ -188,11 +175,10 @@ export default function Settings() {
                                     name="firstName"
                                     placeholder="First Name"
                                     className={styles.input_text}
-                                    {...register("firstName", {
+                                    {...register('firstName', {
                                         pattern: {
                                             value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
-                                            message:
-                                                "Please enter a valid name",
+                                            message: 'Please enter a valid name',
                                         },
                                     })}
                                     defaultValue={user.first_name}
@@ -215,9 +201,7 @@ export default function Settings() {
                             <div
                                 className={styles.input_group}
                                 style={{
-                                    border: errors.lastName
-                                        ? "1px solid red"
-                                        : "1px solid #ccc",
+                                    border: errors.lastName ? '1px solid red' : '1px solid #ccc',
                                 }}
                             >
                                 <input
@@ -225,11 +209,10 @@ export default function Settings() {
                                     name="lastName"
                                     placeholder="Last Name"
                                     className={styles.input_text}
-                                    {...register("lastName", {
+                                    {...register('lastName', {
                                         pattern: {
                                             value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
-                                            message:
-                                                "Please enter a valid name",
+                                            message: 'Please enter a valid name',
                                         },
                                     })}
                                     defaultValue={user.last_name}
@@ -253,9 +236,7 @@ export default function Settings() {
                         <div
                             className={styles.input_group}
                             style={{
-                                border: errors.phoneNumber
-                                    ? "1px solid red"
-                                    : "1px solid #ccc",
+                                border: errors.phoneNumber ? '1px solid red' : '1px solid #ccc',
                             }}
                         >
                             <input
@@ -263,10 +244,10 @@ export default function Settings() {
                                 name="phoneNumber"
                                 placeholder="Phone Number"
                                 className={styles.input_text}
-                                {...register("phoneNumber", {
+                                {...register('phoneNumber', {
                                     pattern: {
                                         value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
-                                        message: "Please enter a valid name",
+                                        message: 'Please enter a valid name',
                                     },
                                 })}
                                 defaultValue={user.phone_num}
@@ -287,11 +268,9 @@ export default function Settings() {
                     {/* Displays user email but doesnt allow the user to edit*/}
                     <div className="flex flex-col">
                         <div
-                            className={`${styles.input_group} ${
-                                user.email ? styles.read_only : ""
-                            }`}
+                            className={`${styles.input_group} ${user.email ? styles.read_only : ''}`}
                             style={{
-                                border: "1px solid #ccc",
+                                border: '1px solid #ccc',
                             }}
                         >
                             <input
@@ -299,24 +278,21 @@ export default function Settings() {
                                 type="email"
                                 name="email"
                                 placeholder="Email"
-                                className={`${styles.input_text} ${
-                                    user.email ? styles.read_only_input : ""
-                                } ${
-                                    isEmailFocused ? styles.light_gray_text : ""
+                                className={`${styles.input_text} ${user.email ? styles.read_only_input : ''} ${
+                                    isEmailFocused ? styles.light_gray_text : ''
                                 }`}
                                 readOnly
                                 onFocus={() => setEmailFocused(true)}
                                 onBlur={() => {
                                     setEmailFocused(false);
                                 }}
-                                {...register("email", {
+                                {...register('email', {
                                     pattern: {
                                         value: /^[\w.\-]+[a-zA-Z0-9]*@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/,
-                                        message:
-                                            "Please enter a valid email address",
+                                        message: 'Please enter a valid email address',
                                     },
                                 })}
-                                style={{ color: "#aaa" }}
+                                style={{ color: '#aaa' }}
                             />
                             <span className="flex items-center px-4 ">
                                 <HiAtSymbol size={20} />
@@ -329,9 +305,7 @@ export default function Settings() {
                             </p>
                         )}
                         {isEmailFocused && (
-                            <p className="text-sm text-gray-500 mt-1">
-                                Email cannot be changed after registration.
-                            </p>
+                            <p className="text-sm text-gray-500 mt-1">Email cannot be changed after registration.</p>
                         )}
                     </div>
                     {/* Password */}
@@ -339,21 +313,19 @@ export default function Settings() {
                         <div
                             className={styles.input_group}
                             style={{
-                                border: errors.password
-                                    ? "1px solid red"
-                                    : "1px solid #ccc",
+                                border: errors.password ? '1px solid red' : '1px solid #ccc',
                             }}
                         >
                             <input
-                                type={`${show.password ? "text" : "password"}`}
+                                type={`${show.password ? 'text' : 'password'}`}
                                 name="password"
                                 placeholder="New Password"
                                 className={styles.input_text}
-                                {...register("password", {
+                                {...register('password', {
                                     pattern: {
                                         value: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])(?!.*\s).{12,64}$/,
                                         message:
-                                            "Password length must be at least 12 characters and 64 characters at most. It must also contain at least 1 upper case character, at least 1 lower case character, at least 1 digit, and at least 1 special character",
+                                            'Password length must be at least 12 characters and 64 characters at most. It must also contain at least 1 upper case character, at least 1 lower case character, at least 1 digit, and at least 1 special character',
                                     },
                                 })}
                                 onChange={handleInputChange}
@@ -382,16 +354,11 @@ export default function Settings() {
                         <div
                             className={styles.input_group}
                             style={{
-                                border:
-                                    errors.confirmPassword || passwordMismatch
-                                        ? "1px solid red"
-                                        : "1px solid #ccc",
+                                border: errors.confirmPassword || passwordMismatch ? '1px solid red' : '1px solid #ccc',
                             }}
                         >
                             <input
-                                type={`${
-                                    show.confirmPassword ? "text" : "password"
-                                }`}
+                                type={`${show.confirmPassword ? 'text' : 'password'}`}
                                 name="confirmPassword"
                                 placeholder="Confirm New Password"
                                 className={styles.input_text}
@@ -415,11 +382,7 @@ export default function Settings() {
                                 {errors.confirmPassword?.message}
                             </p>
                         )}
-                        {passwordMismatch && (
-                            <p className="text-red-500">
-                                Password does not match.
-                            </p>
-                        )}
+                        {passwordMismatch && <p className="text-red-500">Password does not match.</p>}
                     </div>
                     {/* Profile Photo */}
                     <div className="flex flex-col">
@@ -427,7 +390,7 @@ export default function Settings() {
                             className="h-full relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-gray-300  bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-indigo-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-indigo-100 file:px-3 file:py-[0.32rem] file:text-indigo-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-indigo-500 focus:border-primary focus:text-indigo-700 focus:shadow-te-primary focus:outline-none  dark:text-indigo-200 dark:file:bg-indigo-700 dark:file:text-indigo-100 dark:focus:border-primary"
                             type="file"
                             id="profile"
-                            {...register("avatar", {})}
+                            {...register('avatar', {})}
                         />
                     </div>
                     {/* Error message */}
@@ -451,7 +414,7 @@ export default function Settings() {
                             <button
                                 id="save-changes"
                                 className={`w-full px-5 py-3 mt-8 text-white ${
-                                    hasChanged ? "bg-green-500" : "bg-gray-400"
+                                    hasChanged ? 'bg-green-500' : 'bg-gray-400'
                                 } rounded hover:bg-green-500`}
                                 onClick={handleSubmit(onSubmit)}
                             >
@@ -526,10 +489,7 @@ export default function Settings() {
                             aria-hidden="true"
                         ></div>
                         {/* <!--  Center the pop-up message--> */}
-                        <span
-                            className="hidden sm:inline-block sm:align-middle sm:h-screen"
-                            aria-hidden="true"
-                        ></span>
+                        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"></span>
 
                         <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                             <div className="flex flex-row items-center justify-between p-4">
@@ -537,19 +497,14 @@ export default function Settings() {
                                 <div className="flex flex-wrap">
                                     <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-red-400 rounded-full sm:mx-0 sm:h-10 sm:w-10">
                                         <span className="flex items-center px-4 ">
-                                            <BsFillExclamationTriangleFill
-                                                size={20}
-                                            />
+                                            <BsFillExclamationTriangleFill size={20} />
                                         </span>
                                     </div>
                                     <h1 className="my-2 ml-4 text-xl font-bold leading-6 text-gray-900 uppercase">
                                         Deactivate Account
                                     </h1>
                                 </div>
-                                <button
-                                    className="focus:outline-none"
-                                    onClick={() => setDeactivateModal(false)}
-                                >
+                                <button className="focus:outline-none" onClick={() => setDeactivateModal(false)}>
                                     <span className="flex items-center px-4 text-gray-500">
                                         <AiOutlineClose size={20} />
                                     </span>
@@ -558,27 +513,19 @@ export default function Settings() {
                             {/* <!--  Content --> */}
                             <div className="flex flex-col mx-10 my-2 text-gray-500">
                                 <p className="mb-2 text-sm text-gray-500 font-raleway">
-                                    Please note that after confirming the
-                                    deactivation of your account, you will not
-                                    be allowed to retrieved it. Kindly confirm
-                                    the deactivation by inputting your current
-                                    password.{" "}
+                                    Please note that after confirming the deactivation of your account, you will not be
+                                    allowed to retrieved it. Kindly confirm the deactivation by inputting your current
+                                    password.{' '}
                                 </p>
                                 <div className="flex flex-col">
                                     <div
                                         className={styles.input_group}
                                         style={{
-                                            border: errors.password
-                                                ? "1px solid red"
-                                                : "1px solid #ccc",
+                                            border: errors.password ? '1px solid red' : '1px solid #ccc',
                                         }}
                                     >
                                         <input
-                                            type={`${
-                                                show.password
-                                                    ? "text"
-                                                    : "password"
-                                            }`}
+                                            type={`${show.password ? 'text' : 'password'}`}
                                             name="password"
                                             placeholder="Password"
                                             className={styles.input_text}
@@ -597,10 +544,7 @@ export default function Settings() {
                                     </div>
                                     {/* Error message */}
                                     {errors.password && (
-                                        <p
-                                            role="alert"
-                                            className={styles.error_text}
-                                        >
+                                        <p role="alert" className={styles.error_text}>
                                             {errors.password?.message}
                                         </p>
                                     )}

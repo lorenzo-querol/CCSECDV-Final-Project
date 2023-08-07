@@ -1,9 +1,9 @@
-import { handleGetReports, handleInsertReport } from "@/utils/reports.helper";
+import { handleGetReports, handleInsertReport } from '@/utils/reports.helper';
 
-import { NextResponse } from "next/server";
-import { getLogger } from "@/utils/logger";
-import { nanoid } from "nanoid";
-import { verifyToken } from "@/utils/auth.helper";
+import { NextResponse } from 'next/server';
+import { getLogger } from '@/utils/logger';
+import { nanoid } from 'nanoid';
+import { verifyToken } from '@/utils/auth.helper';
 
 const logger = getLogger();
 
@@ -27,9 +27,7 @@ export async function POST(req) {
 
         await handleInsertReport(report);
 
-        logger.info(
-            `Report (id: ${report.report_id}) created by ${token.name} (id: ${token.user_id})`
-        );
+        logger.info(`Report (id: ${report.report_id}) created by ${token.name} (id: ${token.user_id})`);
 
         return NextResponse.json({
             error: null,
@@ -41,7 +39,7 @@ export async function POST(req) {
         logger.error(`POST /api/reports - ${error.message}`);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,
@@ -54,19 +52,13 @@ export async function GET(req) {
         const { verified, response } = await verifyToken(req);
         if (!verified) return response;
 
-        const page = parseInt(req.nextUrl.searchParams.get("page"), 10) || 1; // default to page 1
+        const page = parseInt(req.nextUrl.searchParams.get('page'), 10) || 1; // default to page 1
         const limit = 5;
         const offset = (page - 1) * limit;
-        const sortBy = req.nextUrl.searchParams.get("sortby") || "name";
-        const sortOrder = req.nextUrl.searchParams.get("order") || "ASC";
+        const sortBy = req.nextUrl.searchParams.get('sortby') || 'name';
+        const sortOrder = req.nextUrl.searchParams.get('order') || 'ASC';
 
-        const data = await handleGetReports(
-            page,
-            sortBy,
-            sortOrder,
-            limit,
-            offset
-        );
+        const data = await handleGetReports(page, sortBy, sortOrder, limit, offset);
 
         return NextResponse.json({
             error: null,
@@ -78,7 +70,7 @@ export async function GET(req) {
         logger.error(`GET /api/reports - ${error.message}`);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,

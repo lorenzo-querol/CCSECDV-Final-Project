@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { getLogger } from "@/utils/logger";
-import { handleGetLikedPosts } from "@/utils/users.helper";
-import { verifyToken } from "@/utils/auth.helper";
+import { NextResponse } from 'next/server';
+import { getLogger } from '@/utils/logger';
+import { handleGetLikedPosts } from '@/utils/users.helper';
+import { verifyToken } from '@/utils/auth.helper';
 
 const logger = getLogger();
 
@@ -27,7 +27,7 @@ export async function GET(req, { params }) {
         logger.error(`GET /api/users/[user_id]/liked-posts - ${error.message}`);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,

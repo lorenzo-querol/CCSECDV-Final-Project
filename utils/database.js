@@ -1,5 +1,5 @@
-import { S3Client } from "@aws-sdk/client-s3";
-import mysql from "serverless-mysql";
+import { S3Client } from '@aws-sdk/client-s3';
+import mysql from 'serverless-mysql';
 
 export const database = mysql({
     config: {

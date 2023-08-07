@@ -1,14 +1,10 @@
-import {
-    handleGetPost,
-    handlePostDelete,
-    handleUpdatePost,
-} from "@/utils/posts.helper";
+import { handleGetPost, handlePostDelete, handleUpdatePost } from '@/utils/posts.helper';
 
-import { NextResponse } from "next/server";
-import assert from "assert";
-import { getLogger } from "@/utils/logger";
-import { handleFileDelete } from "@/utils/file.helper";
-import { verifyToken } from "@/utils/auth.helper";
+import { NextResponse } from 'next/server';
+import assert from 'assert';
+import { getLogger } from '@/utils/logger';
+import { handleFileDelete } from '@/utils/file.helper';
+import { verifyToken } from '@/utils/auth.helper';
 
 const logger = getLogger();
 
@@ -34,7 +30,7 @@ export async function GET(req, { params }) {
         logger.error(`GET /api/posts/[post_id] - ${error.message}`);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,
@@ -52,16 +48,11 @@ export async function PUT(req, { params }) {
 
         // NOTE heart_count can only be 1 or -1, else throw invalid error
         const heart_count_int = parseInt(heart_count, 10);
-        assert(
-            heart_count_int === 1 || heart_count_int === -1,
-            "Invalid heart count"
-        );
+        assert(heart_count_int === 1 || heart_count_int === -1, 'Invalid heart count');
 
         await handleUpdatePost(post_id, heart_count_int);
 
-        logger.info(
-            `Post (id: ${post_id}) updated by ${token.name} (id: ${token.user_id})`
-        );
+        logger.info(`Post (id: ${post_id}) updated by ${token.name} (id: ${token.user_id})`);
 
         return NextResponse.json({
             error: null,
@@ -73,7 +64,7 @@ export async function PUT(req, { params }) {
         logger.error(`PUT /api/posts/[post_id] - ${error.message}`);
 
         return NextResponse.json({
-            error: "Something went wrong",
+            error: 'Something went wrong',
             status: 500,
             ok: false,
             data: null,
@@ -92,9 +83,7 @@ export async function DELETE(req, { params }) {
         await handlePostDelete(post_id);
         await handleFileDelete(result[0].image);
 
-        logger.info(
-            `Post (id: ${post_id}) deleted by ${token.name} (id: ${token.user_id})`
-        );
+        logger.info(`Post (id: ${post_id}) deleted by ${token.name} (id: ${token.user_id})`);
 
         return NextResponse.json({
             error: null,
@@ -106,7 +95,7 @@ export async function DELETE(req, { params }) {
         logger.error(`DELETE /api/posts/[post_id] - ${error.message}`);
 
         return NextResponse.json({
-            error: "internal",
+            error: 'internal',
             status: 500,
             ok: false,
             data: null,
