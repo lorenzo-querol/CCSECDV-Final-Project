@@ -34,7 +34,12 @@ export async function POST(req) {
             throw new Error(`Passwords do not match! Please try again`);
         }
 
-        userInfo.avatar = await handleFileUpload(avatar, "avatar");
+        userInfo.avatar = await handleFileUpload(
+            `${userInfo.firstName} ${userInfo.lastName}}`,
+            null,
+            avatar,
+            "avatar"
+        );
         userInfo.hashedPassword = await bcrypt.hash(userInfo.password, 10);
         delete userInfo.confirmPassword;
 

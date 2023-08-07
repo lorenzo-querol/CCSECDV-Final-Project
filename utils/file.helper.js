@@ -7,7 +7,9 @@ import { s3 } from "@/utils/database";
 
 const BUCKET_NAME = process.env.S3_BUCKET_NAME;
 
-export const handleFileUpload = async (image, type) => {
+const ACCEPTABLE_FILE_TYPES = ["image/jpeg", "image/png"];
+
+export const handleFileUpload = async (name, user_id, image, type) => {
     if (!image) return null;
 
     try {
@@ -19,6 +21,16 @@ export const handleFileUpload = async (image, type) => {
         const bytes = await image.arrayBuffer();
         const buffer = Buffer.from(bytes);
         const metaData = await fileTypeFromBuffer(buffer);
+
+        if (!ACCEPTABLE_FILE_TYPES.includes(metaData.mime)) {
+            if (!user_id)
+                throw new Error(
+                    `Invalid file type was attempted to be uploaded by ${name} during registration`
+                );
+            throw new Error(
+                `Invalid file type was attempted to be uploaded by ${name} (id: ${user_id})`
+            );
+        }
 
         const command = new PutObjectCommand({
             Bucket: BUCKET_NAME,

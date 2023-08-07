@@ -54,7 +54,13 @@ export async function POST(req) {
         }
 
         if (image === "undefined" || image === "null") postInfo.image = null;
-        else postInfo.image = await handleFileUpload(image, "post");
+        else
+            postInfo.image = await handleFileUpload(
+                token.name,
+                token.user_id,
+                image,
+                "post"
+            );
 
         const post = {
             post_id: nanoid(),

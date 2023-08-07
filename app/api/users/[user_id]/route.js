@@ -69,7 +69,12 @@ export async function PUT(req, { params }) {
         const currentInfo = result[0];
 
         if (avatar !== "undefined" || avatar !== "null") {
-            updatedInfo.avatar = await handleFileUpload(avatar, "avatar");
+            updatedInfo.avatar = await handleFileUpload(
+                token.name,
+                token.user_id,
+                avatar,
+                "avatar"
+            );
             await handleFileDelete(currentInfo.avatar);
         } else {
             updatedInfo.avatar = currentInfo.avatar;
