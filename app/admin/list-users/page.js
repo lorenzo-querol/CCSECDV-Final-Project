@@ -5,8 +5,6 @@ import React, { useEffect, useState } from 'react';
 
 import { BiSort } from 'react-icons/bi';
 import Loading from '@/app/components/Loading';
-import UserLogs from '@/app/components/UserLogs';
-import { useRouter } from 'next/router';
 
 export default function ListUsers() {
     const [page, setPage] = useState(1);
@@ -16,7 +14,6 @@ export default function ListUsers() {
     const [totalUsers, setTotalUsers] = useState();
     const [sortBy, setSortBy] = useState('name'); // Default sort by is 'name'
     const [sortOrder, setSortOrder] = useState('ASC'); // Default sort order is 'ASC'
-    const [showLogs, setShowLogs] = useState(false);
 
     const handleNext = () => setPage(prevPage => prevPage + 1);
     const handlePrev = () => setPage(prevPage => prevPage - 1);
@@ -25,10 +22,6 @@ export default function ListUsers() {
     const handleSortClick = field => {
         setSortBy(field);
         setSortOrder(prevOrder => (prevOrder === 'ASC' ? 'DESC' : 'ASC'));
-    };
-
-    const showLogsModal = () => {
-        setShowLogs(true);
     };
 
     const fetchUsers = async (page, sortBy, sortOrder) => {
@@ -70,7 +63,7 @@ export default function ListUsers() {
                         <table className="table w-full mx-auto text-center shadow-md">
                             <thead>
                                 <tr>
-                                    <th className="w-1/3 px-4 py-2 border-b ">
+                                    <th className="w-1/2 px-4 py-2 border-b ">
                                         <div className="flex items-center justify-center">
                                             Name
                                             <button
@@ -81,7 +74,7 @@ export default function ListUsers() {
                                             </button>
                                         </div>
                                     </th>
-                                    <th className="w-1/3 px-4 py-2 border-b">
+                                    <th className="w-1/2 px-4 py-2 border-b">
                                         <div className="flex items-center justify-center">
                                             Email
                                             <button
@@ -92,9 +85,6 @@ export default function ListUsers() {
                                             </button>
                                         </div>
                                     </th>
-                                    <th className="w-1/3 px-4 py-2 border-b">
-                                        <div className="flex items-center justify-center">Logs</div>
-                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="items-center justify-center w-full mx-auto">
@@ -102,17 +92,11 @@ export default function ListUsers() {
                                     <tr key={index}>
                                         <td className="px-4 py-2 border-b">{user.name}</td>
                                         <td className="px-4 py-2 border-b">{user.email}</td>
-                                        <td className="px-4 py-2 border-b">
-                                            <div className="flex justify-center " onClick={showLogsModal}>
-                                                <AiFillEye size={20} className="rounded hover:bg-indigo-500" />
-                                            </div>
-                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
-
                     {/* Pagination */}
                     <div className="bottom-0 flex flex-col items-center">
                         {/* Help text */}
@@ -147,8 +131,6 @@ export default function ListUsers() {
                     </div>
                 </div>
             </div>
-
-            {showLogs && <UserLogs onClose={() => setShowLogs(false)} />}
         </>
     );
 }
