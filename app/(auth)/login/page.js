@@ -4,12 +4,9 @@ import { HiAtSymbol, HiFingerPrint } from 'react-icons/hi';
 import React, { useEffect, useState } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 
-import { FcGoogle } from 'react-icons/fc';
 import Link from 'next/link';
 import Loading from '@/app/components/Loading';
 import LoadingSmall from '@/app/components/LoadingSmall';
-import axios from 'axios';
-import sanitizeHtml from 'sanitize-html';
 import styles from '@/app/Form.module.css';
 import { useRouter } from 'next/navigation';
 
@@ -44,8 +41,6 @@ export default function Login() {
             console.log(error.message);
         }
     };
-
-    console.log(loading);
 
     useEffect(() => {
         if (status === 'authenticated') router.replace('/home');
