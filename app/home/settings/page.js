@@ -89,7 +89,6 @@ export default function Settings() {
             password: sanitizeHtml(data.password.length !== 0 ? data.password.trim() : user.password),
             lastName: sanitizeHtml(data.lastName.trim()),
             phoneNumber: sanitizeHtml(data.phoneNumber.trim()),
-            email: sanitizeHtml(data.email.trim()),
         };
 
         formData.append('avatar', data.avatar[0]);
@@ -173,7 +172,7 @@ export default function Settings() {
                                 <input
                                     type="text"
                                     name="firstName"
-                                    placeholder="First Name"
+                                    placeholder={user.first_name}
                                     className={styles.input_text}
                                     {...register('firstName', {
                                         pattern: {
@@ -181,14 +180,12 @@ export default function Settings() {
                                             message: 'Please enter a valid name',
                                         },
                                     })}
-                                    defaultValue={user.first_name}
                                     onChange={handleInputChange}
                                 />
                                 <span className="flex items-center px-4 ">
-                                    <HiOutlineUser size={20} />l
+                                    <HiOutlineUser size={20} />
                                 </span>
                             </div>
-
                             {/* Error message */}
                             {errors.firstName && (
                                 <p role="alert" className={styles.error_text}>
@@ -207,7 +204,7 @@ export default function Settings() {
                                 <input
                                     type="text"
                                     name="lastName"
-                                    placeholder="Last Name"
+                                    placeholder={user.last_name}
                                     className={styles.input_text}
                                     {...register('lastName', {
                                         pattern: {
@@ -215,7 +212,6 @@ export default function Settings() {
                                             message: 'Please enter a valid name',
                                         },
                                     })}
-                                    defaultValue={user.last_name}
                                     onChange={handleInputChange}
                                 />
                                 <span className="flex items-center px-4 ">
@@ -242,7 +238,7 @@ export default function Settings() {
                             <input
                                 type="tel"
                                 name="phoneNumber"
-                                placeholder="Phone Number"
+                                placeholder={user.phone_num}
                                 className={styles.input_text}
                                 {...register('phoneNumber', {
                                     pattern: {
@@ -250,7 +246,6 @@ export default function Settings() {
                                         message: 'Please enter a valid name',
                                     },
                                 })}
-                                defaultValue={user.phone_num}
                                 onChange={handleInputChange}
                             />
                             <span className="flex items-center px-4 ">
@@ -274,24 +269,16 @@ export default function Settings() {
                             }}
                         >
                             <input
-                                value={user.email}
                                 type="email"
                                 name="email"
-                                placeholder="Email"
-                                className={`${styles.input_text} ${user.email ? styles.read_only_input : ''} ${
-                                    isEmailFocused ? styles.light_gray_text : ''
-                                }`}
+                                placeholder={user.email}
+                                className={`${styles.input_text} ${user.email ? styles.read_only_input : ''} ${isEmailFocused ? styles.light_gray_text : ''
+                                    }`}
                                 readOnly
                                 onFocus={() => setEmailFocused(true)}
                                 onBlur={() => {
                                     setEmailFocused(false);
                                 }}
-                                {...register('email', {
-                                    pattern: {
-                                        value: /^[\w.\-]+[a-zA-Z0-9]*@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/,
-                                        message: 'Please enter a valid email address',
-                                    },
-                                })}
                                 style={{ color: '#aaa' }}
                             />
                             <span className="flex items-center px-4 ">
@@ -305,7 +292,7 @@ export default function Settings() {
                             </p>
                         )}
                         {isEmailFocused && (
-                            <p className="text-sm text-gray-500 mt-1">Email cannot be changed after registration.</p>
+                            <p role="alert" className={styles.error_text}> Email cannot be changed after registration.</p>
                         )}
                     </div>
                     {/* Password */}
@@ -413,9 +400,8 @@ export default function Settings() {
                             {/* Save button */}
                             <button
                                 id="save-changes"
-                                className={`w-full px-5 py-3 mt-8 text-white ${
-                                    hasChanged ? 'bg-green-500' : 'bg-gray-400'
-                                } rounded hover:bg-green-500`}
+                                className={`w-full px-5 py-3 mt-8 text-white ${hasChanged ? 'bg-green-500' : 'bg-gray-400'
+                                    } rounded hover:bg-green-500`}
                                 onClick={handleSubmit(onSubmit)}
                             >
                                 Save Changes
@@ -428,12 +414,12 @@ export default function Settings() {
             {/* Modals */}
             {/* Save Changes */}
             {/* {showSaveConfirmation && (
-				<div className="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center">
+				<div className="fixed inset-0 z-10 flex items-center justify-center overflow-y-auto">
 					<div className="absolute inset-0 bg-gray-800 opacity-80"></div>
-					<div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-lg sm:w-full">
-						<div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+					<div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:align-middle sm:max-w-lg sm:w-full">
+						<div className="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
 							<h3
-								className="text-lg leading-6 font-medium text-gray-900"
+								className="text-lg font-medium leading-6 text-gray-900"
 								id="modal-title"
 							>
 								Confirm Changes
@@ -446,23 +432,23 @@ export default function Settings() {
 									type="password"
 									name="confirmPassword"
 									placeholder="Password"
-									className="mt-2 px-4 py-2 border border-gray-300 rounded-md w-full"
+									className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md"
 									//value={confirmPassword}
 									onChange={(e) => setConfirmPassword(e.target.value)}
 								/>
 							</div>
 						</div>
-						<div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+						<div className="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
 							<button
 								type="button"
-								className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
+								className="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
 								onClick={handleSaveConfirmation}
 							>
 								Confirm
 							</button>
 							<button
 								type="button"
-								className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+								className="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
 								onClick={() => setShowSaveConfirmation(false)} // Close the confirmation pop-up
 							>
 								Cancel
