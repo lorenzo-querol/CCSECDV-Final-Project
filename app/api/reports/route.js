@@ -1,11 +1,9 @@
 import { handleGetReports, handleInsertReport } from '@/utils/reports.helper';
 
 import { NextResponse } from 'next/server';
-import { getLogger } from '@/utils/logger';
+import logger from '@/utils/logger';
 import { nanoid } from 'nanoid';
 import { verifyToken } from '@/utils/auth.helper';
-
-const logger = getLogger();
 
 // Matches /api/reports
 // HTTP methods: GET, POST

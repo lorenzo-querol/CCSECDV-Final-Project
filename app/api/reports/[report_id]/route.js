@@ -1,10 +1,8 @@
 import { handleDeleteReport, handleGetReport, handleUpdateReport, parseDuration } from '@/utils/reports.helper';
 
 import { NextResponse } from 'next/server';
-import { getLogger } from '@/utils/logger';
+import logger from '@/utils/logger';
 import { verifyToken } from '@/utils/auth.helper';
-
-const logger = getLogger();
 
 // Matches /api/reports/[report_id]
 // HTTP methods: GET, DELETE, PUT

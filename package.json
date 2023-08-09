@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "node server.js",
+        "dev": "node server.js | pino-logflare -k -V1DFx1Cj2Oo -s 2b508cfd-3004-4937-a3b2-71d2e9b1d882",
         "build": "next build",
         "start": "NODE_ENV=production node server.js",
         "lint": "next lint",
@@ -30,6 +30,7 @@
         "next": "13.4.5",
         "next-auth": "^4.22.1",
         "pino": "^8.14.1",
+        "pino-logflare": "^0.4.0",
         "pino-pretty": "^10.0.1",
         "postcss": "8.4.24",
         "prettier": "^3.0.1",

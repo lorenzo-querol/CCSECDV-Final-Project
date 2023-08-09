@@ -21,3 +21,10 @@ export const sanitizeObject = object => {
     for (const key in object) object[key] = sanitizeHtml(object[key].trim());
     return object;
 };
+
+export const validateUpdateData = (firstName, lastName, phoneNumber) => {
+    const nameRegex = /^[\w\s\u00C0-\u017F]{2,}$/;
+    const phoneRegex = /^\s*09\d{9}\s*$/;
+
+    return nameRegex.test(firstName) && nameRegex.test(lastName) && phoneRegex.test(phoneNumber);
+};

@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { getLogger } from '@/utils/logger';
 import { getToken } from 'next-auth/jwt';
 
-const logger = getLogger();
-
 const ADMIN_ROUTES = [
     { method: ['GET'], pathname: '/api/users' },
     { method: ['GET', 'POST', 'PUT', 'DELETE'], pathname: '/api/reports' },

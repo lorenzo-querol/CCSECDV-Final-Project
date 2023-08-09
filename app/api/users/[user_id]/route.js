@@ -1,13 +1,11 @@
 import { handleDeleteUser, handleGetUser, handleUpdateUser } from '@/utils/users.helper';
 import { handleFileDelete, handleFileUpload } from '@/utils/file.helper';
-import { sanitizeObject, validateData } from '@/utils/validation.helper';
+import { sanitizeObject, validateData, validateUpdateData } from '@/utils/validation.helper';
 
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
-import { getLogger } from '@/utils/logger';
+import logger from '@/utils/logger';
 import { verifyToken } from '@/utils/auth.helper';
-
-const logger = getLogger();
 
 // Matches /api/users/[user_id]
 // HTTP methods: GET, PUT, DELETE
@@ -51,13 +49,15 @@ export async function PUT(req, { params }) {
         let updatedInfo = JSON.parse(data.get('updatedInfo'));
         updatedInfo = sanitizeObject(updatedInfo);
 
-        if (!validateData(updatedInfo.firstName, updatedInfo.lastName, updatedInfo.phoneNumber, updatedInfo.email))
+        if (
+            !validateUpdateData(updatedInfo.firstName, updatedInfo.lastName, updatedInfo.phoneNumber, updatedInfo.email)
+        )
             throw new Error(`Invalid data! Please try again`);
 
         const result = await handleGetUser(user_id);
-        const currentInfo = result[0];
+        const currentInfo = result;
 
-        if (avatar !== 'undefined' || avatar !== 'null') {
+        if (avatar !== 'undefined') {
             updatedInfo.avatar = await handleFileUpload(token.name, token.user_id, avatar, 'avatar');
             await handleFileDelete(currentInfo.avatar);
         } else {
@@ -69,6 +69,8 @@ export async function PUT(req, { params }) {
         } else {
             updatedInfo.password = currentInfo.password;
         }
+
+        updatedInfo.email = currentInfo.email;
 
         await handleUpdateUser(user_id, updatedInfo);
 

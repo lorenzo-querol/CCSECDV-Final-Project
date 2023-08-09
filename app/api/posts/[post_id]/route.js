@@ -2,11 +2,9 @@ import { handleGetPost, handlePostDelete, handleUpdatePost } from '@/utils/posts
 
 import { NextResponse } from 'next/server';
 import assert from 'assert';
-import { getLogger } from '@/utils/logger';
 import { handleFileDelete } from '@/utils/file.helper';
+import logger from '@/utils/logger';
 import { verifyToken } from '@/utils/auth.helper';
-
-const logger = getLogger();
 
 // Matches /api/posts/[post_id]
 // HTTP methods: GET, PUT, DELETE

@@ -3,13 +3,11 @@ import { handleGetUsers, handleInsertUser } from '@/utils/users.helper';
 
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
-import { getLogger } from '@/utils/logger';
 import { handleFileUpload } from '@/utils/file.helper';
+import logger from '@/utils/logger';
 import { nanoid } from 'nanoid';
 import sanitizeHtml from 'sanitize-html';
 import { verifyToken } from '@/utils/auth.helper';
-
-const logger = getLogger();
 
 // Matches /api/users
 // HTTP methods: GET (ADMIN), POST

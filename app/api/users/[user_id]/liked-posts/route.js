@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
-import { getLogger } from '@/utils/logger';
 import { handleGetLikedPosts } from '@/utils/users.helper';
+import logger from '@/utils/logger';
 import { verifyToken } from '@/utils/auth.helper';
-
-const logger = getLogger();
-
 // Matches /api/users/[user_id]/liked-posts
 // HTTP methods: GET
 

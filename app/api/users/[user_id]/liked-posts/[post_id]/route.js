@@ -1,10 +1,8 @@
 import { handleDeleteLikedPost, handleInsertLikedPost } from '@/utils/users.helper';
 
 import { NextResponse } from 'next/server';
-import { getLogger } from '@/utils/logger';
+import logger from '@/utils/logger';
 import { verifyToken } from '@/utils/auth.helper';
-
-const logger = getLogger();
 
 // Matches /api/users/[user_id]/liked-posts/[post_id]
 // HTTP methods: POST, DELETE

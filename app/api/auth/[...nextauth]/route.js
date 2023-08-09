@@ -3,10 +3,8 @@ import NextAuth from 'next-auth';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import { database } from '@/utils/database';
-import { getLogger } from '@/utils/logger';
+import logger from '@/utils/logger';
 import rateLimit from '@/utils/rate_limit';
-
-const logger = getLogger();
 
 const limiter = rateLimit({
     interval: 60 * 1000, // 60 seconds
