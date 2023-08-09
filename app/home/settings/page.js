@@ -242,8 +242,8 @@ export default function Settings() {
                                 className={styles.input_text}
                                 {...register('phoneNumber', {
                                     pattern: {
-                                        value: /^[\w\s\u00C0-\u017F]{2,}$/, // Accepts alphanumeric characters, spaces, and special characters like "Ñ", "ñ", and letters with a tilde, with a minimum length of 2
-                                        message: 'Please enter a valid name',
+                                        value: /^\s*09\d{9}\s*$/,
+                                        message: 'Please enter a valid phone number (09xxxxxxxxx)',
                                     },
                                 })}
                                 onChange={handleInputChange}
