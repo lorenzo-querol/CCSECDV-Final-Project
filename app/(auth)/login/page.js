@@ -6,6 +6,8 @@ import { signIn, useSession } from 'next-auth/react';
 
 import { FcGoogle } from 'react-icons/fc';
 import Link from 'next/link';
+import Loading from '@/app/components/Loading';
+import LoadingSmall from '@/app/components/LoadingSmall';
 import axios from 'axios';
 import sanitizeHtml from 'sanitize-html';
 import styles from '@/app/Form.module.css';
@@ -14,12 +16,14 @@ import { useRouter } from 'next/navigation';
 export default function Login() {
     const { status } = useSession();
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
     const [show, setShow] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState(false); // New state variable for login error
 
     const handleSubmit = async event => {
+        setLoading(true);
         try {
             event.preventDefault();
 
@@ -40,6 +44,8 @@ export default function Login() {
             console.log(error.message);
         }
     };
+
+    console.log(loading);
 
     useEffect(() => {
         if (status === 'authenticated') router.replace('/home');
@@ -85,7 +91,7 @@ export default function Login() {
                 {loginError && (
                     <label className="flex justify-center text-red-500">Login failed; Invalid email or password!</label>
                 )}
-                <button className={styles.button}>Sign In</button>
+                <button className={styles.button}>{loading ? <LoadingSmall /> : 'Sign In'}</button>
             </div>
 
             {/* Got to register */}
