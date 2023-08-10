@@ -50,7 +50,6 @@ export const handleGetUser = async user_id => {
                 user.status = item.status;
                 return user;
             }
-            i++;
         }
 
         user.status = 'completed';
