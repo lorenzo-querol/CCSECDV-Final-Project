@@ -21,13 +21,28 @@ export const handleInsertPost = async post => {
 export const handleUpdatePost = async (post_id, heart_count) => {
     try {
         await database.connect();
-        await database.query(
-            `
-            UPDATE posts SET heart_count = heart_count + ? WHERE post_id = ?
-            `,
-            [heart_count, post_id],
-        );
+        let post;
+
+        await database
+            .transaction()
+            .query(
+                `
+                UPDATE posts SET heart_count = heart_count + ? WHERE post_id = ?
+                `,
+                [heart_count, post_id],
+            )
+            .query('SELECT heart_count FROM posts WHERE post_id = ?', [post_id])
+            .query(result => {
+                post = result[0];
+            })
+            .rollback(error => {
+                throw new Error(error);
+            })
+            .commit();
+
         await database.end();
+
+        return post;
     } catch (error) {
         throw new Error(`handleUpdatePost - ${error.message}`);
     }
@@ -89,5 +104,16 @@ export const handleGetPost = async post_id => {
         return result;
     } catch (error) {
         throw new Error(`handleGetPost - ${error.message}`);
+    }
+};
+
+export const handleUpdateAllPosts = async (name, user_id) => {
+    try {
+        console.log(name, user_id);
+        await database.connect();
+        await database.query(`UPDATE posts SET name = ? WHERE user_id = ?`, [name, user_id]);
+        await database.end();
+    } catch (error) {
+        throw new Error(`handleUpdateAllPosts - ${error.message}`);
     }
 };

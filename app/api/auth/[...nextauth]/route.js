@@ -50,7 +50,10 @@ const authHandler = async (req, res) => {
 
                         // Check if the user exists
                         if (result.length === 0) {
-                            logger.warn(`User (email: ${credentials.email}) cannot be found`);
+                            logger.warn(
+                                { url: req.nextUrl, method: req.method, credentials: credentials },
+                                `[WARN] authHandler - User cannot be found`,
+                            );
                             return null;
                         }
 
@@ -58,12 +61,27 @@ const authHandler = async (req, res) => {
 
                         // Check if the password doesn't match
                         if (!(await bcrypt.compare(credentials.password, user.password))) {
-                            logger.warn(`User (email: ${credentials.email}) failed to login`);
+                            logger.warn(
+                                {
+                                    url: req.nextUrl,
+                                    method: req.method,
+                                    credentials: credentials,
+                                },
+                                `[WARN] authHandler - User (id: ${user.user_id}) failed to login`,
+                            );
                             return null;
                         }
 
                         logger.info(
-                            `User ${user.first_name} ${user.last_name} (id: ${user.user_id}) logged in successfully`,
+                            {
+                                url: req.nextUrl,
+                                method: req.method,
+                                info: {
+                                    user_id: user.user_id,
+                                    is_admin: user.is_admin,
+                                },
+                            },
+                            `[SUCCESS] authHandler - User (id: ${user.user_id}) logged in successfully`,
                         );
 
                         return {
@@ -110,6 +128,15 @@ const authHandler = async (req, res) => {
                         token.avatar = result[0].avatar;
                         if (result[0].is_admin) token.is_admin = result[0].is_admin;
                         if (result[0].cooldown_until) token.cooldown_until = result[0].cooldown_until;
+
+                        logger.info(
+                            {
+                                url: req.nextUrl,
+                                method: req.method,
+                                token: token,
+                            },
+                            `[SUCCESS] authHandler - User (id: ${token.user_id}) updated details, refreshing token`,
+                        );
                     }
 
                     if (user) {
@@ -139,7 +166,14 @@ const authHandler = async (req, res) => {
             },
         });
     } catch (error) {
-        logger.error(`POST /api/auth/[...nextauth] - ${error.message}`);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] ${error.message}`,
+        );
 
         return NextResponse.json({
             error: 'Something went wrong',

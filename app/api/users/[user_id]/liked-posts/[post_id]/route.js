@@ -16,7 +16,17 @@ export async function POST(req, { params }) {
 
         await handleInsertLikedPost(post_id, user_id);
 
-        logger.info(`Post (id: ${post_id}) liked by ${token.name} (id: ${token.user_id})`);
+        logger.info(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                info: {
+                    post_id: post_id,
+                    liked_by: `${token.name} (id: ${token.user_id})`,
+                },
+            },
+            `[SUCCESS] Post (id: ${post_id}) was liked by user`,
+        );
 
         return NextResponse.json({
             error: null,
@@ -25,7 +35,14 @@ export async function POST(req, { params }) {
             data: null,
         });
     } catch (error) {
-        logger.error(`POST /api/users/[user_id]/liked-posts - ${error.message}`);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] ${error.message}`,
+        );
 
         return NextResponse.json({
             error: 'Something went wrong',
@@ -45,7 +62,17 @@ export async function DELETE(req, { params }) {
 
         await handleDeleteLikedPost(post_id, user_id);
 
-        logger.info(`Post (id: ${post_id}) unliked by ${token.name} (id: ${token.user_id})`);
+        logger.info(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                info: {
+                    post_id: post_id,
+                    unliked_by: `${token.name} (id: ${token.user_id})`,
+                },
+            },
+            `[SUCCESS] Post (id: ${post_id}) was unliked by user`,
+        );
 
         return NextResponse.json({
             error: null,
@@ -54,7 +81,14 @@ export async function DELETE(req, { params }) {
             data: null,
         });
     } catch (error) {
-        logger.error(`DELETE /api/users/[user_id]/liked-posts/[post_id] - ${error.message}`);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] ${error.message}`,
+        );
 
         return NextResponse.json({
             error: 'Something went wrong',

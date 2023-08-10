@@ -25,7 +25,14 @@ export async function GET(req) {
             data: result,
         });
     } catch (error) {
-        logger.error(`GET /api/posts - ${error.message}`);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] ${error.message}`,
+        );
 
         return NextResponse.json({
             error: 'Something went wrong',
@@ -45,11 +52,8 @@ export async function POST(req) {
         const image = data.get('image');
         let postInfo = JSON.parse(data.get('postInfo'));
 
-        if (postInfo.description.length > 180) {
-            throw new Error(
-                `${token.name} (id: ${token.user_id}) tried to create a post with a description that is too long}`,
-            );
-        }
+        if (postInfo.description.length > 180)
+            throw new Error(`An attempt to create a post with a description that is too long was detected`);
 
         if (image === 'undefined' || image === 'null') postInfo.image = null;
         else postInfo.image = await handleFileUpload(token.name, token.user_id, image, 'post');
@@ -65,7 +69,17 @@ export async function POST(req) {
 
         await handleInsertPost(post);
 
-        logger.info(`Post (id: ${post.post_id}) created by ${token.name} (id: ${token.user_id})`);
+        logger.info(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                info: {
+                    post_id: post.post_id,
+                    posted_by: `${post.name} (id: ${post.user_id})`,
+                },
+            },
+            `[SUCCESS] Post (id: ${post.post_id}) was created`,
+        );
 
         return NextResponse.json({
             error: null,
@@ -74,7 +88,14 @@ export async function POST(req) {
             data: null,
         });
     } catch (error) {
-        logger.error(`POST /api/posts - ${error.message}`);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] ${error.message}`,
+        );
 
         return NextResponse.json({
             error: 'Something went wrong',

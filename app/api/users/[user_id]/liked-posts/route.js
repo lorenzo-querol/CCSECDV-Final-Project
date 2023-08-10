@@ -21,7 +21,14 @@ export async function GET(req, { params }) {
             data: result,
         });
     } catch (error) {
-        logger.error(`GET /api/users/[user_id]/liked-posts - ${error.message}`);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] ${error.message}`,
+        );
 
         return NextResponse.json({
             error: 'Something went wrong',

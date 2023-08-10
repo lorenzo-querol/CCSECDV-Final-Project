@@ -4,6 +4,7 @@ import { sanitizeObject, validateData, validateUpdateData } from '@/utils/valida
 
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
+import { handleUpdateAllPosts } from '@/utils/posts.helper';
 import logger from '@/utils/logger';
 import { verifyToken } from '@/utils/auth.helper';
 
@@ -26,7 +27,14 @@ export async function GET(req, { params }) {
             data: result,
         });
     } catch (error) {
-        logger.error(error.message);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] ${error.message}`,
+        );
 
         return NextResponse.json({
             error: 'Something went wrong',
@@ -73,8 +81,18 @@ export async function PUT(req, { params }) {
         updatedInfo.email = currentInfo.email;
 
         await handleUpdateUser(user_id, updatedInfo);
+        await handleUpdateAllPosts(`${updatedInfo.firstName} ${updatedInfo.lastName}`, user_id);
 
-        logger.info(`User (id: ${user_id}) updated  by ${token.name} (id: ${token.user_id})`);
+        logger.info(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                info: {
+                    user: updatedInfo,
+                },
+            },
+            `[SUCCESS] User (id: ${user_id}) updated details`,
+        );
 
         return NextResponse.json({
             error: null,
@@ -83,7 +101,14 @@ export async function PUT(req, { params }) {
             data: null,
         });
     } catch (error) {
-        logger.error(`PUT /api/users/[user_id] - ${error.message}`);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] ${error.message}`,
+        );
 
         return NextResponse.json({
             error: 'Something went wrong',
@@ -98,12 +123,22 @@ export async function DELETE(req, { params }) {
     try {
         const { user_id } = params;
 
-        const { verified, response } = await verifyToken(req, user_id);
+        const { token, verified, response } = await verifyToken(req, user_id);
         if (!verified) return response;
 
         await handleDeleteUser(user_id);
 
-        logger.info(`User (id: ${user_id}) deleted`);
+        logger.info(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                info: {
+                    user_id: user_id,
+                    deleted_by: token.user_id,
+                },
+            },
+            `[SUCCESS] User (id: ${user_id}) deleted`,
+        );
 
         return NextResponse.json({
             error: null,
@@ -112,7 +147,14 @@ export async function DELETE(req, { params }) {
             data: null,
         });
     } catch (error) {
-        logger.error(`DELETE /api/users/[user_id] - ${error.message}`);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] ${error.message}`,
+        );
 
         return NextResponse.json({
             error: 'Something went wrong',

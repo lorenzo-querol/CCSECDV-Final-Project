@@ -3,6 +3,7 @@
 import { AiFillHome, AiFillMessage, AiOutlineLogout } from 'react-icons/ai';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getSession, signOut, useSession } from 'next-auth/react';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { BsFillGearFill } from 'react-icons/bs';
 import { FaListAlt } from 'react-icons/fa';
@@ -11,7 +12,6 @@ import Link from 'next/link';
 import { MdReport } from 'react-icons/md';
 import control from '@/public/control.png';
 import sidebar from '../layout';
-import { useRouter, usePathname } from 'next/navigation';
 
 const Menus = [
     {
@@ -24,7 +24,7 @@ const Menus = [
         icon: <MdReport />,
         path: '/admin/list-reports',
     },
-    { title: 'Settings', icon: <BsFillGearFill />, path: '/admin/profile' },
+    { title: 'Settings', icon: <BsFillGearFill />, path: '/admin/settings' },
 ];
 
 export default function Sidebar({ children }) {

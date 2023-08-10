@@ -27,7 +27,18 @@ export async function POST(req) {
 
         await handleInsertReport(report);
 
-        logger.info(`Report (id: ${report.report_id}) created by ${token.name} (id: ${token.user_id})`);
+        logger.info(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                info: {
+                    report_id: report.report_id,
+                    created_by: `${token.name} (id: ${token.id})`,
+                    report: report,
+                },
+            },
+            `[SUCCESS] Report (id: ${report.report_id}) was created`,
+        );
 
         return NextResponse.json({
             error: null,
@@ -36,7 +47,14 @@ export async function POST(req) {
             data: null,
         });
     } catch (error) {
-        logger.error(`POST /api/reports - ${error.message}`);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] POST /api/reports - ${error.message}`,
+        );
 
         return NextResponse.json({
             error: 'Something went wrong',
@@ -67,7 +85,14 @@ export async function GET(req) {
             data: data,
         });
     } catch (error) {
-        logger.error(`GET /api/reports - ${error.message}`);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] GET /api/reports - ${error.message}`,
+        );
 
         return NextResponse.json({
             error: 'Something went wrong',

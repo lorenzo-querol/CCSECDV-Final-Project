@@ -41,7 +41,14 @@ export async function POST(req) {
 
         await handleInsertUser(user);
 
-        logger.info(`User (id: ${user.user_id}) created`);
+        logger.info(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                user: user,
+            },
+            `[SUCCESS] User (id: ${user.user_id}) created`,
+        );
 
         return NextResponse.json({
             error: null,
@@ -50,7 +57,14 @@ export async function POST(req) {
             data: null,
         });
     } catch (error) {
-        logger.error(`POST /api/users - ${error.message}`);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] ${error.message}`,
+        );
 
         if (error.message.includes('ER_DUP_ENTRY')) {
             return NextResponse.json({
@@ -99,7 +113,14 @@ export async function GET(req) {
             data: data,
         });
     } catch (error) {
-        logger.error(error.message);
+        logger.error(
+            {
+                url: req.nextUrl,
+                method: req.method,
+                error: error.stack,
+            },
+            `[ERROR] ${error.message}]`,
+        );
 
         return NextResponse.json({
             error: 'Something went wrong',
