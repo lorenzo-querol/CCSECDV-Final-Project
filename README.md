@@ -37,3 +37,12 @@ yarn dev
 ```
 https://localhost:3000
 ```
+
+# User Data
+
+The table below shows the details of the sample users.
+Role | Email | Password |
+:----------: | :----------: | :------------: |
+Admin | admin@gmail.com | ADMINadmin.123 |
+User | spongebob@gmail.com | Spon8eB!ob2019 |
+User | patrickstar@gmail.com | Starf1shP@tr!ck
