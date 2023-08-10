@@ -91,7 +91,27 @@ const authHandler = async (req, res) => {
             },
 
             callbacks: {
-                async jwt({ token, user }) {
+                async jwt({ token, user, trigger }) {
+                    // This triggers when user updates details in the settings so it updates the token
+                    if (trigger === 'update') {
+                        await database.connect();
+                        const result = await database.query(
+                            `
+                                SELECT *
+                                FROM users WHERE user_id = ?
+                            `,
+                            [token.user_id],
+                        );
+                        await database.end();
+
+                        token.user_id = result[0].user_id;
+                        token.email = result[0].email;
+                        token.name = `${result[0].first_name} ${result[0].last_name}`;
+                        token.avatar = result[0].avatar;
+                        if (result[0].is_admin) token.is_admin = result[0].is_admin;
+                        if (result[0].cooldown_until) token.cooldown_until = result[0].cooldown_until;
+                    }
+
                     if (user) {
                         token.user_id = user.user_id;
                         token.email = user.email;

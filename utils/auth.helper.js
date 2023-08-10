@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getLogger } from '@/utils/logger';
 import { getToken } from 'next-auth/jwt';
+import logger from '@/utils/logger';
 
 const ADMIN_ROUTES = [
     { method: ['GET'], pathname: '/api/users' },

@@ -2,6 +2,7 @@
 
 import { HiAtSymbol, HiFingerPrint, HiOutlinePhone, HiOutlineUser } from 'react-icons/hi';
 import React, { useEffect, useRef, useState } from 'react';
+import { signOut, useSession } from 'next-auth/react';
 
 import { AiOutlineClose } from 'react-icons/ai';
 import { BsFillExclamationTriangleFill } from 'react-icons/bs';
@@ -9,10 +10,9 @@ import Image from 'next/image';
 import sanitizeHtml from 'sanitize-html';
 import styles from '@/app/Form.module.css';
 import { useForm } from 'react-hook-form';
-import { useSession } from 'next-auth/react';
 
 export default function Settings() {
-    const { data: session, status } = useSession();
+    const { data: session, update, status } = useSession();
 
     const [show, setShow] = useState({
         password: false,
@@ -99,8 +99,11 @@ export default function Settings() {
                 method: 'PUT',
                 body: formData,
             });
-            const { data, ok, error } = await res.json();
+            const { ok, error } = await res.json();
             if (!ok) throw new Error(error);
+
+            await fetchUser();
+            await update();
         } catch (error) {
             console.log(error.message);
         }
@@ -115,9 +118,13 @@ export default function Settings() {
     };
 
     // Account deactivation
-    const handleDeactivateAccount = () => {
-        // TODO To delete the account, method DELETE and url is /api/users/[user_id]
+    const handleDeactivateAccount = async () => {
         try {
+            await fetch(`/api/users/${session.user.user_id}`, {
+                method: 'DELETE',
+            });
+            signOut();
+
             setDeactivateModal(false);
         } catch (error) {
             console.error(error.message);
@@ -272,8 +279,9 @@ export default function Settings() {
                                 type="email"
                                 name="email"
                                 placeholder={user.email}
-                                className={`${styles.input_text} ${user.email ? styles.read_only_input : ''} ${isEmailFocused ? styles.light_gray_text : ''
-                                    }`}
+                                className={`${styles.input_text} ${user.email ? styles.read_only_input : ''} ${
+                                    isEmailFocused ? styles.light_gray_text : ''
+                                }`}
                                 readOnly
                                 onFocus={() => setEmailFocused(true)}
                                 onBlur={() => {
@@ -292,7 +300,10 @@ export default function Settings() {
                             </p>
                         )}
                         {isEmailFocused && (
-                            <p role="alert" className={styles.error_text}> Email cannot be changed after registration.</p>
+                            <p role="alert" className={styles.error_text}>
+                                {' '}
+                                Email cannot be changed after registration.
+                            </p>
                         )}
                     </div>
                     {/* Password */}
@@ -400,8 +411,9 @@ export default function Settings() {
                             {/* Save button */}
                             <button
                                 id="save-changes"
-                                className={`w-full px-5 py-3 mt-8 text-white ${hasChanged ? 'bg-green-500' : 'bg-gray-400'
-                                    } rounded hover:bg-green-500`}
+                                className={`w-full px-5 py-3 mt-8 text-white ${
+                                    hasChanged ? 'bg-green-500' : 'bg-gray-400'
+                                } rounded hover:bg-green-500`}
                                 onClick={handleSubmit(onSubmit)}
                             >
                                 Save Changes
@@ -539,9 +551,8 @@ export default function Settings() {
                             {/* <!--  Bottom --> */}
                             <div className="flex flex-row-reverse justify-between p-2 sm:px-6 sm:flex sm:flex-row-reverse">
                                 <button
-                                    id="save-confirm"
                                     className="px-5 py-3 mt-8 text-white bg-green-600 rounded hover:bg-green-500"
-                                    type="submit"
+                                    onClick={() => handleDeactivateAccount()}
                                 >
                                     Confirm
                                 </button>

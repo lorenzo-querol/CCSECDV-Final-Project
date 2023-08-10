@@ -26,7 +26,7 @@ export const handleGetUser = async user_id => {
             .transaction()
             .query(
                 `
-                SELECT email, first_name, last_name, password, phone_num, avatar
+                SELECT email, first_name, last_name, password, phone_num, avatar, cooldown_until
                 FROM users WHERE user_id = ?
                 `,
                 [user_id],

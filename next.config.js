@@ -10,7 +10,12 @@ const nextConfig = {
         ];
     },
     images: {
-        domains: ['cssecdv-final-project.s3-ap-southeast-1.amazonaws.com'],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: '*.s3-ap-southeast-1.amazonaws.com',
+            },
+        ],
     },
     webpack: (config, { webpack, isServer, nextRuntime }) => {
         if (isServer && nextRuntime === 'nodejs')
