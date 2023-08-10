@@ -46,3 +46,13 @@ Role | Email | Password |
 Admin | admin@gmail.com | ADMINadmin.123 |
 User | spongebob@gmail.com | Spon8eB!ob2019 |
 User | patrickstar@gmail.com | Starf1shP@tr!ck
+
+
+# Logs
+
+You can access the logs on this link.
+
+```
+https://logflare.app/sources/public/0-Za2uB4GcmNTOJ5
+```
+```
