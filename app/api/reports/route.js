@@ -13,6 +13,8 @@ export async function POST(req) {
         const { token, verified, response } = await verifyToken(req);
         if (!verified) return response;
 
+        const { user_id, post_id, name, description, status } = await req.json();
+
         const report = {
             report_id: nanoid(),
             user_id: user_id,

@@ -4,7 +4,7 @@ import logger from '@/utils/logger';
 
 const ADMIN_ROUTES = [
     { method: ['GET'], pathname: '/api/users' },
-    { method: ['GET', 'POST', 'PUT', 'DELETE'], pathname: '/api/reports' },
+    { method: ['GET', 'PUT', 'DELETE'], pathname: '/api/reports' },
 ];
 
 const checkTokenExists = token => {
