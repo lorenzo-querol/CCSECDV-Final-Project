@@ -1,8 +1,6 @@
-import { AiFillCloseCircle, AiOutlineClose } from 'react-icons/ai';
-
+import { AiFillCloseCircle } from 'react-icons/ai';
 import { BiImage } from 'react-icons/bi';
 import Image from 'next/image';
-import { useState } from 'react';
 
 const MAX_LENGTH = 180;
 

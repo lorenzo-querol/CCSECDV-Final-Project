@@ -1,7 +1,10 @@
 'use client';
 
+import 'react-toastify/dist/ReactToastify.css';
+
 import { HiAtSymbol, HiFingerPrint } from 'react-icons/hi';
 import React, { useEffect, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 import { signIn, useSession } from 'next-auth/react';
 
 import Link from 'next/link';

@@ -1,7 +1,11 @@
 'use client';
 
+import 'react-toastify/dist/ReactToastify.css';
+
+import { ACCEPTABLE_FILE_TYPES, TOAST_PROPS } from '@/constants';
 import { HiAtSymbol, HiFingerPrint, HiOutlinePhone, HiOutlineUser } from 'react-icons/hi';
 import React, { useEffect, useRef, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 
 import Link from 'next/link';
 import axios from 'axios';
@@ -10,7 +14,6 @@ import styles from '@/app/Form.module.css';
 import { useForm } from 'react-hook-form';
 
 // Icons
-
 export default function Register() {
     const [show, setShow] = useState({
         password: false,
@@ -25,41 +28,40 @@ export default function Register() {
     const [errorMessage, setErrorMessage] = useState(false); // State to store the error message
     const [isRegister, setIsRegister] = useState(false); // State to store the isRegister message
 
-    const onSubmit = async data => {
-        const formData = new FormData();
-
-        const cleanedData = {
-            ...data,
-            firstName: sanitizeHtml(data.firstName.trim()),
-            lastName: sanitizeHtml(data.lastName.trim()),
-            phoneNumber: sanitizeHtml(data.phoneNumber.trim()),
-            email: sanitizeHtml(data.email.trim()),
-        };
-        delete cleanedData.confirmPassword;
-
-        formData.append('avatar', data.avatar[0]);
-        formData.append('userInfo', JSON.stringify(cleanedData));
-
+    const onSubmit = async info => {
         try {
-            const { data } = await axios.post('/api/users', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            if (!data.ok) throw new Error(data.message);
+            // Check if the file type is acceptable
+            if (!ACCEPTABLE_FILE_TYPES.includes(info.avatar[0].type)) throw new Error('INVALID_FILE_TYPE');
 
-            setErrorMessage(''); // Reset error message
-            setIsRegister(true); // Show success message
+            const formData = new FormData();
+
+            const cleanedData = {
+                ...info,
+                firstName: sanitizeHtml(info.firstName.trim()),
+                lastName: sanitizeHtml(info.lastName.trim()),
+                phoneNumber: sanitizeHtml(info.phoneNumber.trim()),
+                email: sanitizeHtml(info.email.trim()),
+            };
+            delete cleanedData.confirmPassword;
+
+            formData.append('avatar', info.avatar[0]);
+            formData.append('userInfo', JSON.stringify(cleanedData));
+
+            const res = await fetch('/api/users', {
+                method: 'POST',
+                body: formData,
+            });
+            const { data, ok, error } = await res.json();
+            if (!ok) throw new Error(error);
+
+            toast.success('Your account has been created successfully!', TOAST_PROPS);
         } catch (error) {
-            setIsRegister(false); // Hide success message
-            // Error message
-            if (error.message != null) {
-                // If the error response contains the "error" property
-                setErrorMessage(error.message);
-            } else {
-                // Default error message
-                setErrorMessage('An error occurred during registration.');
+            if (error.message === 'INVALID_FILE_TYPE') {
+                toast.error('Invalid file type! Please upload a valid image file!', TOAST_PROPS);
+                return;
             }
+
+            toast.error(error.message, TOAST_PROPS);
         }
     };
 
@@ -334,6 +336,18 @@ export default function Register() {
                     </span>
                 </p>
             </form>
+            <ToastContainer
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable={false}
+                pauseOnHover
+                theme="colored"
+            />
         </div>
     );
 }

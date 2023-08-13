@@ -1,9 +1,13 @@
 'use client';
 
+import 'react-toastify/dist/ReactToastify.css';
+
 import { HiAtSymbol, HiFingerPrint, HiOutlinePhone, HiOutlineUser } from 'react-icons/hi';
 import React, { useEffect, useRef, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 import { signOut, useSession } from 'next-auth/react';
 
+import { ACCEPTABLE_FILE_TYPES } from '@/constants';
 import { AiOutlineClose } from 'react-icons/ai';
 import { BsFillExclamationTriangleFill } from 'react-icons/bs';
 import Image from 'next/image';
@@ -50,7 +54,7 @@ export default function Settings() {
             setValue('lastName', user.last_name);
             setValue('phoneNumber', user.phone_num);
         } catch (error) {
-            console.log(error.message);
+            toast.error(error.message);
         }
     };
 
@@ -65,6 +69,7 @@ export default function Settings() {
                 break;
             }
         }
+
         if (e.target.name === 'password') {
             if (e.target.value !== formValues.confirmPassword) {
                 isFormChanged = true;
@@ -82,19 +87,23 @@ export default function Settings() {
     };
 
     const onSubmit = async data => {
-        const formData = new FormData();
-
-        const cleanedData = {
-            firstName: sanitizeHtml(data.firstName.trim()),
-            password: sanitizeHtml(data.password.length !== 0 ? data.password.trim() : user.password),
-            lastName: sanitizeHtml(data.lastName.trim()),
-            phoneNumber: sanitizeHtml(data.phoneNumber.trim()),
-        };
-
-        formData.append('avatar', data.avatar[0]);
-        formData.append('updatedInfo', JSON.stringify(cleanedData));
-
         try {
+            const file = data.avatar[0];
+            if (!ACCEPTABLE_FILE_TYPES.includes(file.type)) throw new Error('File must be an image!');
+            if (file.size > 5 * 1024 * 1024) throw new Error('File size must be below 5MB!');
+
+            const formData = new FormData();
+
+            const cleanedData = {
+                firstName: sanitizeHtml(data.firstName.trim()),
+                password: sanitizeHtml(data.password.length !== 0 ? data.password.trim() : user.password),
+                lastName: sanitizeHtml(data.lastName.trim()),
+                phoneNumber: sanitizeHtml(data.phoneNumber.trim()),
+            };
+
+            formData.append('avatar', data.avatar[0]);
+            formData.append('updatedInfo', JSON.stringify(cleanedData));
+
             const res = await fetch(`/api/users/${session.user.user_id}`, {
                 method: 'PUT',
                 body: formData,
@@ -105,16 +114,8 @@ export default function Settings() {
             await fetchUser();
             await update();
         } catch (error) {
-            console.log(error.message);
+            toast.error(error.message);
         }
-    };
-
-    const watchPassword = watch('password');
-    const validatePasswordMatch = value => {
-        if (value === watchPassword) {
-            return true;
-        }
-        return 'Password do not match';
     };
 
     // Account deactivation
@@ -131,14 +132,6 @@ export default function Settings() {
         }
     };
 
-    const handleSaveButtonClick = () => {
-        setShowSaveConfirmation(true);
-    };
-
-    const handleSaveConfirmation = () => {
-        setShowSaveConfirmation(false);
-    };
-
     useEffect(() => {
         if (session) fetchUser();
     }, [session]);
@@ -149,16 +142,18 @@ export default function Settings() {
         <>
             <div className="flex items-center justify-center h-full ">
                 <form className="relative z-10 mx-auto w-full max-w-[625px] space-y-3 rounded-md bg-white p-8 text-slate-900">
-                    <div className="flex justify-center just">
-                        <Image
-                            className="overflow-hidden rounded-full"
-                            src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${user.avatar}`}
-                            alt=""
-                            width={95}
-                            height={95}
-                            id="profile"
-                        />
-                    </div>
+                    {user && (
+                        <div className="flex justify-center just">
+                            <Image
+                                className="overflow-hidden rounded-full"
+                                src={`${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${user.avatar}`}
+                                alt=""
+                                width={95}
+                                height={95}
+                                id="profile"
+                            />
+                        </div>
+                    )}
 
                     {/* Full Name */}
                     <div className="w-full my-2 text-center">
@@ -421,54 +416,21 @@ export default function Settings() {
                         </div>
                     </div>
                 </form>
+                <ToastContainer
+                    position="top-center"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable={false}
+                    pauseOnHover
+                    theme="colored"
+                />
             </div>
 
             {/* Modals */}
-            {/* Save Changes */}
-            {/* {showSaveConfirmation && (
-				<div className="fixed inset-0 z-10 flex items-center justify-center overflow-y-auto">
-					<div className="absolute inset-0 bg-gray-800 opacity-80"></div>
-					<div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:align-middle sm:max-w-lg sm:w-full">
-						<div className="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
-							<h3
-								className="text-lg font-medium leading-6 text-gray-900"
-								id="modal-title"
-							>
-								Confirm Changes
-							</h3>
-							<div className="mt-2">
-								<p className="text-sm text-gray-500">
-									Kindly confirm the changes by inputting your current password.
-								</p>
-								<input
-									type="password"
-									name="confirmPassword"
-									placeholder="Password"
-									className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md"
-									//value={confirmPassword}
-									onChange={(e) => setConfirmPassword(e.target.value)}
-								/>
-							</div>
-						</div>
-						<div className="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
-							<button
-								type="button"
-								className="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
-								onClick={handleSaveConfirmation}
-							>
-								Confirm
-							</button>
-							<button
-								type="button"
-								className="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
-								onClick={() => setShowSaveConfirmation(false)} // Close the confirmation pop-up
-							>
-								Cancel
-							</button>
-						</div>
-					</div>
-				</div>
-			)} */}
 
             {/* Deactivate Account */}
             {showDeactivateModal && (

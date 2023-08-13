@@ -1,7 +1,10 @@
 'use client';
 
-import { ACCEPTABLE_FILE_TYPES, MAX_LENGTH } from '@/constants';
+import 'react-toastify/dist/ReactToastify.css';
+
+import { ACCEPTABLE_FILE_TYPES, MAX_LENGTH, TOAST_PROPS } from '@/constants';
 import React, { useEffect, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 
 import CreatePostForm from '@/app/components/CreatePostForm';
 import Loading from '@/app/components/Loading';
@@ -33,28 +36,33 @@ export default function Home() {
     const fetchPosts = async () => {
         try {
             const res = await fetch(`/api/posts`);
-            const { data } = await res.json();
+            const { data, error } = await res.json();
+            if (error) throw new Error(error);
+
             setPosts(data);
         } catch (error) {
-            console.log(error.message);
+            toast.error(error.message);
         }
     };
 
     const isCurrentlyCooldown = async () => {
         try {
             const res = await fetch(`/api/users/${session.user.user_id}`);
-            const { data } = await res.json();
+            const { data, error } = await res.json();
+            if (error) throw new Error(error);
             if (data.status == 'approved') setCooldown(true);
             else setCooldown(false);
         } catch (error) {
-            console.log(error.message);
+            toast.error(error.message, TOAST_PROPS);
         }
     };
 
     const getLikedPosts = async () => {
         try {
             const res = await fetch(`/api/users/${session.user.user_id}/liked-posts`);
-            const { data } = await res.json();
+            const { data, error } = await res.json();
+            if (error) throw new Error(error);
+
             if (!data) {
                 setLikedPosts(new Set());
                 return;
@@ -63,7 +71,7 @@ export default function Home() {
             const likedPosts = new Set(data.map(post => post.post_id));
             setLikedPosts(likedPosts);
         } catch (error) {
-            console.log(error.message);
+            toast.error(error.message, TOAST_PROPS);
         }
     };
 
@@ -81,18 +89,22 @@ export default function Home() {
     };
 
     const handleImageChange = event => {
-        const file = event.target.files[0];
-        if (!file) return;
+        try {
+            const file = event.target.files[0];
+            if (!file) return;
 
-        if (!ACCEPTABLE_FILE_TYPES.includes(file.type)) {
-            setImageError('Invalid File Type');
-            setImage(null);
-            setHandleButton(true);
-            return;
+            if (!ACCEPTABLE_FILE_TYPES.includes(file.type)) throw new Error('INVALID_FILE_TYPE');
+
+            setImage(file);
+            setImagePreview(URL.createObjectURL(file));
+        } catch (error) {
+            if (error.message === 'INVALID_FILE_TYPE') {
+                toast.error('Invalid file type! Please upload a valid image file!', TOAST_PROPS);
+                return;
+            }
+
+            toast.error(error.message, TOAST_PROPS);
         }
-
-        setImage(file);
-        setImagePreview(URL.createObjectURL(file));
     };
 
     const handleRemoveImage = event => {
@@ -107,7 +119,7 @@ export default function Home() {
 
         try {
             //Check if submissiion is valid
-            if (description.length === 0 || description.length > MAX_LENGTH) throw new Error('Invalid submission.');
+            if (description.length === 0 || description.length > MAX_LENGTH) throw new Error('EMPTY_SUBMISSION');
 
             const formData = new FormData();
             formData.append('image', image);
@@ -126,8 +138,8 @@ export default function Home() {
                 body: formData,
             });
 
-            const { ok } = await res.json();
-            if (!ok) throw new Error('Error creating post');
+            const { ok, error } = await res.json();
+            if (!ok) throw new Error(error);
 
             // Reset state of submission box
             event.target.reset();
@@ -137,8 +149,13 @@ export default function Home() {
 
             await fetchPosts();
             await getLikedPosts();
+            toast.success('Post created!', TOAST_PROPS);
         } catch (error) {
-            console.log(error.message);
+            if (error.message === 'EMPTY_SUBMISSION') {
+                toast.error('Please enter a valid submission!', TOAST_PROPS);
+                return;
+            }
+            toast.error(error.message, TOAST_PROPS);
         }
     };
 
@@ -165,12 +182,12 @@ export default function Home() {
             const [post, user] = await Promise.all([postPromise, userPromise]);
             const { ok: postOk } = await post.json();
             const { ok: userOk } = await user.json();
-            if (!postOk && !userOk) throw new Error('Error liking post');
+            if (!postOk && !userOk) throw new Error('Error liking post!');
 
             await fetchPosts();
             await getLikedPosts();
         } catch (error) {
-            console.log(error.message);
+            toast.error(error.message, TOAST_PROPS);
         }
     };
 
@@ -179,12 +196,12 @@ export default function Home() {
             const res = await fetch(`/api/posts/${postId}`, {
                 method: 'DELETE',
             });
-            const { ok } = await res.json();
-            if (!ok) throw new Error('Error deleting post.');
+            const { ok, error } = await res.json();
+            if (!ok) throw new Error(error);
 
             await fetchPosts();
         } catch (error) {
-            console.log(error.message);
+            toast.error(error.message, TOAST_PROPS);
         }
     };
 
@@ -221,13 +238,13 @@ export default function Home() {
                 method: 'POST',
                 body: JSON.stringify(report),
             });
-            const { ok } = await res.json();
-            if (!ok) throw new Error('Error reporting post.');
+            const { ok, error } = await res.json();
+            if (!ok) throw new Error(error);
 
             setShowReportModal(false);
             setReportReason('');
         } catch (error) {
-            console.log(error.message);
+            toast.error(error.message, TOAST_PROPS);
         }
     };
 
@@ -297,6 +314,18 @@ export default function Home() {
                     handleSubmitReport={handleSubmitReport}
                 />
             )}
+            <ToastContainer
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable={false}
+                pauseOnHover
+                theme="colored"
+            />
         </>
     );
 }
