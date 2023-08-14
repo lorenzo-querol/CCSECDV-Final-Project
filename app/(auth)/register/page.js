@@ -4,11 +4,10 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { ACCEPTABLE_FILE_TYPES, TOAST_PROPS } from '@/constants';
 import { HiAtSymbol, HiFingerPrint, HiOutlinePhone, HiOutlineUser } from 'react-icons/hi';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 
 import Link from 'next/link';
-import axios from 'axios';
 import sanitizeHtml from 'sanitize-html';
 import styles from '@/app/Form.module.css';
 import { useForm } from 'react-hook-form';
@@ -32,6 +31,7 @@ export default function Register() {
         try {
             // Check if the file type is acceptable
             if (!ACCEPTABLE_FILE_TYPES.includes(info.avatar[0].type)) throw new Error('INVALID_FILE_TYPE');
+            if (info.avatar[0].size > 5 * 1024 * 1024) throw new Error('File size must be below 5MB!');
 
             const formData = new FormData();
 

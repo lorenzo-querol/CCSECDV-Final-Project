@@ -128,7 +128,7 @@ export default function Settings() {
 
             setDeactivateModal(false);
         } catch (error) {
-            console.error(error.message);
+            toast.error(error.message);
         }
     };
 
